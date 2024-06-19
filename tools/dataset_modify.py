@@ -20,11 +20,6 @@ Revision History:
 """
 
 import json
-import os
-
-import numpy as np
-from PIL import Image
-from pycocotools.coco import COCO
 
 datasets = ["pups"]
 

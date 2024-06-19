@@ -19,9 +19,7 @@ Revision History:
     - [2024/5/13] wux024: Initial file creation
 """
 
-import os
 
-import numpy as np
 from PIL import Image
 from pycocotools.coco import COCO
 
