@@ -23,27 +23,29 @@ Revision History:
 from ultralytics import YOLO
 import argparse
 
-
-
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str, default='ap10k', help='dataset name')
+    parser = argparse.ArgumentParser(description="Validate YOLOv8 pose estimation models on a specified dataset.")
+    parser.add_argument('--dataset', type=str, default='ap10k', help='Name of the dataset.')
+    return parser.parse_args()  # Return the parsed arguments
 
 if __name__ == '__main__':
-    # initialize YOLO model
-    args = parse_args()
-
-    # set dataset name
-    dataset = args.dataset
+    args = parse_args()  # Actually parse the arguments
 
     model_list = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
-    for model_name in model_list:
-        model_name = dataset + '-' + model_name
-        model_dir = './runs/pose/train/' + dataset + '/' + model_name + '/weights/best.pt'
-        dataset_dir = './configs/data/' + dataset + '.yaml'
+    
+    for model_base_name in model_list:
+        model_name = f"{args.dataset}-{model_base_name}"
+        model_dir = f'./runs/pose/train/{args.dataset}/{model_name}/weights/best.pt'
+        dataset_dir = f'./configs/data/{args.dataset}.yaml'
 
-        model = YOLO(model_dir)
-
-        metrics = model.val(dataset_dir)
-
-        print(model_name + ' Results:', metrics.pose.map50, metrics.pose.map75, metrics.pose.map)
+        try:
+            model = YOLO(model_dir)
+            metrics = model.val(dataset_dir)
+            
+            # Ensure these attributes exist in the returned metrics object before accessing
+            if hasattr(metrics.pose, 'map50') and hasattr(metrics.pose, 'map75') and hasattr(metrics.pose, 'map'):
+                print(f"{model_name} Results: MAP@0.50={metrics.pose.map50}, MAP@0.75={metrics.pose.map75}, MAP={metrics.pose.map}")
+            else:
+                print(f"Warning: Some expected metrics were not found for {model_name}.")
+        except Exception as e:
+            print(f"An error occurred while validating {model_name}: {e}")
