@@ -21,3 +21,8 @@ names:
   8: ElaphodusCephalophus
   9: CapricornisMilneedwardsii
   10: PseudoisNayaur
+
+oks_sigmas: [
+        0.025, 0.025, 0.026, 0.035, 0.035, 0.079, 0.072, 0.062, 0.079, 0.072,
+        0.062, 0.107, 0.087, 0.089, 0.107, 0.087, 0.089
+    ]
