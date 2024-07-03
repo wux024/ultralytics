@@ -41,7 +41,7 @@ if __name__ == '__main__':
         try:
             print(f"Validating {model_dir}...")
             model = YOLO(model_dir)
-            metrics = model.val(dataset_dir)
+            metrics = model.val(data=dataset_dir)
             
             # Ensure these attributes exist in the returned metrics object before accessing
             if hasattr(metrics.pose, 'map50') and hasattr(metrics.pose, 'map75') and hasattr(metrics.pose, 'map'):
