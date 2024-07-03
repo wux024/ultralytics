@@ -39,6 +39,7 @@ if __name__ == '__main__':
         dataset_dir = f'./configs/data/{args.dataset}.yaml'
 
         try:
+            print(f"Validating {model_dir}...")
             model = YOLO(model_dir)
             metrics = model.val(dataset_dir)
             
