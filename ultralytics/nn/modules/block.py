@@ -46,6 +46,10 @@ __all__ = (
     "Attention",
     "PSA",
     "SCDown",
+    "STEM",
+    "ChannelAttention"
+    "CSPNeXtBlock",
+    "CSPNeXtBlocks",
 )
 
 
@@ -957,3 +961,120 @@ class SCDown(nn.Module):
             (torch.Tensor): Output tensor after applying the SCDown module.
         """
         return self.cv2(self.cv1(x))
+
+class STEM(nn.Module):
+    """
+    Spatial-Channel Excitation module.
+
+    Args:
+        c1 (int): Number of input channels.
+        c2 (int): Number of output channels.
+        use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
+    """
+    def __init__(self, c1, c2):
+        """Initializes the STEM module with specified parameters."""
+        super().__init__()
+        self.stem = nn.Sequential(
+            Conv(c1, c2 // 2 , 3, 2, 1),
+            Conv(c2 // 2, c2 // 2, 3, 1, 1),
+            Conv(c2 // 2, c2, 3, 1, 1)
+        )
+    def forward(self, x):
+        print(x.shape)
+        out = self.stem(x)
+        print(out.shape)
+        return out
+
+class ChannelAttention(nn.Module):
+    """
+    Channel attention module.
+
+    Args:
+        c (int): Number of input and output channels.
+    """
+    def __init__(self, c):
+        super().__init__()
+        self.global_avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Conv2d(c, c, 1, 1, 0, bias=False)
+        self.act = nn.Hardsigmoid(inplace=True)
+
+    def forward(self, x):
+        with torch.cuda.amp.autocast(enabled=False):
+            out = self.global_avgpool(x)
+        out = self.fc(out)
+        out = self.act(out)
+        return x * out 
+    
+class CSPNeXtBlock(nn.Module):
+    """
+    CSPNeXt block.
+
+    Args:
+        c1 (int): Number of input channels.
+        c2 (int): Number of output channels.
+        e (float): Expansion factor for the intermediate channels.) defaults to 1.0.
+        add_identity (bool, optional): Whether to add an identity connection. Defaults to True.
+        use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
+        kernel_size (int, optional): Kernel size for the convolutional layer. Defaults to 5.
+    """
+    
+    def __init__(self, c1, c2, e=0.5, add_identity=True, use_depthwise=False, kernel_size=5):
+        """Initializes the CSPNeXt block with specified parameters."""
+        super().__init__()
+        self.use_depthwise = use_depthwise
+        conv = DWConv if use_depthwise else Conv
+        h = int(c2 * e)
+        self.cv1 = conv(c1, h, 3, 1, 1)
+        self.cv2 = DWConv(h, c2, kernel_size, 1, kernel_size // 2)
+        self.add_identity = add_identity and c1 == c2
+
+    def forward(self, x):
+        return x + self.cv2(self.cv1(x)) if self.add_identity else self.cv2(self.cv1(x))
+
+class CSPNeXtBlocks(nn.Module):
+    """
+    CSPNeXt block.
+
+    Args:
+        c1 (int): Number of input channels.
+        c2 (int): Number of output channels.
+        n (int): Number of CSPNeXt blocks to stack.
+        add_identity (bool, optional): Whether to add an identity connection. Defaults to True.
+        use_spp (bool, optional): Whether to use Spatial Pyramid Pooling. Defaults to False.
+        use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
+    """
+    
+    def __init__(self, c1, c2, n, add_identity=True, use_spp=False, use_depthwise=False, e=0.5):
+        """Initializes the CSPNeXt block with specified parameters."""
+        super().__init__()
+        self.add_identity = add_identity
+        self.use_spp = use_spp
+        self.use_depthwise = use_depthwise
+        conv = DWConv if use_depthwise else Conv
+        self.conv_layer = conv(c1, c2, 3, 2, 1)
+        if use_spp:
+            self.spp = SPP(c2, c2)
+        m = int(c2 * e)
+        self.main_conv = Conv(c2, m, 1)
+        self.short_conv = Conv(c2, m, 1)
+        self.final_conv = Conv(m * 2, c2, 1)
+        self.blocks = nn.Sequential(*[
+            CSPNeXtBlock(m, m, 1.0, add_identity, 
+                         use_depthwise) for _ in range(n)])
+        self.attention = ChannelAttention(m * 2)
+
+    def forward(self, x):
+        # conv_layer
+        x = self.conv_layer(x)
+        # spp
+        if self.use_spp:
+            x = self.spp(x)
+        # cspnext block
+        x_short = self.short_conv(x)
+        x_main = self.main_conv(x)
+        x_main = self.blocks(x_main)
+        x_final = torch.cat([x_main, x_short], dim=1)
+        x_final = self.attention(x_final)
+        x_final = self.final_conv(x_final)
+        return x_final
+    

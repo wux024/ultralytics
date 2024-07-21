@@ -53,6 +53,10 @@ from .block import (
     RepVGGDW,
     ResNetLayer,
     SCDown,
+    STEM,
+    ChannelAttention,
+    CSPNeXtBlock,
+    CSPNeXtBlocks,
 )
 from .conv import (
     CBAM,
@@ -150,4 +154,8 @@ __all__ = (
     "Attention",
     "PSA",
     "SCDown",
+    "STEM",
+    "ChannelAttention",
+    "CSPNeXtBlock",
+    "CSPNeXtBlocks",
 )
