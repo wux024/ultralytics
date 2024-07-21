@@ -980,10 +980,7 @@ class STEM(nn.Module):
             Conv(c2 // 2, c2, 3, 1, 1)
         )
     def forward(self, x):
-        print(x.shape)
-        out = self.stem(x)
-        print(out.shape)
-        return out
+        return self.stem(x)
 
 class ChannelAttention(nn.Module):
     """
