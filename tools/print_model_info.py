@@ -39,5 +39,5 @@ if __name__ == '__main__':
     
     for model_name in model_lists:
         yaml_path = f'configs/models/{dataset_name}/{model_name}.yaml'
-        model = YOLO(yaml_path)
+        model = YOLO(yaml_path, task='pose')
         model.info()
