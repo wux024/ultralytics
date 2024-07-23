@@ -97,7 +97,7 @@ fi
 for model_yaml in "${models[@]}"; do
     if [ $pretrained = True ]; then
         # If pretrained is set, use the default pretrained model for the dataset
-        pretrained_model="${model_yaml%.yaml}.pt"
+        pretrained_model="${model_yaml%.yaml}.pth"
         # Ensure the pretrained model exists before attempting to train
         if [ ! -f "./weights/$pretrained_model" ]; then
             echo "Pretrained model $pretrained_model not found. Skipping..."
