@@ -36,4 +36,4 @@ if __name__ == '__main__':
     base_dir = os.path.join('runs', 'pose', 'eval', dataset)
 
     for dir, subdir, files in os.walk(base_dir):
-        print(files)
+        print(subdir, files)
