@@ -30,6 +30,12 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def modify_categories_id(json_file):
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+
+    print(data.keys())
+
 if __name__ == '__main__':
     args = parse_args()
     dataset = args.dataset
@@ -39,4 +45,4 @@ if __name__ == '__main__':
         for file in files:
             if file.endswith('.json'):
                 json_file = os.path.join(dir, file)
-                print(json_file)
+                modify_categories_id(json_file)
