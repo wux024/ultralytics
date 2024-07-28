@@ -22,6 +22,7 @@ import argparse
 from xtcocotools.coco import COCO
 from xtcocotools.cocoeval import COCOeval
 import yaml
+import numpy as np
 
 
 def parse_args():
@@ -38,9 +39,9 @@ if __name__ == '__main__':
     with open(f'configs/data/{args.dataset}.yaml', 'r') as f:
          dataset_cfg = yaml.load(f, Loader=yaml.FullLoader)
          if 'oks_sigmas' in dataset_cfg.keys():
-             oks_sigmas = dataset_cfg['oks_sigmas']  # Load the OKS sigmas for pose evaluation
+             oks_sigmas = np.array(dataset_cfg['oks_sigmas'])  # Load the OKS sigmas for pose evaluation
          else:
-             oks_sigmas = [1.0 / dataset_cfg['kpt_shape'][0]] * dataset_cfg['kpt_shape'][0]
+             oks_sigmas = np.array([1.0 / dataset_cfg['kpt_shape'][0]] * dataset_cfg['kpt_shape'][0])
     # Load the COCO annotations and predictions
     if args.split == 'val':
         coco_gt = COCO(f'datasets/{args.dataset}/annotations/val.json')
