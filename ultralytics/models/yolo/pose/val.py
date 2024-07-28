@@ -10,6 +10,7 @@ from ultralytics.utils import LOGGER, ops
 from ultralytics.utils.checks import check_requirements
 from ultralytics.utils.metrics import OKS_SIGMA, PoseMetrics, box_iou, kpt_iou
 from ultralytics.utils.plotting import output_to_target, plot_images
+from ultralytics.utils.oks_sigma import GetOKSSigma
 
 
 class PoseValidator(DetectionValidator):
@@ -80,7 +81,8 @@ class PoseValidator(DetectionValidator):
         self.kpt_shape = self.data["kpt_shape"]
         is_pose = self.kpt_shape == [17, 3]
         nkpt = self.kpt_shape[0]
-        self.sigma = OKS_SIGMA if is_pose else np.ones(nkpt) / nkpt
+        # self.sigma = OKS_SIGMA if is_pose else np.ones(nkpt) / nkpt
+        self.sigma = GetOKSSigma()
         self.stats = dict(tp_p=[], tp=[], conf=[], pred_cls=[], target_cls=[], target_img=[])
 
     def _prepare_batch(self, si, batch):
