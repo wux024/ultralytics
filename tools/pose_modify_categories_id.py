@@ -36,4 +36,7 @@ if __name__ == '__main__':
     base_dir = os.path.join('runs', 'pose', 'eval', dataset)
 
     for dir, subdir, files in os.walk(base_dir):
-        print(subdir, files)
+        for file in files:
+            if file.endswith('.json'):
+                json_file = os.path.join(dir, file)
+                print(json_file)
