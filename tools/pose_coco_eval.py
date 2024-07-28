@@ -50,7 +50,7 @@ if __name__ == '__main__':
         coco_gt = COCO(f'datasets/{args.dataset}/annotations/test.json')
     else:
         raise ValueError(f'Invalid split: {args.split}')
-    coco_dt = COCO(f'runs/pose/eval/{args.dataset}/{args.dataset}-{args.model}/predictions.json')
+    coco_dt = coco_gt.loadRes(f'runs/pose/eval/{args.dataset}/{args.dataset}-{args.model}/predictions.json')
     # Evaluate the predictions
     coco_eval = COCOeval(coco_gt, coco_dt, iouType='keypoints', sigmas=oks_sigmas, use_area=True)
     coco_eval.evaluate()
