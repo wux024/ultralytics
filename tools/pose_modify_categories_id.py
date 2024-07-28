@@ -32,10 +32,12 @@ def parse_args():
 
 def modify_categories_id(json_file):
     with open(json_file, 'r') as f:
-        data = json.load(f)
-
-    print(data.keys())
-
+        datas = json.load(f)
+    for i, data in enumerate(datas):
+        datas[i]['category_id'] += 1 
+    with open(json_file, 'w') as f:
+        json.dump(datas, f, indent=4)
+        
 if __name__ == '__main__':
     args = parse_args()
     dataset = args.dataset
