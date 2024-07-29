@@ -33,7 +33,7 @@ def parse_args():
 def modify_categories_id(json_file):
     with open(json_file, 'r') as f:
         datas = json.load(f)
-    for i, data in enumerate(datas):
+    for i in range(len(datas)):
         datas[i]['category_id'] += 1 
     with open(json_file, 'w') as f:
         json.dump(datas, f, indent=4)
