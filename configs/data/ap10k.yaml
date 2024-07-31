@@ -16,53 +16,50 @@ names:
   3: buffalo
   4: cow
   5: sheep
-  #6: arctic fox
-  7: dog
-  8: fox
-  9: wolf
-  10: beaver
-  11: alouatta
-  12: monkey
-  13: noisy night monkey
-  14: spider monkey
-  15: uakari
-  16: deer
-  17: moose
-  18: hamster
-  19: elephant
-  20: horse
-  21: zebra
-  22: bobcat
-  23: cat
-  24: cheetah
-  25: jaguar
-  26: king cheetah
-  27: leopard
-  28: lion
-  29: panther
-  30: snow leopard
-  31: tiger
-  32: giraffe
-  33: hippo
-  34: chimpanzee
-  35: gorilla
-  #36: orangutan
-  37: rabbit
-  38: skunk
-  39: mouse
-  40: rat
-  41: otter
-  42: weasel
-  43: raccoon
-  44: rhino
-  45: marmot
-  46: squirrel
-  #48: pig
-  49: black bear
-  50: brown bear
-  51: panda
-  52: polar bear
-  #53: bat
+  6: dog
+  7: fox
+  8: wolf
+  9: beaver
+  10: alouatta
+  11: monkey
+  12: noisy night monkey
+  13: spider monkey
+  14: uakari
+  15: deer
+  16: moose
+  17: hamster
+  18: elephant
+  19: horse
+  20: zebra
+  21: bobcat
+  22: cat
+  23: cheetah
+  24: jaguar
+  25: king cheetah
+  26: leopard
+  27: lion
+  28: panther
+  29: snow leopard
+  30: tiger
+  31: giraffe
+  32: hippo
+  33: chimpanzee
+  34: gorilla
+  35: rabbit
+  36: skunk
+  37: mouse
+  38: rat
+  39: otter
+  40: weasel
+  41: raccoon
+  42: rhino
+  43: marmot
+  44: squirrel
+  45: mole
+  46: black bear
+  47: brown bear
+  48: panda
+  49: polar bear
   
 
 oks_sigmas: [
