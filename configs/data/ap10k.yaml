@@ -16,7 +16,7 @@ names:
   3: buffalo
   4: cow
   5: sheep
-  6: arctic fox
+  #6: arctic fox
   7: dog
   8: fox
   9: wolf
@@ -46,7 +46,7 @@ names:
   33: hippo
   34: chimpanzee
   35: gorilla
-  36: orangutan
+  #36: orangutan
   37: rabbit
   38: skunk
   39: mouse
@@ -57,12 +57,12 @@ names:
   44: rhino
   45: marmot
   46: squirrel
-  48: pig
+  #48: pig
   49: black bear
   50: brown bear
   51: panda
   52: polar bear
-  53: bat
+  #53: bat
   
 
 oks_sigmas: [
