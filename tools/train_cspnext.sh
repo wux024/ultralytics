@@ -7,16 +7,32 @@
 # Default training settings
 dataset=ap10k
 epochs=1000
-batch_size=-1
+patience=100
+batch=-1
 imgsz=640
 device=None
+workers=8
 cos_lr=True
 resume=True
 pretrained=True
+seed=0
+pose=12.0
+
 
 # Ensure a dataset name is provided
 if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 [--dataset <dataset_name>] [--epochs <num_epochs>] [--batch <batch_size>] [--imgsz <image_size>] [--device <device>] [--models <model_list>] [--no-pretrained]"
+    echo "Usage: $0 --dataset <dataset_name> 
+    [optional: --epochs <num_epochs> 
+    --patience <early_stopping_patience> 
+    --batch <batch_size> 
+    --imgsz <image_size> 
+    --device <device> 
+    --workers <num_workers> 
+    --cos-lr <cosine_lr_schedule> 
+    --resume <resume_training> 
+    --pretrained <use_pretrained_model> 
+    --seed <random_seed> 
+    --models <model_list>]"
     exit 1
 fi
 
@@ -32,8 +48,12 @@ while [[ $# -gt 1 ]]; do
             epochs="$2"
             shift 2
             ;;
+        --patience)
+            patience="$2"
+            shift 2
+            ;;
         --batch)
-            batch_size="$2"
+            batch="$2"
             shift 2
             ;;
         --imgsz)
@@ -48,9 +68,29 @@ while [[ $# -gt 1 ]]; do
             IFS=',' read -ra selected_models <<< "$2"
             shift 2
             ;;
-        --no-pretrained)
-            pretrained=False
-            shift
+        --pretrained)
+            pretrained="$2"
+            shift 2
+            ;;
+        --workers)
+            workers="$2"
+            shift 2
+            ;;
+        --cos-lr)
+            cos_lr="$2"
+            shift 2
+            ;;
+        --resume)
+            resume="$2"
+            shift 2
+            ;;
+        --seed)
+            seed="$2"
+            shift 2
+            ;;
+        --pose)
+            pose="$2"
+            shift 2
             ;;
         *)  # unknown option
             echo "Unknown option: $1"
@@ -125,5 +165,9 @@ for model_yaml in "${models[@]}"; do
         name=$model_name \
         device=$device \
         cos_lr=$cos_lr \
-        resume=$resume
+        resume=$resume \
+        workers=$workers \
+        seed=$seed \ 
+        pose=$pose \
+        patience=$patience
 done
