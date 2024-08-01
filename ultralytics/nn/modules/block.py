@@ -48,8 +48,8 @@ __all__ = (
     "SCDown",
     "STEM",
     "ChannelAttention"
+    "CSPNeXtBottleneck",
     "CSPNeXtBlock",
-    "CSPNeXtBlocks",
 )
 
 
@@ -969,7 +969,6 @@ class STEM(nn.Module):
     Args:
         c1 (int): Number of input channels.
         c2 (int): Number of output channels.
-        use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
     """
     def __init__(self, c1, c2):
         """Initializes the STEM module with specified parameters."""
@@ -1002,9 +1001,9 @@ class ChannelAttention(nn.Module):
         out = self.act(out)
         return x * out 
     
-class CSPNeXtBlock(nn.Module):
+class CSPNeXtBottleneck(nn.Module):
     """
-    CSPNeXt block.
+    CSPNeXt Bottleneck.
 
     Args:
         c1 (int): Number of input channels.
@@ -1016,7 +1015,7 @@ class CSPNeXtBlock(nn.Module):
     """
     
     def __init__(self, c1, c2, e=0.5, add_identity=True, use_depthwise=False, kernel_size=5):
-        """Initializes the CSPNeXt block with specified parameters."""
+        """Initializes the CSPNeXt Bottleneck with specified parameters."""
         super().__init__()
         self.use_depthwise = use_depthwise
         conv = DWConv if use_depthwise else Conv
@@ -1028,7 +1027,7 @@ class CSPNeXtBlock(nn.Module):
     def forward(self, x):
         return x + self.cv2(self.cv1(x)) if self.add_identity else self.cv2(self.cv1(x))
 
-class CSPNeXtBlocks(nn.Module):
+class CSPNeXtBlock(nn.Module):
     """
     CSPNeXt block.
 
@@ -1038,27 +1037,30 @@ class CSPNeXtBlocks(nn.Module):
         n (int): Number of CSPNeXt blocks to stack.
         add_identity (bool, optional): Whether to add an identity connection. Defaults to True.
         use_spp (bool, optional): Whether to use Spatial Pyramid Pooling. Defaults to False.
+        use_channelattention (bool, optional): Whether to use channel attention. Defaults to False.
         use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
     """
     
-    def __init__(self, c1, c2, n, add_identity=True, use_spp=False, use_depthwise=False, e=0.5):
+    def __init__(self, c1, c2, n, add_identity=False, use_spp=False, use_channelattention=False, use_depthwise=False,  e=0.5):
         """Initializes the CSPNeXt block with specified parameters."""
         super().__init__()
         self.add_identity = add_identity
         self.use_spp = use_spp
         self.use_depthwise = use_depthwise
+        self.use_channelattention = use_channelattention
         conv = DWConv if use_depthwise else Conv
         self.conv_layer = conv(c1, c2, 3, 2, 1)
-        if use_spp:
-            self.spp = SPP(c2, c2)
         m = int(c2 * e)
-        self.main_conv = Conv(c2, m, 1)
+        self.main_conv  = Conv(c2, m, 1)
         self.short_conv = Conv(c2, m, 1)
         self.final_conv = Conv(m * 2, c2, 1)
         self.blocks = nn.Sequential(*[
-            CSPNeXtBlock(m, m, 1.0, add_identity, 
-                         use_depthwise) for _ in range(n)])
-        self.attention = ChannelAttention(m * 2)
+            CSPNeXtBottleneck(m, m, 1.0, add_identity, use_depthwise) 
+            for _ in range(n)])
+        if use_spp:
+            self.spp = SPP(c2, c2)
+        if use_channelattention:
+            self.attention = ChannelAttention(m * 2)
 
     def forward(self, x):
         # conv_layer
@@ -1071,7 +1073,8 @@ class CSPNeXtBlocks(nn.Module):
         x_main = self.main_conv(x)
         x_main = self.blocks(x_main)
         x_final = torch.cat([x_main, x_short], dim=1)
-        x_final = self.attention(x_final)
+        if self.use_channelattention:
+            x_final = self.attention(x_final)
         x_final = self.final_conv(x_final)
         return x_final
     

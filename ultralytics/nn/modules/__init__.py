@@ -55,8 +55,8 @@ from .block import (
     SCDown,
     STEM,
     ChannelAttention,
+    CSPNeXtBottleneck,
     CSPNeXtBlock,
-    CSPNeXtBlocks,
 )
 from .conv import (
     CBAM,
@@ -156,6 +156,6 @@ __all__ = (
     "SCDown",
     "STEM",
     "ChannelAttention",
+    "CSPNeXtBottleneck",
     "CSPNeXtBlock",
-    "CSPNeXtBlocks",
 )
