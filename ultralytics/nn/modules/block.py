@@ -1067,7 +1067,6 @@ class CSPNeXtBlock(nn.Module):
         # spp
         if self.use_spp:
             x = self.spp(x)
-            print('spp', x.shape)
         # cspnext block
         x_short = self.short_conv(x)
         x_main = self.main_conv(x)
@@ -1077,6 +1076,5 @@ class CSPNeXtBlock(nn.Module):
         if self.use_channelattention:
             x_final = self.attention(x_final)
         x_final = self.final_conv(x_final)
-        print('cspnext block', x_final.shape)
         return x_final
     
