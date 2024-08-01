@@ -163,7 +163,7 @@ for model_yaml in "${models[@]}"; do
         pretrained=$pretrained_model \
         epochs=$epochs \
         imgsz=$imgsz \
-        batch=$batch_size \
+        batch=$batch \
         project=$output_dir \
         name=$model_name \
         device=$device \
