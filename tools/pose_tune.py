@@ -28,6 +28,8 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='ap10k', help='Name of the dataset.')
     parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to run the validation.')
     parser.add_argument('--iterations', type=int, default=300, help='Number of iterations to run the validation.')
+    parser.add_argument('--device', type=str, default='0', help='Device to run the validation on.')
+    parser.add_argument('--batch', type=int, default=16, help='Batch size for the validation.')
     return parser.parse_args()  # Return the parsed arguments
 
 
@@ -39,8 +41,10 @@ if __name__ == '__main__':
     dataset_dir = f'./configs/data/{args.dataset}.yaml'
     config_dir = f'./configs/pose/train/{args.dataset}/{model_name}/args.yaml'
 
+    device = args.device
     epochs = args.epochs
     iterations = args.iterations
+    batch = args.batch
     project_dir = f'./runs/pose/tunings/{args.dataset}'
     try:
         print(f"Validating {model_dir}...")
@@ -48,6 +52,8 @@ if __name__ == '__main__':
         metrics = model.tune(data=dataset_dir, 
                              epochs=epochs, 
                              iterations=iterations,
+                             device=device, 
+                             batch=batch, 
                              optimizer='AdamW', 
                              project=project_dir, 
                              name=model_name, 
