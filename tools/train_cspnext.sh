@@ -167,7 +167,7 @@ for model_yaml in "${models[@]}"; do
         cos_lr=$cos_lr \
         resume=$resume \
         workers=$workers \
-        seed=$seed \ 
+        seed=$seed \
         pose=$pose \
         patience=$patience
 done
