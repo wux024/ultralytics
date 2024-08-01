@@ -1048,33 +1048,35 @@ class CSPNeXtBlock(nn.Module):
         self.use_spp = use_spp
         self.use_depthwise = use_depthwise
         self.use_channelattention = use_channelattention
-        conv = DWConv if use_depthwise else Conv
-        self.conv_layer = conv(c1, c2, 3, 2, 1)
         m = int(c2 * e)
-        self.main_conv  = Conv(c2, m, 1)
-        self.short_conv = Conv(c2, m, 1)
-        self.final_conv = Conv(m * 2, c2, 1)
+        if use_spp:
+            self.spp = SPP(c1, c2)
+            self.main_conv  = Conv(c2, m, 1)
+            self.short_conv = Conv(c2, m, 1)
+        else:
+            self.main_conv = Conv(c1, m, 1)
+            self.short_conv = Conv(c1, m, 1)
         self.blocks = nn.Sequential(*[
             CSPNeXtBottleneck(m, m, 1.0, add_identity, use_depthwise) 
             for _ in range(n)])
-        if use_spp:
-            self.spp = SPP(c2, c2)
         if use_channelattention:
             self.attention = ChannelAttention(m * 2)
+        self.final_conv = Conv(m * 2, c2, 1)
 
     def forward(self, x):
-        # conv_layer
-        x = self.conv_layer(x)
         # spp
         if self.use_spp:
             x = self.spp(x)
+            print('spp', x.shape)
         # cspnext block
         x_short = self.short_conv(x)
         x_main = self.main_conv(x)
         x_main = self.blocks(x_main)
         x_final = torch.cat([x_main, x_short], dim=1)
+        # channel attention
         if self.use_channelattention:
             x_final = self.attention(x_final)
         x_final = self.final_conv(x_final)
+        print('cspnext block', x_final.shape)
         return x_final
     
