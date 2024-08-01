@@ -56,7 +56,7 @@ from ultralytics.nn.modules import (
     WorldDetect,
     v10Detect,
     STEM,
-    CSPNeXtBlocks,
+    CSPNeXtBlock,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -983,7 +983,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         elif m is STEM:
             c1, c2 = ch[f], int(args[0] * width)
             args = [c1, c2]
-        elif m is CSPNeXtBlocks:
+        elif m is CSPNeXtBlock:
             c1, c2 = ch[f], int(args[0] * width)
             args = [c1, c2, n, *args[1:]]
             n = 1
