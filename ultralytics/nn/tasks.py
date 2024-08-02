@@ -986,7 +986,6 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         elif m is CSPNeXtBlock:
             c1, c2 = ch[f], int(args[0] * width)
             args = [c1, c2, n, *args[1:]]
-            n = 1
         else:
             c2 = ch[f]
 
