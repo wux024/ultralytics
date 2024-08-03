@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--iterations', type=int, default=300, help='Number of iterations to run the validation.')
     parser.add_argument('--device', type=str, default='0,1', help='Device to run the validation on.')
     parser.add_argument('--batch', type=int, default=256, help='Batch size for the validation.')
+    parser.add_argument('--ray', action='store_true', help='Whether to use ray for parallel processing.')
     return parser.parse_args()  # Return the parsed arguments
 
 
@@ -45,6 +46,7 @@ if __name__ == '__main__':
     epochs = args.epochs
     iterations = args.iterations
     batch = args.batch
+    use_ray = args.ray
     project_dir = f'./runs/pose/tunings/{args.dataset}'
     try:
         print(f"Validating {model_dir}...")
@@ -56,7 +58,8 @@ if __name__ == '__main__':
                              batch=batch, 
                              optimizer='AdamW', 
                              project=project_dir, 
-                             name=model_name, 
+                             name=model_name,
+                             use_ray=args.ray,
                              )
     except Exception as e:
         print(f"An error occurred while validating {model_name}: {e}")
