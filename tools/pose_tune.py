@@ -26,11 +26,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Validate YOLOv8 pose estimation models on a specified dataset.")
     parser.add_argument('--model', type=str, default='yolov8n-pose', help='Path to the dataset directory.')
     parser.add_argument('--dataset', type=str, default='ap10k', help='Name of the dataset.')
-    parser.add_argument('--epochs', type=int, default=30, help='Number of epochs to run the validation.')
-    parser.add_argument('--iterations', type=int, default=300, help='Number of iterations to run the validation.')
-    parser.add_argument('--device', type=str, default='0,1', help='Device to run the validation on.')
-    parser.add_argument('--batch', type=int, default=256, help='Batch size for the validation.')
-    parser.add_argument('--ray', action='store_true', help='Whether to use ray for parallel processing.')
+    parser.add_argument('--epochs', type=int, default=100, help='Number of epochs to run the validation.')
+    parser.add_argument('--iterations', type=int, default=30, help='Number of iterations to run the validation.')
+    parser.add_argument('--device', type=str, default='0', help='Device to run the validation on.')
+    parser.add_argument('--batch', type=int, default=128, help='Batch size for the validation.')
     return parser.parse_args()  # Return the parsed arguments
 
 
@@ -46,7 +45,6 @@ if __name__ == '__main__':
     epochs = args.epochs
     iterations = args.iterations
     batch = args.batch
-    use_ray = args.ray
     project_dir = f'./runs/pose/tunings/{args.dataset}'
     try:
         print(f"Validating {model_dir}...")
@@ -59,7 +57,6 @@ if __name__ == '__main__':
                              optimizer='AdamW', 
                              project=project_dir, 
                              name=model_name,
-                             use_ray=args.ray,
                              )
     except Exception as e:
         print(f"An error occurred while validating {model_name}: {e}")
