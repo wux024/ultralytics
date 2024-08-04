@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=100, help='Number of epochs to run the validation.')
     parser.add_argument('--iterations', type=int, default=30, help='Number of iterations to run the validation.')
     parser.add_argument('--device', type=str, default='0', help='Device to run the validation on.')
-    parser.add_argument('--batch', type=int, default=128, help='Batch size for the validation.')
+    parser.add_argument('--batch', type=int, default=64, help='Batch size for the validation.')
     return parser.parse_args()  # Return the parsed arguments
 
 
