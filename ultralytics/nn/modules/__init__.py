@@ -54,7 +54,6 @@ from .block import (
     ResNetLayer,
     SCDown,
     STEM,
-    ChannelAttention,
     CSPNeXtBottleneck,
     CSPNeXtBlock,
 )
@@ -155,7 +154,6 @@ __all__ = (
     "PSA",
     "SCDown",
     "STEM",
-    "ChannelAttention",
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
 )

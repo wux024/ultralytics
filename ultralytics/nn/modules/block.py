@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from ultralytics.utils.torch_utils import fuse_conv_and_bn
 
-from .conv import Conv, DWConv, GhostConv, LightConv, RepConv, autopad
+from .conv import Conv, DWConv, GhostConv, LightConv, RepConv, autopad, ChannelAttention
 from .transformer import TransformerBlock
 
 __all__ = (
@@ -47,7 +47,6 @@ __all__ = (
     "PSA",
     "SCDown",
     "STEM",
-    "ChannelAttention"
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
 )
@@ -980,26 +979,6 @@ class STEM(nn.Module):
         )
     def forward(self, x):
         return self.stem(x)
-
-class ChannelAttention(nn.Module):
-    """
-    Channel attention module.
-
-    Args:
-        c (int): Number of input and output channels.
-    """
-    def __init__(self, c):
-        super().__init__()
-        self.global_avgpool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Conv2d(c, c, 1, 1, 0, bias=False)
-        self.act = nn.Hardsigmoid(inplace=True)
-
-    def forward(self, x):
-        with torch.cuda.amp.autocast(enabled=False):
-            out = self.global_avgpool(x)
-        out = self.fc(out)
-        out = self.act(out)
-        return x * out 
     
 class CSPNeXtBottleneck(nn.Module):
     """
