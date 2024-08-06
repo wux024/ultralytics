@@ -103,7 +103,7 @@ done
 models=()
 if [ -z "$selected_models" ]; then
     # If no specific models are selected, train all by default
-    models=("yolov8n-pose-cspnext.yaml" "yolov8s-pose-cspnext.yaml" "yolov8m-pose-cspnext.yaml" "yolov8l-pose-cspnext.yaml")
+    models=("yolov8n-pose-cspnext.yaml" "yolov8s-pose-cspnext.yaml" "yolov8m-pose-cspnext.yaml" "yolov8l-pose-cspnext.yaml" "yolov8x-pose-cspnext.yaml")
 else
     # Process selected models
     for model_code in "${selected_models[@]}"; do
@@ -119,6 +119,9 @@ else
                 ;;
             l)
                 models+=("yolov8l-pose-cspnext.yaml")
+                ;;
+            x)
+                models+=("yolov8x-pose-cspnext.yaml")
                 ;;
             *)
                 echo "Warning: Ignoring invalid model code in selection: $model_code. Valid codes are n, s, m, l, x."
