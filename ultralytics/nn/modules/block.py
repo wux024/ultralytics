@@ -1029,7 +1029,7 @@ class CSPNeXtBlock(nn.Module):
         self.use_channelattention = use_channelattention
         m = int(c2 * e)
         if use_spp:
-            self.spp = SPP(c1, c2)
+            self.spp = SPPF(c1, c2)
             self.main_conv  = Conv(c2, m, 1)
             self.short_conv = Conv(c2, m, 1)
         else:
