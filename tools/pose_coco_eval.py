@@ -25,6 +25,10 @@ import yaml
 import numpy as np
 
 
+YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
+YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Validate YOLOv8 pose estimation models on a specified dataset.")
     parser.add_argument('--model', type=str, default='yolov8-pose', help='Path to the dataset directory.')
@@ -44,9 +48,11 @@ if __name__ == '__main__':
              oks_sigmas = np.array([1.0 / dataset_cfg['kpt_shape'][0]] * dataset_cfg['kpt_shape'][0])
     # Set the model configuration file
     if args.model == 'yolov8-pose':
-        models = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
+        models = YOLO_V8
     elif args.model == 'yolov8-pose-cspnext':
-        models = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext']
+        models = YOLO_V8_CSPNEXT
+    elif args.model in YOLO_V8 or args.model in YOLO_V8_CSPNEXT:
+        models = [args.model]
     else:
         raise ValueError(f'Invalid model: {args.model}')
     for model in models:

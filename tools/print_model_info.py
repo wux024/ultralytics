@@ -35,7 +35,7 @@ if __name__ == '__main__':
     if args.backbone == 'yolov8':
         model_lists = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
     elif args.backbone == 'cspnext':
-        model_lists = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext']
+        model_lists = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
     
     for model_name in model_lists:
         yaml_path = f'configs/models/{dataset_name}/{model_name}.yaml'
