@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-File Name: pose_val.py
+File Name: pose_val_cspnext.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
 
     # Default models
-    models = ["yolov8n-pose.yaml", "yolov8s-pose.yaml", "yolov8m-pose.yaml", "yolov8l-pose.yaml", "yolov8x-pose.yaml"]
+    models = ["yolov8n-pose-cspnext.yaml", "yolov8s-pose-cspnext.yaml", "yolov8m-pose-cspnext.yaml", "yolov8l-pose-cspnext.yaml", "yolov8x-pose-cspnext.yaml"]
 
     # Process selected models
     if args.models:
@@ -53,15 +53,15 @@ def main():
         models = []
         for model_code in selected_models:
             if model_code == 'n':
-                models.append("yolov8n-pose.yaml")
+                models.append("yolov8n-pose-cspnext.yaml")
             elif model_code == 's':
-                models.append("yolov8s-pose.yaml")
+                models.append("yolov8s-pose-cspnext.yaml")
             elif model_code == 'm':
-                models.append("yolov8m-pose.yaml")
+                models.append("yolov8m-pose-cspnext.yaml")
             elif model_code == 'l':
-                models.append("yolov8l-pose.yaml")
+                models.append("yolov8l-pose-cspnext.yaml")
             elif model_code == 'x':
-                models.append("yolov8x-pose.yaml")
+                models.append("yolov8x-pose-cspnext.yaml")
             else:
                 print(f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x.")
 
