@@ -101,6 +101,7 @@ if __name__ == "__main__":
                       show_conf=args.show_conf,
                       show_boxes=args.show_boxes,
                       line_width=args.line_width,
+                      kpt_radius=args.kpt_radius,
                       project=project,
                       name=name
                       )
