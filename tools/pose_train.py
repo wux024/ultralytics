@@ -35,7 +35,6 @@ def main():
         'workers': 8,
         'cos_lr': True,
         'resume': True,
-        'pretrained': True,
         'seed': 0,
         'pose': 12.0,
     }
@@ -53,7 +52,7 @@ def main():
     parser.add_argument('--imgsz', type=int, default=default_settings['imgsz'], help='Image size.')
     parser.add_argument('--device', type=str, default=default_settings['device'], help='Device to use (e.g., 0, 1, 2, cpu).')
     parser.add_argument('--models', type=str, help='Comma-separated list of model codes (n, s, m, l, x).')
-    parser.add_argument('--pretrained', type=bool, default=default_settings['pretrained'], help='Use pretrained models.')
+    parser.add_argument('--pretrained', action='store_true', help='Use a pretrained model for the dataset.')
     parser.add_argument('--workers', type=int, default=default_settings['workers'], help='Number of workers.')
     parser.add_argument('--cos-lr', type=bool, default=default_settings['cos_lr'], help='Use cosine learning rate schedule.')
     parser.add_argument('--resume', type=bool, default=default_settings['resume'], help='Resume training.')
