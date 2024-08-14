@@ -55,6 +55,7 @@ if __name__ == "__main__":
     parser.add_argument("--show_conf", action="store_true", help="show confidence score")
     parser.add_argument("--show_boxes", action="store_true", help="show boxes")
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
+    parser.add_argument("--kpt_radius", type=int, default="5", help="keypoint radius")
     args = parser.parse_args()
     # Set the model configuration file
     if args.model == 'yolov8-pose':
