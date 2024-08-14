@@ -340,6 +340,7 @@ class BasePredictor:
                 boxes=self.args.show_boxes,
                 conf=self.args.show_conf,
                 labels=self.args.show_labels,
+                kpt_radius=self.args.kpt_radius,
                 im_gpu=None if self.args.retina_masks else im[i],
             )
 
