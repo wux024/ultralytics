@@ -70,9 +70,7 @@ if __name__ == "__main__":
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
         data_path = f"datasets/{args.dataset}/images/test"
 
-        project = f"runs/pose/predict/{args.dataset}"
-
-        name = f"{args.dataset}-{model}"
+        save_dir = f"runs/pose/predict/{args.dataset}/{args.dataset}-{model}"
 
         model = YOLO(model_path)
 
@@ -91,20 +89,20 @@ if __name__ == "__main__":
                         classes=args.classes,
                         retina_masks=args.retina_masks,
                         embed=args.embed,
-                        project = project,
-                        name = name,
                         stream=True)
         
         for i, result in enumerate(results):
-            result.save(filename = "result.jpg",
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show,
-                        )
+            filename = f"{save_dir}/{i}.jpg"
+            print(filename)
+            # result.save(filename = filename,
+            #             conf=args.show_conf,
+            #             line_width=args.line_width,
+            #             kpt_radius=args.kpt_radius,
+            #             kpt_line=args.kpt_line,
+            #             labels=args.show_labels,
+            #             boxes=args.show_boxes,
+            #             masks=args.show_masks,
+            #             probs=args.show_probs,
+            #             show=args.show,
+            #             )
 
