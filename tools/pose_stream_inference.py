@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-File Name: pose_inference.py
+File Name: pose_stream_inference.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/6/19
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         project = f"runs/pose/predict/{args.dataset}"
         name = f"{args.dataset}-{model}"
 
-        model = YOLO(model_path)
+        model = YOLO(model_path, stream=True)
 
         model.predict(source=data_path,
                       conf=args.conf,
