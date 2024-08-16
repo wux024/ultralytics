@@ -46,7 +46,6 @@ if __name__ == "__main__":
     parser.add_argument("--retina_masks", action="store_true", help="use retina mask head")
     parser.add_argument("--embed", action="store_true", help="use embedding head")
     parser.add_argument("--show", action="store_true", help="show results")
-    parser.add_argument("--save", action="store_true", help="save results to file")
     parser.add_argument("--show_labels", action="store_true", help="show detection class labels")
     parser.add_argument("--show_conf", action="store_true", help="show confidence score")
     parser.add_argument("--show_boxes", action="store_true", help="show boxes")
@@ -92,17 +91,16 @@ if __name__ == "__main__":
                         stream=True)
         
         for i, result in enumerate(results):
-            filename = f"{save_dir}/{i}.jpg"
-            print(filename)
-            result.save(filename = filename,
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show,
-                        )
+            print(result.keypoints)
+            # result.save(filename = f"{save_dir}/{i}.jpg",
+            #             conf=args.show_conf,
+            #             line_width=args.line_width,
+            #             kpt_radius=args.kpt_radius,
+            #             kpt_line=args.kpt_line,
+            #             labels=args.show_labels,
+            #             boxes=args.show_boxes,
+            #             masks=args.show_masks,
+            #             probs=args.show_probs,
+            #             show=args.show,
+            #             )
 
