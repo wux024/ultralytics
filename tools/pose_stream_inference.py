@@ -101,7 +101,6 @@ if __name__ == "__main__":
                         masks=args.show_masks,
                         probs=args.show_probs,
                         show=args.show,
-                        save=args.save,
                         filename = f"{save_dir}/{i}.jpg",
                         )
 
