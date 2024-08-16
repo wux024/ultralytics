@@ -70,7 +70,9 @@ if __name__ == "__main__":
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
         data_path = f"datasets/{args.dataset}/images/test"
 
-        save_dir = f"runs/pose/predict/{args.dataset}/{args.dataset}-{model}"
+        project = f"runs/pose/predict/{args.dataset}"
+
+        name = f"{args.dataset}-{model}"
 
         model = YOLO(model_path)
 
@@ -92,7 +94,7 @@ if __name__ == "__main__":
                         stream=True)
         
         for i, result in enumerate(results):
-            result.save(filename = f"{save_dir}/{i}.jpg",
+            result.save(filename = "result.jpg",
                         conf=args.show_conf,
                         line_width=args.line_width,
                         kpt_radius=args.kpt_radius,
@@ -102,5 +104,7 @@ if __name__ == "__main__":
                         masks=args.show_masks,
                         probs=args.show_probs,
                         show=args.show,
+                        project = project,
+                        name = name
                         )
 
