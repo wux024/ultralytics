@@ -91,16 +91,16 @@ if __name__ == "__main__":
                         embed=args.embed,
                         stream=True)
         
-        for i, result in enumerate(results):
-            result.save(conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show,
-                        filename = f"{save_dir}/{i}.jpg",
-                        )
+        # for i, result in enumerate(results):
+        #     result.save(conf=args.show_conf,
+        #                 line_width=args.line_width,
+        #                 kpt_radius=args.kpt_radius,
+        #                 kpt_line=args.kpt_line,
+        #                 labels=args.show_labels,
+        #                 boxes=args.show_boxes,
+        #                 masks=args.show_masks,
+        #                 probs=args.show_probs,
+        #                 show=args.show,
+        #                 filename = f"{save_dir}/{i}.jpg",
+        #                 )
 
