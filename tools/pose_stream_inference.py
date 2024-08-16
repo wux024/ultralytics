@@ -88,7 +88,8 @@ if __name__ == "__main__":
                         agnostic_nms=args.agnostic_nms,
                         classes=args.classes,
                         retina_masks=args.retina_masks,
-                        embed=args.embed)
+                        embed=args.embed,
+                        stream=True)
         
         for i, result in enumerate(results):
             result.save(conf=args.show_conf,
