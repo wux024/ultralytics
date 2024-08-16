@@ -21,7 +21,7 @@ Revision History:
 
 import argparse
 import os
-
+import yaml
 from ultralytics import YOLO
 
 YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
@@ -66,6 +66,9 @@ if __name__ == "__main__":
     else:
         raise ValueError(f'Invalid model: {args.model}')
     
+    data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
+    skeleton = data_cdg['skeleton']
+    
     for model in models:
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
         data_path = f"datasets/{args.dataset}/images/test"
@@ -105,5 +108,6 @@ if __name__ == "__main__":
                         masks=args.show_masks,
                         probs=args.show_probs,
                         show=args.show,
+                        skeleton=skeleton
                         )
 

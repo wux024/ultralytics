@@ -461,6 +461,7 @@ class Results(SimpleClass):
         save=False,
         filename=None,
         color_mode="class",
+        skeleton=None
     ):
         """
         Plots detection results on an input RGB image.
@@ -509,6 +510,7 @@ class Results(SimpleClass):
             font,
             pil or (pred_probs is not None and show_probs),  # Classify tasks default to pil=True
             example=names,
+            skeleton=skeleton,
         )
 
         # Plot Segment results
