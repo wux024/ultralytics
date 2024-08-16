@@ -111,7 +111,7 @@ class Annotator:
         kpt_color (List[int]): Color palette for keypoints.
     """
 
-    def __init__(self, im, line_width=None, font_size=None, font="Arial.ttf", pil=False, example="abc"):
+    def __init__(self, im, line_width=None, font_size=None, font="Arial.ttf", pil=False, example="abc", skeleton=None):
         """Initialize the Annotator class with image and line width along with color palette for keypoints and limbs."""
         non_ascii = not is_ascii(example)  # non-latin labels, i.e. asian, arabic, cyrillic
         input_is_pil = isinstance(im, Image.Image)
@@ -135,27 +135,30 @@ class Annotator:
             self.tf = max(self.lw - 1, 1)  # font thickness
             self.sf = self.lw / 3  # font scale
         # Pose
-        self.skeleton = [
-            [16, 14],
-            [14, 12],
-            [17, 15],
-            [15, 13],
-            [12, 13],
-            [6, 12],
-            [7, 13],
-            [6, 7],
-            [6, 8],
-            [7, 9],
-            [8, 10],
-            [9, 11],
-            [2, 3],
-            [1, 2],
-            [1, 3],
-            [2, 4],
-            [3, 5],
-            [4, 6],
-            [5, 7],
-        ]
+        if skeleton is None:
+            self.skeleton = [
+                [16, 14],
+                [14, 12],
+                [17, 15],
+                [15, 13],
+                [12, 13],
+                [6, 12],
+                [7, 13],
+                [6, 7],
+                [6, 8],
+                [7, 9],
+                [8, 10],
+                [9, 11],
+                [2, 3],
+                [1, 2],
+                [1, 3],
+                [2, 4],
+                [3, 5],
+                [4, 6],
+                [5, 7],
+            ]
+        else:
+            self.skeleton = skeleton
 
         self.limb_color = colors.pose_palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
@@ -390,7 +393,7 @@ class Annotator:
             self.im = np.asarray(self.im).copy()
         nkpt, ndim = kpts.shape
         is_pose = nkpt == 17 and ndim in {2, 3}
-        kpt_line &= is_pose  # `kpt_line=True` for now only supports human pose plotting
+        # kpt_line &= is_pose  # `kpt_line=True` for now only supports human pose plotting
         for i, k in enumerate(kpts):
             color_k = kpt_color or (self.kpt_color[i].tolist() if is_pose else colors(i))
             x_coord, y_coord = k[0], k[1]
@@ -404,6 +407,7 @@ class Annotator:
         if kpt_line:
             ndim = kpts.shape[-1]
             for i, sk in enumerate(self.skeleton):
+                color_k = kpt_color or (self.limb_color[i].tolist() if is_pose else colors(i))
                 pos1 = (int(kpts[(sk[0] - 1), 0]), int(kpts[(sk[0] - 1), 1]))
                 pos2 = (int(kpts[(sk[1] - 1), 0]), int(kpts[(sk[1] - 1), 1]))
                 if ndim == 3:
@@ -419,7 +423,8 @@ class Annotator:
                     self.im,
                     pos1,
                     pos2,
-                    kpt_color or self.limb_color[i].tolist(),
+                    #kpt_color or self.limb_color[i].tolist(),
+                    color_k,
                     thickness=2,
                     lineType=cv2.LINE_AA,
                 )
