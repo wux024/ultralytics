@@ -136,26 +136,47 @@ class Annotator:
             self.sf = self.lw / 3  # font scale
         # Pose
         if skeleton is None:
+            # self.skeleton = [
+            #     [16, 14],
+            #     [14, 12],
+            #     [17, 15],
+            #     [15, 13],
+            #     [12, 13],
+            #     [6, 12],
+            #     [7, 13],
+            #     [6, 7],
+            #     [6, 8],
+            #     [7, 9],
+            #     [8, 10],
+            #     [9, 11],
+            #     [2, 3],
+            #     [1, 2],
+            #     [1, 3],
+            #     [2, 4],
+            #     [3, 5],
+            #     [4, 6],
+            #     [5, 7],
+            # ]
             self.skeleton = [
-                [16, 14],
-                [14, 12],
-                [17, 15],
                 [15, 13],
-                [12, 13],
+                [13, 11],
+                [16, 14],
+                [13, 12],
+                [11, 10],
+                [5, 11],
                 [6, 12],
-                [7, 13],
-                [6, 7],
+                [5, 6],
+                [5, 7],
                 [6, 8],
                 [7, 9],
                 [8, 10],
-                [9, 11],
-                [2, 3],
-                [1, 2],
+                [4, 2],
+                [0, 1],
+                [0, 2],
                 [1, 3],
                 [2, 4],
                 [3, 5],
                 [4, 6],
-                [5, 7],
             ]
         else:
             self.skeleton = skeleton
@@ -408,11 +429,15 @@ class Annotator:
             ndim = kpts.shape[-1]
             for i, sk in enumerate(self.skeleton):
                 color_k = kpt_color or (self.limb_color[i].tolist() if is_pose else colors(i))
-                pos1 = (int(kpts[(sk[0] - 1), 0]), int(kpts[(sk[0] - 1), 1]))
-                pos2 = (int(kpts[(sk[1] - 1), 0]), int(kpts[(sk[1] - 1), 1]))
+                # pos1 = (int(kpts[(sk[0] - 1), 0]), int(kpts[(sk[0] - 1), 1]))
+                # pos2 = (int(kpts[(sk[1] - 1), 0]), int(kpts[(sk[1] - 1), 1]))
+                pos1 = (int(kpts[(sk[0]), 0]), int(kpts[(sk[0]), 1]))
+                pos2 = (int(kpts[(sk[1]), 0]), int(kpts[(sk[1]), 1]))
                 if ndim == 3:
-                    conf1 = kpts[(sk[0] - 1), 2]
-                    conf2 = kpts[(sk[1] - 1), 2]
+                    # conf1 = kpts[(sk[0] - 1), 2]
+                    # conf2 = kpts[(sk[1] - 1), 2]
+                    conf1 = kpts[(sk[0]), 2]
+                    conf2 = kpts[(sk[1]), 2]
                     if conf1 < conf_thres or conf2 < conf_thres:
                         continue
                 if pos1[0] % shape[1] == 0 or pos1[1] % shape[0] == 0 or pos1[0] < 0 or pos1[1] < 0:
