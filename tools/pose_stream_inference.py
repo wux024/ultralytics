@@ -91,6 +91,8 @@ if __name__ == "__main__":
                         classes=args.classes,
                         retina_masks=args.retina_masks,
                         embed=args.embed,
+                        project = project,
+                        name = name,
                         stream=True)
         
         for i, result in enumerate(results):
@@ -104,7 +106,5 @@ if __name__ == "__main__":
                         masks=args.show_masks,
                         probs=args.show_probs,
                         show=args.show,
-                        project = project,
-                        name = name
                         )
 
