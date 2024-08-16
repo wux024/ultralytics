@@ -562,6 +562,7 @@ class Results(SimpleClass):
 
         # Save results
         if save:
+            print(f"Saving {filename}")
             annotator.save(filename)
 
         return annotator.result()

@@ -94,15 +94,15 @@ if __name__ == "__main__":
         for i, result in enumerate(results):
             filename = f"{save_dir}/{i}.jpg"
             print(filename)
-            # result.save(filename = filename,
-            #             conf=args.show_conf,
-            #             line_width=args.line_width,
-            #             kpt_radius=args.kpt_radius,
-            #             kpt_line=args.kpt_line,
-            #             labels=args.show_labels,
-            #             boxes=args.show_boxes,
-            #             masks=args.show_masks,
-            #             probs=args.show_probs,
-            #             show=args.show,
-            #             )
+            result.save(filename = filename,
+                        conf=args.show_conf,
+                        line_width=args.line_width,
+                        kpt_radius=args.kpt_radius,
+                        kpt_line=args.kpt_line,
+                        labels=args.show_labels,
+                        boxes=args.show_boxes,
+                        masks=args.show_masks,
+                        probs=args.show_probs,
+                        show=args.show,
+                        )
 
