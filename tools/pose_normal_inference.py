@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     model = YOLO(args.model)
 
-    model.predict(source=args.source,
+    results = model.predict(source=args.source,
                   stream=args.stream,
                   conf=args.conf,
                   iou=args.iou,
