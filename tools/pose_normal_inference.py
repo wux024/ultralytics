@@ -56,6 +56,7 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
+    parser.add_argument("--project", default="runs/video_results", help="save results to project/name")
     args = parser.parse_args()
 
 
@@ -92,6 +93,7 @@ if __name__ == "__main__":
                   show_boxes=args.show_boxes,
                   line_width=args.line_width,
                   kpt_line=args.kpt_line,
-                  kpt_radius=args.kpt_radius
+                  kpt_radius=args.kpt_radius,
+                  project=args.project
                   )
 
