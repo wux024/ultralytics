@@ -26,7 +26,8 @@ from ultralytics import YOLO
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=str, default="fish", help="dataset to use")
+    parser.add_argument("--source", type=str, default="path/to/video.mp4", help="dataset to use")
+    parser.add_argument("--data", type=str, default=None, help="path to dataset")
     parser.add_argument("--stream", action="store_true", help="stream")
     parser.add_argument("--model", type=str, default="path/to/best.pt", help="model to use")
     parser.add_argument("--conf", type=float, default=0.25, help="object confidence threshold")
@@ -60,7 +61,11 @@ if __name__ == "__main__":
 
     model = YOLO(args.model)
 
+    if args.data is not None:
+        data = f"configs/data/{args.data}.yaml"
+
     model.predict(source=args.source,
+                  data=data,
                   stream=args.stream,
                   conf=args.conf,
                   iou=args.iou,
