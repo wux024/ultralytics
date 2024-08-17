@@ -53,13 +53,14 @@ if __name__ == "__main__":
     parser.add_argument("--show_conf", action="store_true", help="show confidence score")
     parser.add_argument("--show_boxes", action="store_true", help="show boxes")
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
+    parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     args = parser.parse_args()
 
 
     model = YOLO(args.model)
 
-    results = model.predict(source=args.source,
+    model.predict(source=args.source,
                   stream=args.stream,
                   conf=args.conf,
                   iou=args.iou,
@@ -85,6 +86,7 @@ if __name__ == "__main__":
                   show_conf=args.show_conf,
                   show_boxes=args.show_boxes,
                   line_width=args.line_width,
+                  kpt_line=args.kpt_line,
                   kpt_radius=args.kpt_radius
                   )
 
