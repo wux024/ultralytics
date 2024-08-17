@@ -425,7 +425,7 @@ class Annotator:
                         continue
                 cv2.circle(self.im, (int(x_coord), int(y_coord)), radius, color_k, -1, lineType=cv2.LINE_AA)
 
-        if kpt_line:
+        if kpt_line and min(kpts.shape) != 0:
             ndim = kpts.shape[-1]
             for i, sk in enumerate(self.skeleton):
                 color_k = kpt_color or (self.limb_color[i].tolist() if is_pose else colors(i))
