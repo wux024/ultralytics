@@ -348,7 +348,7 @@ class BasePredictor:
                 labels=self.args.show_labels,
                 kpt_radius=self.args.kpt_radius,
                 im_gpu=None if self.args.retina_masks else im[i],
-                kpt_lines=self.args.kpt_lines,
+                kpt_line=self.args.kpt_line,
                 skeleton=skeleton,
             )
 
