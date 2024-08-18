@@ -62,12 +62,17 @@ def main():
         models = [f"yolov8n-pose-cspnext-{args.ablation}.yaml", f"yolov8s-pose-cspnext-{args.ablation}.yaml", f"yolov8m-pose-cspnext-{args.ablation}.yaml", f"yolov8l-pose-cspnext-{args.ablation}.yaml", f"yolov8x-pose-cspnext-{args.ablation}.yaml"]
     elif args.ablation == 'neck':
         models = ["yolov8n-pose-cspneck.yaml", "yolov8s-pose-cspneck.yaml", "yolov8m-pose-cspneck.yaml", "yolov8l-pose-cspneck.yaml", "yolov8x-pose-cspneck.yaml"]
+    else:
+        raise ValueError(f"Invalid ablation study: {args.ablation}")
+
+
     # Loop through each model for the given dataset
     for model_yaml in models:
 
         model_name = f"{args.dataset}-{model_yaml[:-5]}"
         output_dir = f"./runs/pose/train/{args.dataset}"
-
+        if args.ablation == 'imgsz':
+            model_name = f"{model_name}-{args.imgsz}"
         # Construct the yolo pose train command
         cmd = [
             "yolo", "pose", "train",

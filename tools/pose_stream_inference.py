@@ -71,7 +71,15 @@ if __name__ == "__main__":
     
     for model in models:
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
-        data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
+
+        if 'test' in data_cdg.keys():
+            data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
+        elif 'val' in data_cdg.keys():
+            data_path = f"datasets/{data_cdg['path']}/{data_cdg['val']}"
+        elif 'train' in data_cdg.keys():
+            data_path = f"datasets/{data_cdg['path']}/{data_cdg['train']}"
+        else:
+            raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
 
         save_dir = f"runs/pose/predict/{args.dataset}/{args.dataset}-{model}"
 
