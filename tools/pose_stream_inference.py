@@ -71,7 +71,7 @@ if __name__ == "__main__":
     
     for model in models:
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
-        data_path = f"datasets/{args.dataset}/images/test"
+        data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
 
         save_dir = f"runs/pose/predict/{args.dataset}/{args.dataset}-{model}"
 
