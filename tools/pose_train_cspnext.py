@@ -28,7 +28,7 @@ def main():
     default_settings = {
         'dataset': 'ap10k',
         'epochs': 1000,
-        'patience': 100,
+        'patience': 300,
         'batch': -1,
         'imgsz': 640,
         'device': None,
