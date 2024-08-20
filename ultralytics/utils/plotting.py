@@ -393,7 +393,7 @@ class Annotator:
             # Convert im back to PIL and update draw
             self.fromarray(self.im)
 
-    def kpts(self, kpts, shape=(640, 640), radius=5, kpt_line=True, conf_thres=0.25, kpt_color=None):
+    def kpts(self, kpts, shape=(640, 640), radius=5, kpt_line=False, conf_thres=0.25, kpt_color=None):
         """
         Plot keypoints on the image.
 

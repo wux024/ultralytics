@@ -56,18 +56,18 @@ def main():
     
     # Loop through each model for the given dataset
     for model_yaml in models:
-        model_name = f"{args.dataset}-{model_yaml[:-5]}"
+        model_name = f"animalpose-{model_yaml[:-5]}"
         if args.ablation == 'imgsz':
             model_name = f"{model_name}-{args.imgsz}"
-        model_dir = f"./runs/pose/train/{args.dataset}/{model_name}"
+        model_dir = f"./runs/pose/train/animalpose/{model_name}"
         model = f"{model_dir}/weights/best.pt"
-        output_dir = f"./runs/pose/eval/{args.dataset}"
+        output_dir = f"./runs/pose/eval/animalpose"
 
         # Construct the yolo pose val command
         cmd = [
             "yolo", "pose", "val",
             f"model={model}",
-            f"data=./configs/data/{args.dataset}.yaml",
+            f"data=./configs/data/animalpose.yaml",
             f"imgsz={args.imgsz}",
             f"batch={args.batch}",
             f"project={output_dir}",
@@ -86,7 +86,7 @@ def main():
         ]
 
         # Execute the command
-        print(f"Evaluating {model_yaml} on {args.dataset}...")
+        print(f"Evaluating {model_yaml} on animalpose...")
         subprocess.run(cmd)
 
 if __name__ == '__main__':
