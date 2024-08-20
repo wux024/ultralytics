@@ -73,15 +73,15 @@ def main():
         else:
             pretrained_path = "./weights/" + model_yaml[:20] + ".pt"
         
-        model_name = f"{args.dataset}-{model_yaml[:-5]}"
-        output_dir = f"./runs/pose/train/{args.dataset}"
+        model_name = f"animalpose-{model_yaml[:-5]}"
+        output_dir = f"./runs/pose/train/animalpose"
         if args.ablation == 'imgsz':
             model_name = f"{model_name}-{args.imgsz}"
         # Construct the yolo pose train command
         cmd = [
             "yolo", "pose", "train",
-            f"data=./configs/data/{args.dataset}.yaml",
-            f"model=./configs/models/{args.dataset}/{model_yaml}",
+            f"data=./configs/data/animalpose.yaml",
+            f"model=./configs/models/animalpose/{model_yaml}",
             f"epochs={args.epochs}",
             f"imgsz={args.imgsz}",
             f"batch={args.batch}",
@@ -98,7 +98,7 @@ def main():
         ]
 
         # Execute the command
-        print(f"Training {model_yaml} on {args.dataset}...")
+        print(f"Training {model_yaml} on animalpose...")
         subprocess.run(cmd)
 
 if __name__ == '__main__':
