@@ -68,7 +68,11 @@ def main():
 
     # Loop through each model for the given dataset
     for model_yaml in models:
-
+        if args.ablation == 'neck':
+            pretrained_path = "./weights/" + model_yaml[:12] + ".pt"
+        else:
+            pretrained_path = "./weights/" + model_yaml[:20] + ".pt"
+        
         model_name = f"{args.dataset}-{model_yaml[:-5]}"
         output_dir = f"./runs/pose/train/{args.dataset}"
         if args.ablation == 'imgsz':
@@ -89,7 +93,8 @@ def main():
             f"workers={args.workers}",
             f"seed={args.seed}",
             f"pose={args.pose}",
-            f"patience={args.patience}"
+            f"patience={args.patience}",
+            f"pretrained={pretrained_path}",
         ]
 
         # Execute the command
