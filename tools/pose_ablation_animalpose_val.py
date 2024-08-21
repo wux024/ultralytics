@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-File Name: pose_val_cspnext.py
+File Name: pose_ablation_animalpose_val.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
