@@ -53,7 +53,7 @@ def main():
     parser.add_argument('--seed', type=int, default=default_settings['seed'], help='Random seed.')
     parser.add_argument('--pose', type=float, default=default_settings['pose'], help='Pose loss weight.')
     parser.add_argument('--ablation', type=str, default=default_settings['ablation'], help='Ablation study')
-    parser.add_argument('--models', type=str, help='Comma-separated list of model codes (n, s, m, l, x).')
+    parser.add_argument('--models', type=str, default=None, help='Comma-separated list of model codes (n, s, m, l, x).')
 
     args = parser.parse_args()
 
