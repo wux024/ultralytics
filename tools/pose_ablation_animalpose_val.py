@@ -40,9 +40,8 @@ def main():
     parser.add_argument('--plots', action='store_true', help='Generate plots.')
     parser.add_argument('--rect', action='store_true', help='Use rectangular training.')
     parser.add_argument('--split', type=str, default='test', help='Dataset split name.')
-    parser.add_argument('--models', type=str, help='Comma-separated list of model codes (n, s, m, l, x).')
-    parser.add_argument('--ablation', type=str, default='imgsz', help='Ablation study')
     parser.add_argument('--models', type=str, default=None, help='Comma-separated list of model codes (n, s, m, l, x).')
+    parser.add_argument('--ablation', type=str, default='imgsz', help='Ablation study')
 
     args = parser.parse_args()
 
