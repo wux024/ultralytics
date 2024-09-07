@@ -3,7 +3,7 @@
 
 # 📚 Ultralytics Docs
 
-[Ultralytics](https://ultralytics.com) Docs are the gateway to understanding and utilizing our cutting-edge machine learning tools. These documents are deployed to [https://docs.ultralytics.com](https://docs.ultralytics.com) for your convenience.
+[Ultralytics](https://www.ultralytics.com/) Docs are the gateway to understanding and utilizing our cutting-edge machine learning tools. These documents are deployed to [https://docs.ultralytics.com](https://docs.ultralytics.com) for your convenience.
 
 [![pages-build-deployment](https://github.com/ultralytics/docs/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/ultralytics/docs/actions/workflows/pages/pages-build-deployment)
 [![Check Broken links](https://github.com/ultralytics/docs/actions/workflows/links.yml/badge.svg)](https://github.com/ultralytics/docs/actions/workflows/links.yml)
@@ -107,26 +107,26 @@ Choose a hosting provider and deployment method for your MkDocs documentation:
 
 - Update the "Custom domain" in your repository's settings for a personalized URL.
 
-![196814117-fc16e711-d2be-4722-9536-b7c6d78fd167](https://user-images.githubusercontent.com/26833433/210150206-9e86dcd7-10af-43e4-9eb2-9518b3799eac.png)
+![MkDocs deployment example](https://github.com/ultralytics/docs/releases/download/0/mkdocs-deployment-example.avif)
 
 - For detailed deployment guidance, consult the [MkDocs documentation](https://www.mkdocs.org/user-guide/deploying-your-docs/).
 
 ## 💡 Contribute
 
-We cherish the community's input as it drives Ultralytics open-source initiatives. Dive into the [Contributing Guide](https://docs.ultralytics.com/help/contributing) and share your thoughts via our [Survey](https://ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey). A heartfelt thank you 🙏 to each contributor!
+We cherish the community's input as it drives Ultralytics open-source initiatives. Dive into the [Contributing Guide](https://docs.ultralytics.com/help/contributing) and share your thoughts via our [Survey](https://www.ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey). A heartfelt thank you 🙏 to each contributor!
 
-![Ultralytics open-source contributors](https://github.com/ultralytics/assets/raw/main/im/image-contributors.png)
+![Ultralytics open-source contributors](https://github.com/ultralytics/docs/releases/download/0/ultralytics-open-source-contributors.avif)
 
 ## 📜 License
 
 Ultralytics Docs presents two licensing options:
 
 - **AGPL-3.0 License**: Perfect for academia and open collaboration. Details are in the [LICENSE](https://github.com/ultralytics/docs/blob/main/LICENSE) file.
-- **Enterprise License**: Tailored for commercial usage, offering a seamless blend of Ultralytics technology in your products. Learn more at [Ultralytics Licensing](https://ultralytics.com/license).
+- **Enterprise License**: Tailored for commercial usage, offering a seamless blend of Ultralytics technology in your products. Learn more at [Ultralytics Licensing](https://www.ultralytics.com/license).
 
 ## ✉️ Contact
 
-For Ultralytics bug reports and feature requests please visit [GitHub Issues](https://github.com/ultralytics/ultralytics/issues). Become a member of the Ultralytics [Discord](https://ultralytics.com/discord), [Reddit](https://reddit.com/r/ultralytics), or [Forums](https://community.ultralytics.com) for asking questions, sharing projects, learning discussions, or for help with all things Ultralytics!
+For Ultralytics bug reports and feature requests please visit [GitHub Issues](https://github.com/ultralytics/ultralytics/issues). Become a member of the Ultralytics [Discord](https://discord.com/invite/ultralytics), [Reddit](https://www.reddit.com/r/ultralytics/), or [Forums](https://community.ultralytics.com/) for asking questions, sharing projects, learning discussions, or for help with all things Ultralytics!
 
 <br>
 <div align="center">

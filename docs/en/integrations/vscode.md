@@ -8,7 +8,7 @@ keywords: Visual Studio Code, VS Code, deep learning, convolutional neural netwo
 
 <p align="center">
   <br>
-    <img src="https://github.com/Burhan-Q/ultralytics-snippets/assets/62214284/42ad0b17-e752-479c-9c6c-e451fffbe8b3" alt="Snippet Prediction Preview">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/snippet-prediction-preview.avif" alt="Snippet Prediction Preview">
   <br>
   Run example code using Ultralytics YOLO in under 20 seconds! 🚀
 </p>
@@ -39,7 +39,7 @@ Want to let us know what you use for developing code? Head over to our Discourse
 
 ## Installing the Extension
 
-!!! Note
+!!! note
 
     Any code environment that will allow for installing VS Code extensions _should be_ compatible with the Ultralytics-snippets extension. After publishing the extension, it was discovered that [neovim](https://neovim.io/) can be made compatible with VS Code extensions. To learn more see the [`neovim` install section][neovim install] of the Readme in the [Ultralytics-Snippets repository][repo].
 
@@ -51,7 +51,7 @@ Want to let us know what you use for developing code? Head over to our Discourse
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/9de46d22-ef7b-4765-ba2c-d0459cafa4dc" alt="VS Code extension menu">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/vs-code-extension-menu.avif" alt="VS Code extension menu">
   <br>
 </p>
 
@@ -65,7 +65,7 @@ Want to let us know what you use for developing code? Head over to our Discourse
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/b40cc8e2-2353-4165-859a-c84eec070db6" alt="VS Code marketplace extension install">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/vscode-marketplace-extension-install.avif" alt="VS Code marketplace extension install">
   <br>
   Visual Studio Code Extension Marketplace page for <a href="https://marketplace.visualstudio.com/items?itemName=Ultralytics.ultralytics-snippets">Ultralytics-Snippets</a>
 </p>
@@ -90,7 +90,7 @@ Many snippets have "fields" with default placeholder values or names. For instan
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/661c1b85-39a5-48ec-9faa-89d44e49aa37" alt="Multi-update field and options">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/multi-update-field-and-options.avif" alt="Multi-update field and options">
   <br>
   After inserting snippet, renaming <code>model</code> as <code>world_model</code> updates all instances. Pressing <kbd>Tab ⇥</kbd> moves to the next field, which opens a dropdown menu and allows for selection of a model scale, and moving to the next field provides another dropdown to choose either <code>world</code> or <code>worldv2</code> model variant.
 </p>
@@ -105,7 +105,7 @@ The snippets are named in the most descriptive way possible, but this means ther
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/bdd9aada-de8a-4d73-b714-04f8a48c0436" alt="Incomplete Snippet Example">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/incomplete-snippet-example.avif" alt="Incomplete Snippet Example">
   <br>
   Typing <code>ex-yolo-p</code> will <em>still</em> arrive at the correct snippet.
 </p>
@@ -127,7 +127,7 @@ These are the current snippet categories available to the Ultralytics-snippets e
 
 The `ultra.examples` snippets are to useful for anyone looking to learn how to get started with the basics of working with Ultralytics YOLO. Example snippets are intended to run once inserted (some have dropdown options as well). An example of this is shown at the animation at the [top] of this page, where after the snippet is inserted, all code is selected and run interactively using <kbd>Shift ⇑</kbd>+<kbd>Enter ↵</kbd>.
 
-!!! Example
+!!! example
 
     Just like the animation shows at the [top] of this page, you can use the snippet `ultra.example-yolo-predict` to insert the following code example. Once inserted, the only configurable option is for the model scale which can be any one of: `n`, `s`, `m`, `l`, or `x`.
 
@@ -146,7 +146,7 @@ The `ultra.examples` snippets are to useful for anyone looking to learn how to g
 
 The aim for snippets other than the `ultra.examples` are for making development easier and quicker when working with Ultralytics. A common code block to be used in many projects, is to iterate the list of `Results` returned from using the model [predict] method. The `ultra.result-loop` snippet can help with this.
 
-!!! Example
+!!! example
 
     Using the `ultra.result-loop` will insert the following default code (including comments).
 
@@ -161,7 +161,7 @@ However, since Ultralytics supports numerous [tasks], when [working with inferen
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/16cc72eb-4390-4380-bfaa-a0e84e5251db" alt="Results Loop Options">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/results-loop-options.avif" alt="Results Loop Options">
   <br>
   Once tabbed to the <code>boxes</code> field, a dropdown menu appears to allow selection of another attribute as required.
 </p>
@@ -170,7 +170,7 @@ However, since Ultralytics supports numerous [tasks], when [working with inferen
 
 There are over 💯 keyword arguments for all of the various Ultralytics [tasks] and [modes]! That's a lot to remember and it can be easy to forget if the argument is `save_frame` or `save_frames` (it's definitely `save_frames` by the way). This is where the `ultra.kwargs` snippets can help out!
 
-!!! Example
+!!! example
 
     To insert the [predict] method, including all [inference arguments], use `ultra.kwargs-predict`, which will insert the following code (including comments).
 
@@ -241,7 +241,7 @@ Like any other VS Code extension, you can uninstall it by navigating to the Exte
 
 <p align="center">
   <br>
-    <img src="https://github.com/user-attachments/assets/3d154bb1-a184-4c01-9537-341692fdcabf" alt="VS Code extension menu">
+    <img src="https://github.com/ultralytics/docs/releases/download/0/vscode-extension-menu.avif" alt="VS Code extension menu">
   <br>
 </p>
 
