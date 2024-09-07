@@ -63,11 +63,11 @@ python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext
 
 | Model | size(pixels) | mAP50-95 | CPU(ms) | 2080Ti(ms) | 3090Ti(ms) | A800(ms) | Params(M) | GFLOPs |
 | :-----: | :------------: | :--------: | :--------:| :-----------: | :--------: | :--------: | :---------: | :------: |
-| [AnimalRTPose-N](https://drive.google.com/file/d/1vH75gkQ6AsM3_za-BxygD1HZ9VgWJtMP/view?usp=drive_link)| 640 | 72.0| 61.3| 2.1| 1.3 | 0.9 | 2.884 | 8.5 |
-| [AnimalRTPose-S](https://drive.google.com/file/d/1sfR8m0esyytwiBOgBXljz-EYQSSsgXqA/view?usp=sharing)| 640 | 76.0| 135.1| 3.6| 2.5 | 1.3 | 9.796 | 26.6 |
-| [AnimalRTPose-M](https://drive.google.com/file/d/1oKO44bTpDehL3ts5253BO4iTAVSAQym3/view?usp=sharing)| 640 | 76.2| 291.5| 7.5 | 4.9 | 2.4| 24.183|65.6|
-| [AnimalRTPose-L](https://drive.google.com/file/d/17G01XbLiL1Q5tG-wzbMq7094aXTvpRMJ/view?usp=sharing)| 640 | 74.8| 506.5| 11.4 | 7.5  | 3.7 | 47.929|131.2|
-| [AnimalRTPose-X](https://drive.google.com/file/d/1oRhej2dPpyYkQgM8V8fIOpD6MnCcMxse/view?usp=sharing)| 640 | 78.1| 722.8| 17.1 |  11.9 | 5.6| 74.812|204.6|
+| [AnimalRTPose-N](https://drive.google.com/file/d/1vH75gkQ6AsM3_za-BxygD1HZ9VgWJtMP/view?usp=drive_link)| 640 | 72.0| 61.3| 2.1| 1.3 | 0.9 | 2.9 | 8.5 |
+| [AnimalRTPose-S](https://drive.google.com/file/d/1sfR8m0esyytwiBOgBXljz-EYQSSsgXqA/view?usp=sharing)| 640 | 76.0| 135.1| 3.6| 2.5 | 1.3 | 9.8 | 26.6 |
+| [AnimalRTPose-M](https://drive.google.com/file/d/1oKO44bTpDehL3ts5253BO4iTAVSAQym3/view?usp=sharing)| 640 | 77.2| 291.5| 7.5 | 4.9 | 2.4| 24.2|65.6|
+| [AnimalRTPose-L](https://drive.google.com/file/d/17G01XbLiL1Q5tG-wzbMq7094aXTvpRMJ/view?usp=sharing)| 640 | 77.8| 506.5| 11.4 | 7.5  | 3.7 | 47.9|131.2|
+| [AnimalRTPose-X](https://drive.google.com/file/d/1oRhej2dPpyYkQgM8V8fIOpD6MnCcMxse/view?usp=sharing)| 640 | 80.1| 722.8| 17.1 |  11.9 | 5.6| 74.8|204.6|
 
 - **mAP<sup>val</sup>** values are for single-model single-scale on [Animal Pose](https://sites.google.com/view/animal-pose/) dataset. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose && python tools/pose_modify_categories_id.py --dataset animalpose && python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext`.
 - **Speed** averaged over COCO val images using [NVIDIA RTX 2080 Ti](https://www.nvidia.com/en-us/geforce/graphics-cards/rtx-2080-ti/) , [NVIDIA RTX 3090](https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/), [NVIDIA A800](https://www.nvidia.cn/content/dam/en-zz/Solutions/Data-Center/a100/pdf/PB-10577-001_v02.pdf) and [12th Gen Intel(R) Core(TM) i5-12400   2.50 GHz](https://www.intel.cn/content/www/cn/zh/products/sku/134586/intel-core-i512400-processor-18m-cache-up-to-4-40-ghz/specifications.html) instance. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose`
