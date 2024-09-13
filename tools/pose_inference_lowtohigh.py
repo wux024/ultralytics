@@ -89,6 +89,7 @@ if __name__ == "__main__":
         save_dir_base = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}"
         count = 2
 
+        save_dir = save_dir_base
         while os.path.exists(save_dir):
             save_dir = f"{save_dir_base}{count}"
             count += 1
