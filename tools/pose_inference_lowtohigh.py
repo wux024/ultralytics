@@ -86,11 +86,11 @@ if __name__ == "__main__":
         else:
             raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
 
-        save_dir = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}"
+        save_dir_base = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}"
         count = 2
 
         while os.path.exists(save_dir):
-            save_dir = f"{save_dir}{count}"
+            save_dir = f"{save_dir_base}{count}"
             count += 1
 
         os.makedirs(save_dir)
