@@ -57,6 +57,7 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
+    parser.add_argument("--sample", type=str, default='4096', help="sample rate")
     args = parser.parse_args()
     # Set the model configuration file
     if args.model == 'yolov8-pose':
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     skeleton = data_cdg['skeleton']
     
     for model in models:
-        model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
+        model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.sample}/weights/best.pt"
 
         if 'test' in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
@@ -86,15 +87,9 @@ if __name__ == "__main__":
         else:
             raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
 
-        save_dir_base = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}"
-        count = 2
-
-        save_dir = save_dir_base
-        while os.path.exists(save_dir):
-            save_dir = f"{save_dir_base}{count}"
-            count += 1
-
-        os.makedirs(save_dir)
+        save_dir = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}-{args.sample}/"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
 
         model = YOLO(model_path)
 
