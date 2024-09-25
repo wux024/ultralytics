@@ -49,7 +49,7 @@
 
 ## <div align="center">文档</div>
 
-请参阅下面的快速安装和使用示例，以及 [YOLOv8 文档](https://docs.ultralytics.com) 上有关训练、验证、预测和部署的完整文档。
+请参阅下面的快速安装和使用示例，以及 [YOLOv8 文档](https://docs.ultralytics.com/) 上有关训练、验证、预测和部署的完整文档。
 
 <details open>
 <summary>安装</summary>
@@ -62,7 +62,7 @@
 pip install ultralytics
 ```
 
-如需使用包括[Conda](https://anaconda.org/conda-forge/ultralytics)，[Docker](https://hub.docker.com/r/ultralytics/ultralytics)和Git在内的其他安装方法，请参考[快速入门指南](https://docs.ultralytics.com/quickstart)。
+如需使用包括[Conda](https://anaconda.org/conda-forge/ultralytics)，[Docker](https://hub.docker.com/r/ultralytics/ultralytics)和Git在内的其他安装方法，请参考[快速入门指南](https://docs.ultralytics.com/quickstart/)。
 
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/ultralytics?logo=condaforge)](https://anaconda.org/conda-forge/ultralytics) [![Docker Image Version](https://img.shields.io/docker/v/ultralytics/ultralytics?sort=semver&logo=docker)](https://hub.docker.com/r/ultralytics/ultralytics)
 
@@ -79,7 +79,7 @@ YOLOv8 可以在命令行界面（CLI）中直接使用，只需输入 `yolo` �
 yolo predict model=yolov8n.pt source='https://ultralytics.com/images/bus.jpg'
 ```
 
-`yolo` 可用于各种任务和模式，并接受其他参数，例如 `imgsz=640`。查看 YOLOv8 [CLI 文档](https://docs.ultralytics.com/usage/cli)以获取示例。
+`yolo` 可用于各种任务和模式，并接受其他参数，例如 `imgsz=640`。查看 YOLOv8 [CLI 文档](https://docs.ultralytics.com/usage/cli/)以获取示例。
 
 ### Python
 
@@ -89,17 +89,28 @@ YOLOv8 也可以在 Python 环境中直接使用，并接受与上述 CLI 示例
 from ultralytics import YOLO
 
 # 加载模型
-model = YOLO("yolov8n.yaml")  # 从头开始构建新模型
-model = YOLO("yolov8n.pt")  # 加载预训练模型（建议用于训练）
+model = YOLO("yolov8n.pt")
 
-# 使用模型
-model.train(data="coco8.yaml", epochs=3)  # 训练模型
-metrics = model.val()  # 在验证集上评估模型性能
-results = model("https://ultralytics.com/images/bus.jpg")  # 对图像进行预测
-success = model.export(format="onnx")  # 将模型导出为 ONNX 格式
+# 训练模型
+train_results = model.train(
+    data="coco8.yaml",  # 数据配置文件的路径
+    epochs=100,  # 训练的轮数
+    imgsz=640,  # 训练图像大小
+    device="cpu",  # 运行的设备，例如 device=0 或 device=0,1,2,3 或 device=cpu
+)
+
+# 在验证集上评估模型性能
+metrics = model.val()
+
+# 对图像进行目标检测
+results = model("path/to/image.jpg")
+results[0].show()
+
+# 将模型导出为 ONNX 格式
+path = model.export(format="onnx")  # 返回导出的模型路径
 ```
 
-查看 YOLOv8 [Python 文档](https://docs.ultralytics.com/usage/python)以获取更多示例。
+查看 YOLOv8 [Python 文档](https://docs.ultralytics.com/usage/python/)以获取更多示例。
 
 </details>
 
@@ -118,7 +129,7 @@ Ultralytics 提供了 YOLOv8 的交互式笔记本，涵盖训练、验证、跟
 
 ## <div align="center">模型</div>
 
-在[COCO](https://docs.ultralytics.com/datasets/detect/coco)数据集上预训练的YOLOv8 [检测](https://docs.ultralytics.com/tasks/detect)，[分割](https://docs.ultralytics.com/tasks/segment)和[姿态](https://docs.ultralytics.com/tasks/pose)模型可以在这里找到，以及在[ImageNet](https://docs.ultralytics.com/datasets/classify/imagenet)数据集上预训练的YOLOv8 [分类](https://docs.ultralytics.com/tasks/classify)模型。所有的检测，分割和姿态模型都支持[追踪](https://docs.ultralytics.com/modes/track)模式。
+在[COCO](https://docs.ultralytics.com/datasets/detect/coco/)数据集上预训练的YOLOv8 [检测](https://docs.ultralytics.com/tasks/detect/)，[分割](https://docs.ultralytics.com/tasks/segment/)和[姿态](https://docs.ultralytics.com/tasks/pose/)模型可以在这里找到，以及在[ImageNet](https://docs.ultralytics.com/datasets/classify/imagenet/)数据集上预训练的YOLOv8 [分类](https://docs.ultralytics.com/tasks/classify/)模型。所有的检测，分割和姿态模型都支持[追踪](https://docs.ultralytics.com/modes/track/)模式。
 
 <img width="1024" src="https://raw.githubusercontent.com/ultralytics/assets/main/im/banner-tasks.png" alt="Ultralytics YOLO supported tasks">
 
@@ -138,23 +149,6 @@ Ultralytics 提供了 YOLOv8 的交互式笔记本，涵盖训练、验证、跟
 
 - **mAP<sup>val</sup>** 值是基于单模型单尺度在 [COCO val2017](https://cocodataset.org/) 数据集上的结果。 <br>通过 `yolo val detect data=coco.yaml device=0` 复现
 - **速度** 是使用 [Amazon EC2 P4d](https://aws.amazon.com/ec2/instance-types/p4/) 实例对 COCO val 图像进行平均计算的。 <br>通过 `yolo val detect data=coco.yaml batch=1 device=0|cpu` 复现
-
-</details>
-
-<details><summary>检测（Open Image V7）</summary>
-
-查看[检测文档](https://docs.ultralytics.com/tasks/detect/)以获取这些在[Open Image V7](https://docs.ultralytics.com/datasets/detect/open-images-v7/)上训练的模型的使用示例，其中包括600个预训练类别。
-
-| 模型                                                                                      | 尺寸<br><sup>(像素) | mAP<sup>验证<br>50-95 | 速度<br><sup>CPU ONNX<br>(毫秒) | 速度<br><sup>A100 TensorRT<br>(毫秒) | 参数<br><sup>(M) | 浮点运算<br><sup>(B) |
-| ----------------------------------------------------------------------------------------- | ------------------- | --------------------- | ------------------------------- | ------------------------------------ | ---------------- | -------------------- |
-| [YOLOv8n](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8n-oiv7.pt) | 640                 | 18.4                  | 142.4                           | 1.21                                 | 3.5              | 10.5                 |
-| [YOLOv8s](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8s-oiv7.pt) | 640                 | 27.7                  | 183.1                           | 1.40                                 | 11.4             | 29.7                 |
-| [YOLOv8m](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8m-oiv7.pt) | 640                 | 33.6                  | 408.5                           | 2.26                                 | 26.2             | 80.6                 |
-| [YOLOv8l](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8l-oiv7.pt) | 640                 | 34.9                  | 596.9                           | 2.43                                 | 44.1             | 167.4                |
-| [YOLOv8x](https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8x-oiv7.pt) | 640                 | 36.3                  | 860.6                           | 3.56                                 | 68.7             | 260.6                |
-
-- **mAP<sup>验证</sup>** 值适用于在[Open Image V7](https://docs.ultralytics.com/datasets/detect/open-images-v7/)数据集上的单模型单尺度。 <br>通过 `yolo val detect data=open-images-v7.yaml device=0` 以复现。
-- **速度** 在使用[Amazon EC2 P4d](https://aws.amazon.com/ec2/instance-types/p4/)实例对Open Image V7验证图像进行平均测算。 <br>通过 `yolo val detect data=open-images-v7.yaml batch=1 device=0|cpu` 以复现。
 
 </details>
 
@@ -229,7 +223,7 @@ Ultralytics 提供了 YOLOv8 的交互式笔记本，涵盖训练、验证、跟
 
 ## <div align="center">集成</div>
 
-我们与领先的AI平台的关键整合扩展了Ultralytics产品的功能，增强了数据集标签化、训练、可视化和模型管理等任务。探索Ultralytics如何与[Roboflow](https://roboflow.com/?ref=ultralytics)、ClearML、[Comet](https://bit.ly/yolov8-readme-comet)、Neural Magic以及[OpenVINO](https://docs.ultralytics.com/integrations/openvino)合作，优化您的AI工作流程。
+我们与领先的AI平台的关键整合扩展了Ultralytics产品的功能，增强了数据集标签化、训练、可视化和模型管理等任务。探索Ultralytics如何与[Roboflow](https://roboflow.com/?ref=ultralytics)、ClearML、[Comet](https://bit.ly/yolov8-readme-comet)、Neural Magic以及[OpenVINO](https://docs.ultralytics.com/integrations/openvino/)合作，优化您的AI工作流程。
 
 <br>
 <a href="https://ultralytics.com/hub" target="_blank">
@@ -264,7 +258,7 @@ Ultralytics 提供了 YOLOv8 的交互式笔记本，涵盖训练、验证、跟
 
 ## <div align="center">贡献</div>
 
-我们喜欢您的参与！没有社区的帮助，YOLOv5 和 YOLOv8 将无法实现。请参阅我们的[贡献指南](https://docs.ultralytics.com/help/contributing)以开始使用，并填写我们的[调查问卷](https://www.ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey)向我们提供您的使用体验反馈。感谢所有贡献者的支持！🙏
+我们喜欢您的参与！没有社区的帮助，YOLOv5 和 YOLOv8 将无法实现。请参阅我们的[贡献指南](https://docs.ultralytics.com/help/contributing/)以开始使用，并填写我们的[调查问卷](https://www.ultralytics.com/survey?utm_source=github&utm_medium=social&utm_campaign=Survey)向我们提供您的使用体验反馈。感谢所有贡献者的支持！🙏
 
 <!-- SVG image from https://opencollective.com/ultralytics/contributors.svg?width=990 -->
 
