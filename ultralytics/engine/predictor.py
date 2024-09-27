@@ -38,6 +38,7 @@ import cv2
 import numpy as np
 import torch
 import yaml
+
 from ultralytics.cfg import get_cfg, get_save_dir
 from ultralytics.data import load_inference_source
 from ultralytics.data.augment import LetterBox, classify_transforms
@@ -334,9 +335,9 @@ class BasePredictor:
         string += f"{result.verbose()}{result.speed['inference']:.1f}ms"
 
         # set skeleton
-        data_cdg = yaml.load(open(self.args.data, 'r'), Loader=yaml.FullLoader)
-        if 'skeleton' in data_cdg.keys():
-            skeleton = data_cdg['skeleton']
+        data_cdg = yaml.load(open(self.args.data), Loader=yaml.FullLoader)
+        if "skeleton" in data_cdg.keys():
+            skeleton = data_cdg["skeleton"]
         else:
             skeleton = None
         # Add predictions to image

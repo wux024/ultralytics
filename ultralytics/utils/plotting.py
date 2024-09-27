@@ -445,7 +445,7 @@ class Annotator:
                     self.im,
                     pos1,
                     pos2,
-                    #kpt_color or self.limb_color[i].tolist(),
+                    # kpt_color or self.limb_color[i].tolist(),
                     color_k,
                     thickness=2,
                     lineType=cv2.LINE_AA,

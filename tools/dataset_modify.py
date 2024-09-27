@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: dataset_modify.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/5/13
 Last Modified: 2024/5/13
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.

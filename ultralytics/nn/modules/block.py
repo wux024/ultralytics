@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from ultralytics.utils.torch_utils import fuse_conv_and_bn
 
-from .conv import Conv, DWConv, GhostConv, LightConv, RepConv, autopad, ChannelAttention
+from .conv import ChannelAttention, Conv, DWConv, GhostConv, LightConv, RepConv, autopad
 from .transformer import TransformerBlock
 
 __all__ = (
@@ -949,6 +949,7 @@ class SCDown(nn.Module):
         """
         return self.cv2(self.cv1(x))
 
+
 class STEM(nn.Module):
     """
     Spatial-Channel Excitation module.
@@ -957,17 +958,18 @@ class STEM(nn.Module):
         c1 (int): Number of input channels.
         c2 (int): Number of output channels.
     """
+
     def __init__(self, c1, c2):
         """Initializes the STEM module with specified parameters."""
         super().__init__()
         self.stem = nn.Sequential(
-            Conv(c1, c2 // 2 , 3, 2, 1),
-            Conv(c2 // 2, c2 // 2, 3, 1, 1),
-            Conv(c2 // 2, c2, 3, 1, 1)
+            Conv(c1, c2 // 2, 3, 2, 1), Conv(c2 // 2, c2 // 2, 3, 1, 1), Conv(c2 // 2, c2, 3, 1, 1)
         )
+
     def forward(self, x):
         return self.stem(x)
-    
+
+
 class CSPNeXtBottleneck(nn.Module):
     """
     CSPNeXt Bottleneck.
@@ -980,7 +982,7 @@ class CSPNeXtBottleneck(nn.Module):
         use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
         kernel_size (int, optional): Kernel size for the convolutional layer. Defaults to 5.
     """
-    
+
     def __init__(self, c1, c2, e=0.5, add_identity=True, use_depthwise=False, kernel_size=5):
         """Initializes the CSPNeXt Bottleneck with specified parameters."""
         super().__init__()
@@ -993,6 +995,7 @@ class CSPNeXtBottleneck(nn.Module):
 
     def forward(self, x):
         return x + self.cv2(self.cv1(x)) if self.add_identity else self.cv2(self.cv1(x))
+
 
 class CSPNeXtBlock(nn.Module):
     """
@@ -1007,8 +1010,10 @@ class CSPNeXtBlock(nn.Module):
         use_channelattention (bool, optional): Whether to use channel attention. Defaults to False.
         use_depthwise (bool, optional): Whether to use depthwise separable convolution. Defaults to False.
     """
-    
-    def __init__(self, c1, c2, n, add_identity=False, use_spp=False, use_channelattention=False, use_depthwise=False,  e=0.5):
+
+    def __init__(
+        self, c1, c2, n, add_identity=False, use_spp=False, use_channelattention=False, use_depthwise=False, e=0.5
+    ):
         """Initializes the CSPNeXt block with specified parameters."""
         super().__init__()
         self.add_identity = add_identity
@@ -1018,14 +1023,12 @@ class CSPNeXtBlock(nn.Module):
         m = int(c2 * e)
         if use_spp:
             self.spp = SPPF(c1, c2)
-            self.main_conv  = Conv(c2, m, 1)
+            self.main_conv = Conv(c2, m, 1)
             self.short_conv = Conv(c2, m, 1)
         else:
             self.main_conv = Conv(c1, m, 1)
             self.short_conv = Conv(c1, m, 1)
-        self.blocks = nn.Sequential(*[
-            CSPNeXtBottleneck(m, m, 1.0, add_identity, use_depthwise) 
-            for _ in range(n)])
+        self.blocks = nn.Sequential(*[CSPNeXtBottleneck(m, m, 1.0, add_identity, use_depthwise) for _ in range(n)])
         if use_channelattention:
             self.attention = ChannelAttention(m * 2)
         self.final_conv = Conv(m * 2, c2, 1)
@@ -1044,4 +1047,3 @@ class CSPNeXtBlock(nn.Module):
             x_final = self.attention(x_final)
         x_final = self.final_conv(x_final)
         return x_final
-    

@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: pose_inference.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/6/19
 Last Modified: 2024/6/19
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
@@ -23,8 +22,14 @@ import argparse
 
 from ultralytics import YOLO
 
-YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
-YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
+YOLO_V8 = ["yolov8n-pose", "yolov8s-pose", "yolov8m-pose", "yolov8l-pose", "yolov8x-pose"]
+YOLO_V8_CSPNEXT = [
+    "yolov8n-pose-cspnext",
+    "yolov8s-pose-cspnext",
+    "yolov8m-pose-cspnext",
+    "yolov8l-pose-cspnext",
+    "yolov8x-pose-cspnext",
+]
 
 
 if __name__ == "__main__":
@@ -58,15 +63,15 @@ if __name__ == "__main__":
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     args = parser.parse_args()
     # Set the model configuration file
-    if args.model == 'yolov8-pose':
+    if args.model == "yolov8-pose":
         models = YOLO_V8
-    elif args.model == 'yolov8-pose-cspnext':
+    elif args.model == "yolov8-pose-cspnext":
         models = YOLO_V8_CSPNEXT
     elif args.model in YOLO_V8 or args.model in YOLO_V8_CSPNEXT:
         models = [args.model]
     else:
-        raise ValueError(f'Invalid model: {args.model}')
-    
+        raise ValueError(f"Invalid model: {args.model}")
+
     for model in models:
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
         data_path = f"datasets/{args.dataset}/images/test"
@@ -76,33 +81,33 @@ if __name__ == "__main__":
 
         model = YOLO(model_path)
 
-        model.predict(source=data_path,
-                      conf=args.conf,
-                      iou=args.iou,
-                      imgsz=args.imgsz,
-                      half=args.half,
-                      device=args.device,
-                      max_det=args.max_det,
-                      vid_stride=args.vid_stride,
-                      stream_buffer=args.stream_buffer,
-                      visualize=args.visualize,
-                      augment=args.augment,
-                      agnostic_nms=args.agnostic_nms,
-                      classes=args.classes,
-                      retina_masks=args.retina_masks,
-                      embed=args.embed,
-                      show=args.show,
-                      save=args.save,
-                      save_frames=args.save_frames,
-                      save_txt=args.save_txt,
-                      save_conf=args.save_conf,
-                      save_crop=args.save_crop,
-                      show_labels=args.show_labels,
-                      show_conf=args.show_conf,
-                      show_boxes=args.show_boxes,
-                      line_width=args.line_width,
-                      kpt_radius=args.kpt_radius,
-                      project=project,
-                      name=name
-                      )
-
+        model.predict(
+            source=data_path,
+            conf=args.conf,
+            iou=args.iou,
+            imgsz=args.imgsz,
+            half=args.half,
+            device=args.device,
+            max_det=args.max_det,
+            vid_stride=args.vid_stride,
+            stream_buffer=args.stream_buffer,
+            visualize=args.visualize,
+            augment=args.augment,
+            agnostic_nms=args.agnostic_nms,
+            classes=args.classes,
+            retina_masks=args.retina_masks,
+            embed=args.embed,
+            show=args.show,
+            save=args.save,
+            save_frames=args.save_frames,
+            save_txt=args.save_txt,
+            save_conf=args.save_conf,
+            save_crop=args.save_crop,
+            show_labels=args.show_labels,
+            show_conf=args.show_conf,
+            show_boxes=args.show_boxes,
+            line_width=args.line_width,
+            kpt_radius=args.kpt_radius,
+            project=project,
+            name=name,
+        )
