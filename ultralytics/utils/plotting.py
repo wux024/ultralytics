@@ -444,10 +444,15 @@ class Annotator:
             self.fromarray(self.im)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def kpts(self, kpts, shape=(640, 640), radius=5, kpt_line=False, conf_thres=0.25, kpt_color=None):
 =======
     def kpts(self, kpts, shape=(640, 640), radius=None, kpt_line=True, conf_thres=0.25, kpt_color=None):
 >>>>>>> 2f1e6e8fdc0ffc433f91a4e3eda7fbdcdb90d3bd
+=======
+
+    def kpts(self, kpts, shape=(640, 640), radius=None, kpt_line=True, conf_thres=0.25, kpt_color=None):
+>>>>>>> cspnext
         """
         Plot keypoints on the image.
 
@@ -505,6 +510,7 @@ class Annotator:
                     pos1,
                     pos2,
 <<<<<<< HEAD
+<<<<<<< HEAD
                     #kpt_color or self.limb_color[i].tolist(),
                     color_k,
                     thickness=2,
@@ -512,6 +518,10 @@ class Annotator:
                     kpt_color or self.limb_color[i].tolist(),
                     thickness=int(np.ceil(self.lw / 2)),
 >>>>>>> 2f1e6e8fdc0ffc433f91a4e3eda7fbdcdb90d3bd
+=======
+                    kpt_color or self.limb_color[i].tolist(),
+                    thickness=int(np.ceil(self.lw / 2)),
+>>>>>>> cspnext
                     lineType=cv2.LINE_AA,
                 )
         if self.pil:

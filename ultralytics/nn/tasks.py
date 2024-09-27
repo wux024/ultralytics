@@ -21,6 +21,7 @@ from ultralytics.nn.modules import (
     SPP,
     SPPELAN,
     SPPF,
+    STEM,
     AConv,
     ADown,
     Bottleneck,
@@ -37,6 +38,7 @@ from ultralytics.nn.modules import (
     Conv,
     Conv2,
     ConvTranspose,
+    CSPNeXtBlock,
     Detect,
     DWConv,
     DWConvTranspose2d,
@@ -57,8 +59,6 @@ from ultralytics.nn.modules import (
     Segment,
     WorldDetect,
     v10Detect,
-    STEM,
-    CSPNeXtBlock,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
