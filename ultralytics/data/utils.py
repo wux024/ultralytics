@@ -33,9 +33,8 @@ from ultralytics.utils import (
 )
 from ultralytics.utils.checks import check_file, check_font, is_ascii
 from ultralytics.utils.downloads import download, safe_download, unzip_file
+from ultralytics.utils.oks_sigma import SetDefaultOKSSigma, SetOKSSigma
 from ultralytics.utils.ops import segments2boxes
-
-from ultralytics.utils.oks_sigma import SetOKSSigma, SetDefaultOKSSigma
 
 HELP_URL = "See https://docs.ultralytics.com/datasets for dataset formatting guidance."
 IMG_FORMATS = {"bmp", "dng", "jpeg", "jpg", "mpo", "png", "tif", "tiff", "webp", "pfm"}  # image suffixes
@@ -315,7 +314,7 @@ def check_det_dataset(dataset, autodownload=True):
                 data[k] = str(x)
             else:
                 data[k] = [str((path / x).resolve()) for x in data[k]]
-    
+
     # Set OKS Sigmas
     if "oks_sigmas" not in data and "kpt_shape" in data:
         SetDefaultOKSSigma(data["kpt_shape"][0])

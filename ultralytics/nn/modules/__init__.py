@@ -29,6 +29,7 @@ from .block import (
     SPP,
     SPPELAN,
     SPPF,
+    STEM,
     AConv,
     ADown,
     Attention,
@@ -43,6 +44,8 @@ from .block import (
     CBFuse,
     CBLinear,
     ContrastiveHead,
+    CSPNeXtBlock,
+    CSPNeXtBottleneck,
     GhostBottleneck,
     HGBlock,
     HGStem,
@@ -53,9 +56,6 @@ from .block import (
     RepVGGDW,
     ResNetLayer,
     SCDown,
-    STEM,
-    CSPNeXtBottleneck,
-    CSPNeXtBlock,
 )
 from .conv import (
     CBAM,

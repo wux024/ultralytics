@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: pose_stream_inference.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/6/19
 Last Modified: 2024/6/19
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
@@ -21,11 +20,19 @@ Revision History:
 
 import argparse
 import os
+
 import yaml
+
 from ultralytics import YOLO
 
-YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
-YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
+YOLO_V8 = ["yolov8n-pose", "yolov8s-pose", "yolov8m-pose", "yolov8l-pose", "yolov8x-pose"]
+YOLO_V8_CSPNEXT = [
+    "yolov8n-pose-cspnext",
+    "yolov8s-pose-cspnext",
+    "yolov8m-pose-cspnext",
+    "yolov8l-pose-cspnext",
+    "yolov8x-pose-cspnext",
+]
 
 
 if __name__ == "__main__":
@@ -57,26 +64,26 @@ if __name__ == "__main__":
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
     args = parser.parse_args()
     # Set the model configuration file
-    if args.model == 'yolov8-pose':
+    if args.model == "yolov8-pose":
         models = YOLO_V8
-    elif args.model == 'yolov8-pose-cspnext':
+    elif args.model == "yolov8-pose-cspnext":
         models = YOLO_V8_CSPNEXT
     elif args.model in YOLO_V8 or args.model in YOLO_V8_CSPNEXT:
         models = [args.model]
     else:
-        raise ValueError(f'Invalid model: {args.model}')
-    
+        raise ValueError(f"Invalid model: {args.model}")
+
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
-    skeleton = data_cdg['skeleton']
-    
+    skeleton = data_cdg["skeleton"]
+
     for model in models:
         model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
 
-        if 'test' in data_cdg.keys():
+        if "test" in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
-        elif 'val' in data_cdg.keys():
+        elif "val" in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['val']}"
-        elif 'train' in data_cdg.keys():
+        elif "train" in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['train']}"
         else:
             raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
@@ -88,34 +95,36 @@ if __name__ == "__main__":
 
         model = YOLO(model_path)
 
-        results = model(data_path, 
-                        conf=args.conf,
-                        iou=args.iou,
-                        imgsz=args.imgsz,
-                        half=args.half,
-                        device=args.device,
-                        max_det=args.max_det,
-                        vid_stride=args.vid_stride,
-                        stream_buffer=args.stream_buffer,
-                        visualize=args.visualize,
-                        augment=args.augment,
-                        agnostic_nms=args.agnostic_nms,
-                        classes=args.classes,
-                        retina_masks=args.retina_masks,
-                        embed=args.embed,
-                        stream=True)
-        
-        for i, result in enumerate(results):
-            result.save(filename = f"{save_dir}/{i}.jpg",
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
-                        )
+        results = model(
+            data_path,
+            conf=args.conf,
+            iou=args.iou,
+            imgsz=args.imgsz,
+            half=args.half,
+            device=args.device,
+            max_det=args.max_det,
+            vid_stride=args.vid_stride,
+            stream_buffer=args.stream_buffer,
+            visualize=args.visualize,
+            augment=args.augment,
+            agnostic_nms=args.agnostic_nms,
+            classes=args.classes,
+            retina_masks=args.retina_masks,
+            embed=args.embed,
+            stream=True,
+        )
 
+        for i, result in enumerate(results):
+            result.save(
+                filename=f"{save_dir}/{i}.jpg",
+                conf=args.show_conf,
+                line_width=args.line_width,
+                kpt_radius=args.kpt_radius,
+                kpt_line=args.kpt_line,
+                labels=args.show_labels,
+                boxes=args.show_boxes,
+                masks=args.show_masks,
+                probs=args.show_probs,
+                show=args.show,
+                skeleton=skeleton,
+            )

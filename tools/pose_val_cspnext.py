@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: pose_val_cspnext.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
 Last Modified: 2024/7/3
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
@@ -22,51 +21,62 @@ Revision History:
 import argparse
 import subprocess
 
+
 def main():
     parser = argparse.ArgumentParser(description="Evaluate YOLOv8 models on a specified dataset.")
-    
+
     # Add optional arguments
-    parser.add_argument('--dataset', type=str, default='ap10k', help='Name of the dataset.')
-    parser.add_argument('--imgsz', type=int, default=640, help='Image size.')
-    parser.add_argument('--batch', type=int, default=16, help='Batch size.')
-    parser.add_argument('--save-json', action='store_true', help='Save results in JSON format.')
-    parser.add_argument('--save-hybrid', action='store_true', help='Save model in ONNX and TorchScript formats.')
-    parser.add_argument('--conf', type=float, default=0.001, help='Confidence threshold.')
-    parser.add_argument('--iou', type=float, default=0.6, help='IOU threshold.')
-    parser.add_argument('--max-det', type=int, default=300, help='Maximum number of detections.')
-    parser.add_argument('--half', action='store_true', help='Use half precision.')
-    parser.add_argument('--device', type=str, help='Device to use (e.g., 0, 1, 2, cpu).')
-    parser.add_argument('--dnn', action='store_true', help='Use DNN backend.')
-    parser.add_argument('--plots', action='store_true', help='Generate plots.')
-    parser.add_argument('--rect', action='store_true', help='Use rectangular training.')
-    parser.add_argument('--split', type=str, default='test', help='Dataset split name.')
-    parser.add_argument('--models', type=str, help='Comma-separated list of model codes (n, s, m, l, x).')
+    parser.add_argument("--dataset", type=str, default="ap10k", help="Name of the dataset.")
+    parser.add_argument("--imgsz", type=int, default=640, help="Image size.")
+    parser.add_argument("--batch", type=int, default=16, help="Batch size.")
+    parser.add_argument("--save-json", action="store_true", help="Save results in JSON format.")
+    parser.add_argument("--save-hybrid", action="store_true", help="Save model in ONNX and TorchScript formats.")
+    parser.add_argument("--conf", type=float, default=0.001, help="Confidence threshold.")
+    parser.add_argument("--iou", type=float, default=0.6, help="IOU threshold.")
+    parser.add_argument("--max-det", type=int, default=300, help="Maximum number of detections.")
+    parser.add_argument("--half", action="store_true", help="Use half precision.")
+    parser.add_argument("--device", type=str, help="Device to use (e.g., 0, 1, 2, cpu).")
+    parser.add_argument("--dnn", action="store_true", help="Use DNN backend.")
+    parser.add_argument("--plots", action="store_true", help="Generate plots.")
+    parser.add_argument("--rect", action="store_true", help="Use rectangular training.")
+    parser.add_argument("--split", type=str, default="test", help="Dataset split name.")
+    parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
 
     args = parser.parse_args()
 
     # Default models
-    models = ["yolov8n-pose-cspnext.yaml", "yolov8s-pose-cspnext.yaml", "yolov8m-pose-cspnext.yaml", "yolov8l-pose-cspnext.yaml", "yolov8x-pose-cspnext.yaml"]
+    models = [
+        "yolov8n-pose-cspnext.yaml",
+        "yolov8s-pose-cspnext.yaml",
+        "yolov8m-pose-cspnext.yaml",
+        "yolov8l-pose-cspnext.yaml",
+        "yolov8x-pose-cspnext.yaml",
+    ]
 
     # Process selected models
     if args.models:
-        selected_models = args.models.split(',')
+        selected_models = args.models.split(",")
         models = []
         for model_code in selected_models:
-            if model_code == 'n':
+            if model_code == "n":
                 models.append("yolov8n-pose-cspnext.yaml")
-            elif model_code == 's':
+            elif model_code == "s":
                 models.append("yolov8s-pose-cspnext.yaml")
-            elif model_code == 'm':
+            elif model_code == "m":
                 models.append("yolov8m-pose-cspnext.yaml")
-            elif model_code == 'l':
+            elif model_code == "l":
                 models.append("yolov8l-pose-cspnext.yaml")
-            elif model_code == 'x':
+            elif model_code == "x":
                 models.append("yolov8x-pose-cspnext.yaml")
             else:
-                print(f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x.")
+                print(
+                    f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x."
+                )
 
     if not models:
-        raise ValueError("Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all.")
+        raise ValueError(
+            "Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all."
+        )
 
     # Loop through each model for the given dataset
     for model_yaml in models:
@@ -77,7 +87,9 @@ def main():
 
         # Construct the yolo pose val command
         cmd = [
-            "yolo", "pose", "val",
+            "yolo",
+            "pose",
+            "val",
             f"model={model}",
             f"data=./configs/data/{args.dataset}.yaml",
             f"imgsz={args.imgsz}",
@@ -94,12 +106,13 @@ def main():
             f"dnn={args.dnn}",
             f"plots={args.plots}",
             f"rect={args.rect}",
-            f"split={args.split}"
+            f"split={args.split}",
         ]
 
         # Execute the command
         print(f"Evaluating {model_yaml} on {args.dataset}...")
         subprocess.run(cmd)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

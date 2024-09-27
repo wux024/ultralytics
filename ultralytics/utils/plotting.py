@@ -505,7 +505,11 @@ class Annotator:
                     pos1,
                     pos2,
 <<<<<<< HEAD
+<<<<<<< HEAD
                     #kpt_color or self.limb_color[i].tolist(),
+=======
+                    # kpt_color or self.limb_color[i].tolist(),
+>>>>>>> b7cc47d6bf60ef8ce9a0b6b2be4306f5e4e07b07
                     color_k,
                     thickness=2,
 =======

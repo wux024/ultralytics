@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: pose_ablation_animalpose_val.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
 Last Modified: 2024/7/3
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
@@ -22,72 +21,100 @@ Revision History:
 import argparse
 import subprocess
 
+
 def main():
     parser = argparse.ArgumentParser(description="Evaluate YOLOv8 models on a specified dataset.")
-    
+
     # Add optional arguments
-    parser.add_argument('--dataset', type=str, default='ap10k', help='Name of the dataset.')
-    parser.add_argument('--imgsz', type=int, default=640, help='Image size.')
-    parser.add_argument('--batch', type=int, default=16, help='Batch size.')
-    parser.add_argument('--save-json', action='store_true', help='Save results in JSON format.')
-    parser.add_argument('--save-hybrid', action='store_true', help='Save model in ONNX and TorchScript formats.')
-    parser.add_argument('--conf', type=float, default=0.001, help='Confidence threshold.')
-    parser.add_argument('--iou', type=float, default=0.6, help='IOU threshold.')
-    parser.add_argument('--max-det', type=int, default=300, help='Maximum number of detections.')
-    parser.add_argument('--half', action='store_true', help='Use half precision.')
-    parser.add_argument('--device', type=str, help='Device to use (e.g., 0, 1, 2, cpu).')
-    parser.add_argument('--dnn', action='store_true', help='Use DNN backend.')
-    parser.add_argument('--plots', action='store_true', help='Generate plots.')
-    parser.add_argument('--rect', action='store_true', help='Use rectangular training.')
-    parser.add_argument('--split', type=str, default='test', help='Dataset split name.')
-    parser.add_argument('--models', type=str, default=None, help='Comma-separated list of model codes (n, s, m, l, x).')
-    parser.add_argument('--ablation', type=str, default='imgsz', help='Ablation study')
+    parser.add_argument("--dataset", type=str, default="ap10k", help="Name of the dataset.")
+    parser.add_argument("--imgsz", type=int, default=640, help="Image size.")
+    parser.add_argument("--batch", type=int, default=16, help="Batch size.")
+    parser.add_argument("--save-json", action="store_true", help="Save results in JSON format.")
+    parser.add_argument("--save-hybrid", action="store_true", help="Save model in ONNX and TorchScript formats.")
+    parser.add_argument("--conf", type=float, default=0.001, help="Confidence threshold.")
+    parser.add_argument("--iou", type=float, default=0.6, help="IOU threshold.")
+    parser.add_argument("--max-det", type=int, default=300, help="Maximum number of detections.")
+    parser.add_argument("--half", action="store_true", help="Use half precision.")
+    parser.add_argument("--device", type=str, help="Device to use (e.g., 0, 1, 2, cpu).")
+    parser.add_argument("--dnn", action="store_true", help="Use DNN backend.")
+    parser.add_argument("--plots", action="store_true", help="Generate plots.")
+    parser.add_argument("--rect", action="store_true", help="Use rectangular training.")
+    parser.add_argument("--split", type=str, default="test", help="Dataset split name.")
+    parser.add_argument("--models", type=str, default=None, help="Comma-separated list of model codes (n, s, m, l, x).")
+    parser.add_argument("--ablation", type=str, default="imgsz", help="Ablation study")
 
     args = parser.parse_args()
 
-    if args.ablation == 'imgsz':
-        models_base = ["yolov8n-pose-cspnext.yaml", "yolov8s-pose-cspnext.yaml", "yolov8m-pose-cspnext.yaml", "yolov8l-pose-cspnext.yaml", "yolov8x-pose-cspnext.yaml"]
-    elif args.ablation in ['c2f', 'dw', 'noca', 'nospp', 'nosppca']:
-        models_base = [f"yolov8n-pose-cspnext-{args.ablation}.yaml", f"yolov8s-pose-cspnext-{args.ablation}.yaml", f"yolov8m-pose-cspnext-{args.ablation}.yaml", f"yolov8l-pose-cspnext-{args.ablation}.yaml", f"yolov8x-pose-cspnext-{args.ablation}.yaml"]
-    elif args.ablation == 'neck':
-        models_base = ["yolov8n-pose-cspneck.yaml", "yolov8s-pose-cspneck.yaml", "yolov8m-pose-cspneck.yaml", "yolov8l-pose-cspneck.yaml", "yolov8x-pose-cspneck.yaml"]
+    if args.ablation == "imgsz":
+        models_base = [
+            "yolov8n-pose-cspnext.yaml",
+            "yolov8s-pose-cspnext.yaml",
+            "yolov8m-pose-cspnext.yaml",
+            "yolov8l-pose-cspnext.yaml",
+            "yolov8x-pose-cspnext.yaml",
+        ]
+    elif args.ablation in ["c2f", "dw", "noca", "nospp", "nosppca"]:
+        models_base = [
+            f"yolov8n-pose-cspnext-{args.ablation}.yaml",
+            f"yolov8s-pose-cspnext-{args.ablation}.yaml",
+            f"yolov8m-pose-cspnext-{args.ablation}.yaml",
+            f"yolov8l-pose-cspnext-{args.ablation}.yaml",
+            f"yolov8x-pose-cspnext-{args.ablation}.yaml",
+        ]
+    elif args.ablation == "neck":
+        models_base = [
+            "yolov8n-pose-cspneck.yaml",
+            "yolov8s-pose-cspneck.yaml",
+            "yolov8m-pose-cspneck.yaml",
+            "yolov8l-pose-cspneck.yaml",
+            "yolov8x-pose-cspneck.yaml",
+        ]
     else:
         raise ValueError(f"Invalid ablation study: {args.ablation}")
-    
 
     # Define a mapping of model codes to their indices in models_base
-    model_codes = {'n': 0, 's': 1, 'm': 2, 'l': 3, 'x': 4}
+    model_codes = {"n": 0, "s": 1, "m": 2, "l": 3, "x": 4}
 
     # Process selected models
     if args.models:
-        selected_models = args.models.split(',')
+        selected_models = args.models.split(",")
         # Use a list comprehension and the model_codes mapping to build the models list
-        models = [models_base[model_codes.get(model_code, None)] for model_code in selected_models if model_code in model_codes]
-        
+        models = [
+            models_base[model_codes.get(model_code, None)]
+            for model_code in selected_models
+            if model_code in model_codes
+        ]
+
         # Handle any invalid model codes
         invalid_codes = set(selected_models) - set(model_codes.keys())
         if invalid_codes:
-            print(f"Warning: Ignoring invalid model code(s) in selection: {', '.join(invalid_codes)}. Valid codes are {', '.join(model_codes.keys())}.")
+            print(
+                f"Warning: Ignoring invalid model code(s) in selection: {', '.join(invalid_codes)}. Valid codes are {', '.join(model_codes.keys())}."
+            )
     else:
         models = models_base
 
     if not models:
-        raise ValueError("Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all.")
-    
+        raise ValueError(
+            "Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all."
+        )
+
     # Loop through each model for the given dataset
     for model_yaml in models:
         model_name = f"animalpose-{model_yaml[:-5]}"
-        if args.ablation == 'imgsz':
+        if args.ablation == "imgsz":
             model_name = f"{model_name}-{args.imgsz}"
         model_dir = f"./runs/pose/train/animalpose/{model_name}"
         model = f"{model_dir}/weights/best.pt"
-        output_dir = f"./runs/pose/eval/animalpose"
+        output_dir = "./runs/pose/eval/animalpose"
 
         # Construct the yolo pose val command
         cmd = [
-            "yolo", "pose", "val",
+            "yolo",
+            "pose",
+            "val",
             f"model={model}",
-            f"data=./configs/data/animalpose.yaml",
+            "data=./configs/data/animalpose.yaml",
             f"imgsz={args.imgsz}",
             f"batch={args.batch}",
             f"project={output_dir}",
@@ -102,12 +129,13 @@ def main():
             f"dnn={args.dnn}",
             f"plots={args.plots}",
             f"rect={args.rect}",
-            f"split={args.split}"
+            f"split={args.split}",
         ]
 
         # Execute the command
         print(f"Evaluating {model_yaml} on animalpose...")
         subprocess.run(cmd)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

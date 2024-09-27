@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 File Name: pose_normal_inference.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/6/19
 Last Modified: 2024/6/19
-Version: 1.0
+Version: 1.0.
 
 Overview:
     Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
@@ -22,7 +21,6 @@ Revision History:
 import argparse
 
 from ultralytics import YOLO
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -59,41 +57,40 @@ if __name__ == "__main__":
     parser.add_argument("--project", default="runs/video_results", help="save results to project/name")
     args = parser.parse_args()
 
-
     model = YOLO(args.model)
 
     if args.data is not None:
         data = f"configs/data/{args.data}.yaml"
 
-    model.predict(source=args.source,
-                  data=data,
-                  stream=args.stream,
-                  conf=args.conf,
-                  iou=args.iou,
-                  imgsz=args.imgsz,
-                  half=args.half,
-                  device=args.device,
-                  max_det=args.max_det,
-                  vid_stride=args.vid_stride,
-                  stream_buffer=args.stream_buffer,
-                  visualize=args.visualize,
-                  augment=args.augment,
-                  agnostic_nms=args.agnostic_nms,
-                  classes=args.classes,
-                  retina_masks=args.retina_masks,
-                  embed=args.embed,
-                  show=args.show,
-                  save=args.save,
-                  save_frames=args.save_frames,
-                  save_txt=args.save_txt,
-                  save_conf=args.save_conf,
-                  save_crop=args.save_crop,
-                  show_labels=args.show_labels,
-                  show_conf=args.show_conf,
-                  show_boxes=args.show_boxes,
-                  line_width=args.line_width,
-                  kpt_line=args.kpt_line,
-                  kpt_radius=args.kpt_radius,
-                  project=args.project
-                  )
-
+    model.predict(
+        source=args.source,
+        data=data,
+        stream=args.stream,
+        conf=args.conf,
+        iou=args.iou,
+        imgsz=args.imgsz,
+        half=args.half,
+        device=args.device,
+        max_det=args.max_det,
+        vid_stride=args.vid_stride,
+        stream_buffer=args.stream_buffer,
+        visualize=args.visualize,
+        augment=args.augment,
+        agnostic_nms=args.agnostic_nms,
+        classes=args.classes,
+        retina_masks=args.retina_masks,
+        embed=args.embed,
+        show=args.show,
+        save=args.save,
+        save_frames=args.save_frames,
+        save_txt=args.save_txt,
+        save_conf=args.save_conf,
+        save_crop=args.save_crop,
+        show_labels=args.show_labels,
+        show_conf=args.show_conf,
+        show_boxes=args.show_boxes,
+        line_width=args.line_width,
+        kpt_line=args.kpt_line,
+        kpt_radius=args.kpt_radius,
+        project=args.project,
+    )
