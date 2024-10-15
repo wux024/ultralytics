@@ -25,6 +25,7 @@ import yaml
 from ultralytics import YOLO
 import cv2
 import numpy as np
+from ultralytics.engine.results import Keypoints
 
 YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
 YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
@@ -118,6 +119,17 @@ if __name__ == "__main__":
             im_black = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
             im_white = np.ones((im.shape[0], im.shape[1], 3), dtype=np.uint8) * 255
             # Plotting on reconstructed images
+            # update original image size
+            result.orig_shape = im.shape[:2]
+            # updata keypoints
+            keypoints_normal = result.keypoints.xyn
+            keypoints_rescaled = keypoints_normal.clone()
+            keypoints_rescaled[:, :, 0] *= im.shape[1]
+            keypoints_rescaled[:, :, 1] *= im.shape[0]
+            keypoints_data_cloned = result.keypoints.data.clone()
+            keypoints_data_cloned[:, :, :2] = keypoints_rescaled
+            result.keypoints.data = keypoints_data_cloned
+
             result.save(filename = f"{save_dir}/{img}",
                         img = im,
                         conf=args.show_conf,
