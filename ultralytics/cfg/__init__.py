@@ -145,6 +145,8 @@ CFG_INT_KEYS = {  # integer-only arguments
     "line_width",
     "nbs",
     "save_period",
+    "kpt_radius",
+    "kpt_line",
 }
 CFG_BOOL_KEYS = {  # boolean-only arguments
     "save",

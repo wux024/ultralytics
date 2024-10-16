@@ -12,7 +12,7 @@ from ultralytics.utils.torch_utils import autocast
 from .metrics import bbox_iou, probiou
 from .tal import bbox2dist
 
-from ultralytics.utils.oks_sigma import GetOKSSigma
+from ultralytics.utils.pose_cfg import GetOKSSigma
 
 
 class VarifocalLoss(nn.Module):

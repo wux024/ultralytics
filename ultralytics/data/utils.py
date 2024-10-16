@@ -33,6 +33,7 @@ from ultralytics.utils import (
 from ultralytics.utils.checks import check_file, check_font, is_ascii
 from ultralytics.utils.downloads import download, safe_download, unzip_file
 from ultralytics.utils.ops import segments2boxes
+from ultralytics.utils.pose_cfg import SetDefaultOKSSigma, SetOKSSigma, SetSkeleton
 
 HELP_URL = "See https://docs.ultralytics.com/datasets for dataset formatting guidance."
 IMG_FORMATS = {"bmp", "dng", "jpeg", "jpg", "mpo", "png", "tif", "tiff", "webp", "pfm", "heic"}  # image suffixes
@@ -314,6 +315,20 @@ def check_det_dataset(dataset, autodownload=True):
                 data[k] = str(x)
             else:
                 data[k] = [str((path / x).resolve()) for x in data[k]]
+    
+    # Set OKS Sigmas
+    if "oks_sigmas" not in data and "kpt_shape" in data:
+        if data["kpt_shape"][0] != 17: # default 17 sigmas for COCO
+            SetDefaultOKSSigma(data["kpt_shape"][0])
+    else:
+        SetOKSSigma(data["oks_sigmas"])
+    
+    # Set skeleton
+    if "skeleton" in data:
+        SetSkeleton(data["skeleton"])
+    else:
+        if data["kpt_shape"][0] != 17: # default 17 skeleton for COCO
+            SetSkeleton(None)
 
     # Parse YAML
     val, s = (data.get(x) for x in ("val", "download"))
