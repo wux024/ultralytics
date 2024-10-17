@@ -189,28 +189,9 @@ class Annotator:
             self.tf = max(self.lw - 1, 1)  # font thickness
             self.sf = self.lw / 3  # font scale
         # Pose
-        # self.skeleton = [
-        #     [16, 14],
-        #     [14, 12],
-        #     [17, 15],
-        #     [15, 13],
-        #     [12, 13],
-        #     [6, 12],
-        #     [7, 13],
-        #     [6, 7],
-        #     [6, 8],
-        #     [7, 9],
-        #     [8, 10],
-        #     [9, 11],
-        #     [2, 3],
-        #     [1, 2],
-        #     [1, 3],
-        #     [2, 4],
-        #     [3, 5],
-        #     [4, 6],
-        #     [5, 7],
-        # ]
+
         self.skeleton = GetSkeleton()
+     
 
         self.limb_color = colors.pose_palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
