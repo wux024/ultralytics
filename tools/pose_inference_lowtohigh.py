@@ -25,6 +25,7 @@ import yaml
 from ultralytics import YOLO
 import cv2
 import numpy as np
+from ultralytics.engine.results import Keypoints
 
 YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
 YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
@@ -57,7 +58,8 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
-    parser.add_argument("--sample", type=str, default='4096', help="sample rate")
+    parser.add_argument("--optical_field_sizes", type=int, default=64, help="optical field sizes for embedding head")
+    parser.add_argument("--sub_optical_field_sizes", type=int, default=64, help="sample rate for inference")
     args = parser.parse_args()
     # Set the model configuration file
     if args.model == 'yolov8-pose':
@@ -70,11 +72,12 @@ if __name__ == "__main__":
         raise ValueError(f'Invalid model: {args.model}')
     
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
-    skeleton = data_cdg['skeleton']
-    
-    for model in models:
-        model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.sample}/weights/best.pt"
 
+    for model in models:
+        if args.sub_optical_field_sizes is not None:
+            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/weights/best.pt"
+        else:
+            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/weights/best.pt"
         if 'test' in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
             high_data_path = f"datasets/{data_cdg['path']}/images_/test"
@@ -118,6 +121,17 @@ if __name__ == "__main__":
             im_black = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
             im_white = np.ones((im.shape[0], im.shape[1], 3), dtype=np.uint8) * 255
             # Plotting on reconstructed images
+            # update original image size
+            result.orig_shape = im.shape[:2]
+            # updata keypoints
+            keypoints_normal = result.keypoints.xyn
+            keypoints_rescaled = keypoints_normal.clone()
+            keypoints_rescaled[:, :, 0] *= im.shape[1]
+            keypoints_rescaled[:, :, 1] *= im.shape[0]
+            keypoints_data_cloned = result.keypoints.data.clone()
+            keypoints_data_cloned[:, :, :2] = keypoints_rescaled
+            result.keypoints.data = keypoints_data_cloned
+
             result.save(filename = f"{save_dir}/{img}",
                         img = im,
                         conf=args.show_conf,
@@ -128,8 +142,7 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )
             # Plotting on black images
             result.save(filename = f"{save_dir}/black_{img}",
@@ -142,8 +155,7 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )
             # Plotting on white images
             result.save(filename = f"{save_dir}/white_{img}",
@@ -156,6 +168,5 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )            

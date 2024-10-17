@@ -462,7 +462,6 @@ class Results(SimpleClass):
         save=False,
         filename=None,
         color_mode="class",
-        skeleton=None,
     ):
         """
         Plots detection results on an input RGB image.

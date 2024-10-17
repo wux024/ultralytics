@@ -37,7 +37,6 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-import yaml
 
 from ultralytics.cfg import get_cfg, get_save_dir
 from ultralytics.data import load_inference_source
@@ -334,12 +333,6 @@ class BasePredictor:
         result.save_dir = self.save_dir.__str__()  # used in other locations
         string += f"{result.verbose()}{result.speed['inference']:.1f}ms"
 
-        # set skeleton
-        data_cdg = yaml.load(open(self.args.data), Loader=yaml.FullLoader)
-        if "skeleton" in data_cdg.keys():
-            skeleton = data_cdg["skeleton"]
-        else:
-            skeleton = None
         # Add predictions to image
         if self.args.save or self.args.show:
             self.plotted_img = result.plot(
@@ -347,10 +340,7 @@ class BasePredictor:
                 boxes=self.args.show_boxes,
                 conf=self.args.show_conf,
                 labels=self.args.show_labels,
-                kpt_radius=self.args.kpt_radius,
                 im_gpu=None if self.args.retina_masks else im[i],
-                kpt_line=self.args.kpt_line,
-                skeleton=skeleton,
             )
 
         # Save results
