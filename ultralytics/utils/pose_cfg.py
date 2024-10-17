@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 """
-File Name: oks_sigma.py
+File Name: pose_cfg.py
 Author: wux024
 Email: wux024@nenu.edu.cn
-Created On: 2024/6/29
-Last Modified: 2024/6/29
+Created On: 2024/10/16
+Last Modified: 2024/10/16
 Version: 1.0.
 
 Overview:
@@ -22,18 +22,45 @@ Revision History:
 import numpy as np
 
 OKS_SIGMA_USER = np.array([1.0 / 17.0] * 17)
+SKELETON_USER = [
+            [16, 14],
+            [14, 12],
+            [17, 15],
+            [15, 13],
+            [12, 13],
+            [6, 12],
+            [7, 13],
+            [6, 7],
+            [6, 8],
+            [7, 9],
+            [8, 10],
+            [9, 11],
+            [2, 3],
+            [1, 2],
+            [1, 3],
+            [2, 4],
+            [3, 5],
+            [4, 6],
+            [5, 7],
+        ]
 
 
 def GetOKSSigma():
     global OKS_SIGMA_USER
     return OKS_SIGMA_USER
 
-
 def SetOKSSigma(sigma):
     global OKS_SIGMA_USER
     OKS_SIGMA_USER = np.array(sigma)
 
-
 def SetDefaultOKSSigma(kpt_nums):
     global OKS_SIGMA_USER
     OKS_SIGMA_USER = np.array([1.0 / kpt_nums] * kpt_nums)
+
+def GetSkeleton():
+    global SKELETON_USER
+    return SKELETON_USER
+
+def SetSkeleton(skeleton):
+    global SKELETON_USER
+    SKELETON_USER = skeleton
