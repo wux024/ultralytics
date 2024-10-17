@@ -58,7 +58,8 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
-    parser.add_argument("--sample", type=str, default='4096', help="sample rate")
+    parser.add_argument("--optical_field_sizes", type=int, default=64, help="optical field sizes for embedding head")
+    parser.add_argument("--sub_optical_field_sizes", type=int, default=64, help="sample rate for inference")
     args = parser.parse_args()
     # Set the model configuration file
     if args.model == 'yolov8-pose':
@@ -71,11 +72,12 @@ if __name__ == "__main__":
         raise ValueError(f'Invalid model: {args.model}')
     
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
-    skeleton = data_cdg['skeleton']
-    
-    for model in models:
-        model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.sample}/weights/best.pt"
 
+    for model in models:
+        if args.sub_optical_field_sizes is not None:
+            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/weights/best.pt"
+        else:
+            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/weights/best.pt"
         if 'test' in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
             high_data_path = f"datasets/{data_cdg['path']}/images_/test"
@@ -140,8 +142,7 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )
             # Plotting on black images
             result.save(filename = f"{save_dir}/black_{img}",
@@ -154,8 +155,7 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )
             # Plotting on white images
             result.save(filename = f"{save_dir}/white_{img}",
@@ -168,6 +168,5 @@ if __name__ == "__main__":
                         boxes=args.show_boxes,
                         masks=args.show_masks,
                         probs=args.show_probs,
-                        show=args.show,
-                        skeleton=skeleton
+                        show=args.show
                         )            
