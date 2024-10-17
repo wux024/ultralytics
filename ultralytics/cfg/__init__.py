@@ -146,9 +146,10 @@ CFG_INT_KEYS = {  # integer-only arguments
     "max_det",
     "vid_stride",
     "line_width",
-    "kpt_radius",
     "nbs",
     "save_period",
+    "kpt_radius",
+    "kpt_line",
 }
 CFG_BOOL_KEYS = {  # boolean-only arguments
     "save",

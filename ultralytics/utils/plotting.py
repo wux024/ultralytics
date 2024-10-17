@@ -16,7 +16,7 @@ from PIL import __version__ as pil_version
 from ultralytics.utils import LOGGER, TryExcept, ops, plt_settings, threaded
 from ultralytics.utils.checks import check_font, check_version, is_ascii
 from ultralytics.utils.files import increment_path
-
+from ultralytics.utils.pose_cfg import GetSkeleton
 
 class Colors:
     """
@@ -165,7 +165,7 @@ class Annotator:
         kpt_color (List[int]): Color palette for keypoints.
     """
 
-    def __init__(self, im, line_width=None, font_size=None, font="Arial.ttf", pil=False, example="abc", skeleton=None):
+    def __init__(self, im, line_width=None, font_size=None, font="Arial.ttf", pil=False, example="abc"):
         """Initialize the Annotator class with image and line width along with color palette for keypoints and limbs."""
         non_ascii = not is_ascii(example)  # non-latin labels, i.e. asian, arabic, cyrillic
         input_is_pil = isinstance(im, Image.Image)
@@ -189,7 +189,7 @@ class Annotator:
             self.tf = max(self.lw - 1, 1)  # font thickness
             self.sf = self.lw / 3  # font scale
         # Pose
-        if skeleton is None:
+        #if skeleton is None:
             # self.skeleton = [
             #     [16, 14],
             #     [14, 12],
@@ -211,29 +211,8 @@ class Annotator:
             #     [4, 6],
             #     [5, 7],
             # ]
-            self.skeleton = [
-                [15, 13],
-                [13, 11],
-                [16, 14],
-                [14, 12],
-                [11, 12],
-                [5, 11],
-                [6, 12],
-                [5, 6],
-                [5, 7],
-                [6, 8],
-                [7, 9],
-                [8, 10],
-                [1, 2],
-                [0, 1],
-                [0, 2],
-                [1, 3],
-                [2, 4],
-                [3, 5],
-                [4, 6],
-            ]
-        else:
-            self.skeleton = skeleton
+            self.skeleton = GetSkeleton()
+     
 
         self.limb_color = colors.pose_palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
@@ -478,7 +457,7 @@ class Annotator:
                         continue
                 cv2.circle(self.im, (int(x_coord), int(y_coord)), radius, color_k, -1, lineType=cv2.LINE_AA)
 
-        if kpt_line and min(kpts.shape) != 0:
+        if kpt_line and self.skeleton is not None:
             ndim = kpts.shape[-1]
             for i, sk in enumerate(self.skeleton):
                 color_k = kpt_color or (self.limb_color[i].tolist() if is_pose else colors(i))

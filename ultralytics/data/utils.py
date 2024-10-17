@@ -33,9 +33,9 @@ from ultralytics.utils import (
 )
 from ultralytics.utils.checks import check_file, check_font, is_ascii
 from ultralytics.utils.downloads import download, safe_download, unzip_file
-from ultralytics.utils.oks_sigma import SetDefaultOKSSigma, SetOKSSigma
-from ultralytics.utils.ops import segments2boxes
 
+from ultralytics.utils.ops import segments2boxes
+from ultralytics.utils.pose_cfg import SetDefaultOKSSigma, SetOKSSigma, SetSkeleton
 HELP_URL = "See https://docs.ultralytics.com/datasets for dataset formatting guidance."
 IMG_FORMATS = {"bmp", "dng", "jpeg", "jpg", "mpo", "png", "tif", "tiff", "webp", "pfm"}  # image suffixes
 VID_FORMATS = {"asf", "avi", "gif", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ts", "wmv", "webm"}  # video suffixes
@@ -317,9 +317,17 @@ def check_det_dataset(dataset, autodownload=True):
 
     # Set OKS Sigmas
     if "oks_sigmas" not in data and "kpt_shape" in data:
-        SetDefaultOKSSigma(data["kpt_shape"][0])
+        if data["kpt_shape"][0] != 17: # default 17 sigmas for COCO
+            SetDefaultOKSSigma(data["kpt_shape"][0])
     else:
         SetOKSSigma(data["oks_sigmas"])
+    
+    # Set skeleton
+    if "skeleton" in data:
+        SetSkeleton(data["skeleton"])
+    else:
+        if data["kpt_shape"][0] != 17: # default 17 skeleton for COCO
+            SetSkeleton(None)
     # Parse YAML
     val, s = (data.get(x) for x in ("val", "download"))
     if val:
