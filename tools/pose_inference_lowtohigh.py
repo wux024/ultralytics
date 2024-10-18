@@ -9,7 +9,7 @@ Last Modified: 2024/6/19
 Version: 1.0
 
 Overview:
-    Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
+    This script performs pose estimation using YOLOv8 models and saves the results with different backgrounds.
 
 Notes:
     - Modifications should be documented in the "Revision History" section beneath this.
@@ -30,6 +30,56 @@ from ultralytics.utils.pose_cfg import SetSkeleton
 YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
 YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
 
+def build_model_path(args, model, dataset):
+    """Build the model path based on the provided arguments."""
+    base_path = f"runs/pose/train/{dataset}/{dataset}-{model}"
+    if args.optical_field_sizes is not None:
+        base_path += f"-{args.optical_field_sizes}x{args.optical_field_sizes}"
+    if args.sub_optical_field_sizes is not None:
+        base_path += f"-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}"
+    if args.window_size is not None:
+        base_path += f"-{args.window_size[0]}x{args.window_size[1]}"
+    return f"{base_path}/weights/best.pt"
+
+def build_save_dir(args, model, dataset):
+    """Build the save directory based on the provided arguments."""
+    base_dir = f"runs/pose/spipose/{dataset}/{dataset}-{model}"
+    if args.optical_field_sizes is not None:
+        base_dir += f"-{args.optical_field_sizes}x{args.optical_field_sizes}"
+    if args.sub_optical_field_sizes is not None:
+        base_dir += f"-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}"
+    if args.window_size is not None:
+        base_dir += f"-{args.window_size[0]}x{args.window_size[1]}"
+    return base_dir
+
+def save_results(result, save_dir, img, im, im_black, im_white, args):
+    """Save the results on different backgrounds."""
+    # Update original image size
+    result.orig_shape = im.shape[:2]
+
+    # Rescale keypoints
+    keypoints_rescaled = result.keypoints.xyn.clone()
+    keypoints_rescaled[:, :, 0] *= im.shape[1]
+    keypoints_rescaled[:, :, 1] *= im.shape[0]
+    keypoints_data_cloned = result.keypoints.data.clone()
+    keypoints_data_cloned[:, :, :2] = keypoints_rescaled
+    result.keypoints.data = keypoints_data_cloned
+
+    # Save results on different backgrounds
+    for bg_img, prefix in [(im, ''), (im_black, 'black_'), (im_white, 'white_')]:
+        result.save(
+            filename=f"{save_dir}/{prefix}{img}",
+            img=bg_img,
+            conf=args.show_conf,
+            line_width=args.line_width,
+            kpt_radius=args.kpt_radius,
+            kpt_line=args.kpt_line,
+            labels=args.show_labels,
+            boxes=args.show_boxes,
+            masks=args.show_masks,
+            probs=args.show_probs,
+            show=args.show
+        )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -58,9 +108,11 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
-    parser.add_argument("--optical_field_sizes", type=int, default=64, help="optical field sizes for embedding head")
+    parser.add_argument("--optical_field_sizes", type=int, default=None, help="optical field sizes for embedding head")
     parser.add_argument("--sub_optical_field_sizes", type=int, default=None, help="sample rate for inference")
+    parser.add_argument("--window_size", type=int, nargs='+', default=None, help="window size for embedding head")
     args = parser.parse_args()
+
     # Set the model configuration file
     if args.model == 'yolov8-pose':
         models = YOLO_V8
@@ -70,37 +122,34 @@ if __name__ == "__main__":
         models = [args.model]
     else:
         raise ValueError(f'Invalid model: {args.model}')
-    
+
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
 
     for model in models:
-        if args.sub_optical_field_sizes is not None:
-            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/weights/best.pt"
-            save_dir = f"runs/pose/spipose/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/"
-        else:
-            model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/weights/best.pt"
-            save_dir = f"runs/pose/spipose/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/"
-        if 'test' in data_cdg.keys():
-            data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
-            high_data_path = f"datasets/{data_cdg['path']}/images_/test"
-        elif 'val' in data_cdg.keys():
-            data_path = f"datasets/{data_cdg['path']}/{data_cdg['val']}"
-            high_data_path = f"datasets/{data_cdg['path']}/images_/val"
-        elif 'train' in data_cdg.keys():
-            data_path = f"datasets/{data_cdg['path']}/{data_cdg['train']}"
-            high_data_path = f"datasets/{data_cdg['path']}/images_/train"
-        else:
-            raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
+        model_path = build_model_path(args, model, args.dataset)
+        save_dir = build_save_dir(args, model, args.dataset)
 
-        
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
         model = YOLO(model_path)
 
-        # set skeleton
+        # Set skeleton
         if 'skeleton' in data_cdg.keys():
             SetSkeleton(data_cdg['skeleton'])
+
+        # Determine data paths
+        if 'test' in data_cdg.keys():
+            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['test'])
+            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "test")
+        elif 'val' in data_cdg.keys():
+            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['val'])
+            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "val")
+        elif 'train' in data_cdg.keys:
+            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['train'])
+            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "train")
+        else:
+            raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
 
         results = model(data_path, 
                         conf=args.conf,
@@ -123,56 +172,8 @@ if __name__ == "__main__":
         high_datas = os.listdir(high_data_path)
 
         for result, img in zip(results, high_datas):
-            im = cv2.imread(high_data_path + '/' + img)
+            im = cv2.imread(os.path.join(high_data_path, img))
             im_black = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
             im_white = np.ones((im.shape[0], im.shape[1], 3), dtype=np.uint8) * 255
-            # Plotting on reconstructed images
-            # update original image size
-            result.orig_shape = im.shape[:2]
-            # updata keypoints
-            keypoints_normal = result.keypoints.xyn
-            keypoints_rescaled = keypoints_normal.clone()
-            keypoints_rescaled[:, :, 0] *= im.shape[1]
-            keypoints_rescaled[:, :, 1] *= im.shape[0]
-            keypoints_data_cloned = result.keypoints.data.clone()
-            keypoints_data_cloned[:, :, :2] = keypoints_rescaled
-            result.keypoints.data = keypoints_data_cloned
 
-            result.save(filename = f"{save_dir}/{img}",
-                        img = im,
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show
-                        )
-            # Plotting on black images
-            result.save(filename = f"{save_dir}/black_{img}",
-                        img = im_black,
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show
-                        )
-            # Plotting on white images
-            result.save(filename = f"{save_dir}/white_{img}",
-                        img = im_white,
-                        conf=args.show_conf,
-                        line_width=args.line_width,
-                        kpt_radius=args.kpt_radius,
-                        kpt_line=args.kpt_line,
-                        labels=args.show_labels,
-                        boxes=args.show_boxes,
-                        masks=args.show_masks,
-                        probs=args.show_probs,
-                        show=args.show
-                        )            
+            save_results(result, save_dir, img, im, im_black, im_white, args)
