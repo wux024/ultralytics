@@ -25,7 +25,7 @@ import yaml
 from ultralytics import YOLO
 import cv2
 import numpy as np
-from ultralytics.engine.results import Keypoints
+from ultralytics.utils.pose_cfg import SetSkeleton
 
 YOLO_V8 = ['yolov8n-pose', 'yolov8s-pose', 'yolov8m-pose', 'yolov8l-pose', 'yolov8x-pose']
 YOLO_V8_CSPNEXT = ['yolov8n-pose-cspnext', 'yolov8s-pose-cspnext', 'yolov8m-pose-cspnext', 'yolov8l-pose-cspnext', 'yolov8x-pose-cspnext']
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
     parser.add_argument("--optical_field_sizes", type=int, default=64, help="optical field sizes for embedding head")
-    parser.add_argument("--sub_optical_field_sizes", type=int, default=64, help="sample rate for inference")
+    parser.add_argument("--sub_optical_field_sizes", type=int, default=None, help="sample rate for inference")
     args = parser.parse_args()
     # Set the model configuration file
     if args.model == 'yolov8-pose':
@@ -76,8 +76,10 @@ if __name__ == "__main__":
     for model in models:
         if args.sub_optical_field_sizes is not None:
             model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/weights/best.pt"
+            save_dir = f"runs/pose/spipose/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}-{args.sub_optical_field_sizes}x{args.sub_optical_field_sizes}/"
         else:
             model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/weights/best.pt"
+            save_dir = f"runs/pose/spipose/{args.dataset}/{args.dataset}-{model}-{args.optical_field_sizes}x{args.optical_field_sizes}/"
         if 'test' in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
             high_data_path = f"datasets/{data_cdg['path']}/images_/test"
@@ -90,11 +92,15 @@ if __name__ == "__main__":
         else:
             raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
 
-        save_dir = f"runs/pose/lowtohigh/{args.dataset}/{args.dataset}-{model}-{args.sample}/"
+        
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
         model = YOLO(model_path)
+
+        # set skeleton
+        if 'skeleton' in data_cdg.keys():
+            SetSkeleton(data_cdg['skeleton'])
 
         results = model(data_path, 
                         conf=args.conf,

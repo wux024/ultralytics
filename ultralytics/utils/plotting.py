@@ -191,7 +191,6 @@ class Annotator:
         # Pose
 
         self.skeleton = GetSkeleton()
-     
 
         self.limb_color = colors.pose_palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
@@ -436,8 +435,8 @@ class Annotator:
                         continue
                 cv2.circle(self.im, (int(x_coord), int(y_coord)), radius, color_k, -1, lineType=cv2.LINE_AA)
 
-        if kpt_line and self.skeleton is not None:
-            ndim = kpts.shape[-1]
+        if kpt_line and self.skeleton is not None and kpts.numel():
+            ndim = kpts.shape[0]
             for i, sk in enumerate(self.skeleton):
                 color_k = kpt_color or (self.limb_color[i].tolist() if is_pose else colors(i))
                 # pos1 = (int(kpts[(sk[0] - 1), 0]), int(kpts[(sk[0] - 1), 1]))
