@@ -1,14 +1,14 @@
-# Animal Pose Estimation with AnimalRTPose
+# SPIPose
 
 Aanimal pose estimation aims to detect the keypoints of different species. It provides detailed behavioral analysis for neuroscience, medical and ecology applications. Some results are shown below.
-![](https://s3.bmp.ovh/imgs/2024/08/19/0e1d3cc45f840729.jpg)
+
 ## Installation
 
 1. Create a conda virtual environment and activate it.
 
 ```
-conda create -n animalrtpose python=3.8
-conda activate animalrtpose
+conda create -n spipose python=3.8
+conda activate spipose
 ```
 
 2. Install PyTorch (rqeuired version: 2.1.0) and torchvision following the [official instructions](https://pytorch.org/).
@@ -22,13 +22,13 @@ pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https
 ```
 git clone https://github.com/wux024/ultralytics.git
 cd ultralytics
-git checkout cspnext
+git checkout spipose
 pip install -v -e .
 ```
 
 ## Training
 
-1. The datasets (e.g. Animal Pose) used AnimalRTPose could be downloaded by contacting the corresponding author and me (<EMAIL>wux024@nenu.edu.cn). Extract the dataset to the `data` folder.
+1. The datasets (e.g. mouse) used SPIPose could be downloaded by contacting the corresponding author and me (<EMAIL>wux024@nenu.edu.cn). Extract the dataset to the `data` folder.
 ```text
 ultralytics
 ├── ultralytics
@@ -38,13 +38,20 @@ ultralytics
 ├── configs
 ├── weights
 ├── datasets
-    │── animalpose
+    │── mouse
+        │── images
+        |── images-aliasing-4096
+        |── images-aliasing-4096-2x3
+        |── images-sample-1024
+        |── images-sample-4096
+        |── images-sample-16384
+        │── labels
     |—— other datasets
 ```
 
 2. Run the following command to train the model:
 ```
-python tools/pose_train_cspnext.py --dataset animalpose --pretrained --models n
+python tools/pose_train_spipose.py --dataset mouse --pretrained --models n --spi aliasing --rate 4096
 ```
 The pretrained model can be downloaded from [here](https://drive.google.com/drive/folders/15L-q6CETD3dC8aOknamEunZaDEVlA1na?usp=drive_link). You should move the downloaded model to the `weights` folder.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-File Name: pose_train.py
+File Name: pose_train_cspnext.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
@@ -28,7 +28,7 @@ def main():
     default_settings = {
         "dataset": "ap10k",
         "epochs": 1000,
-        "patience": 100,
+        "patience": 300,
         "batch": -1,
         "imgsz": 640,
         "device": None,
@@ -41,7 +41,7 @@ def main():
 
     # Define the argument parser
     parser = argparse.ArgumentParser(
-        description="Train YOLOv11 models on a specified dataset with default or user-provided settings."
+        description="Train YOLOv8 models on a specified dataset with default or user-provided settings."
     )
 
     # Required argument
@@ -56,7 +56,7 @@ def main():
         "--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu)."
     )
     parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
-    parser.add_argument("--pretrained", action="store_true", help="Use a pretrained model for the dataset.")
+    parser.add_argument("--pretrained", action="store_true", help="Use a pretrained model.")
     parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers.")
     parser.add_argument(
         "--cos-lr", type=bool, default=default_settings["cos_lr"], help="Use cosine learning rate schedule."
@@ -68,7 +68,13 @@ def main():
     args = parser.parse_args()
 
     # Default models
-    models = ["yolov11n-pose.yaml", "yolov11s-pose.yaml", "yolov11m-pose.yaml", "yolov11l-pose.yaml", "yolov11x-pose.yaml"]
+    models = [
+        "yolov8n-pose-cspnext.yaml",
+        "yolov8s-pose-cspnext.yaml",
+        "yolov8m-pose-cspnext.yaml",
+        "yolov8l-pose-cspnext.yaml",
+        "yolov8x-pose-cspnext.yaml",
+    ]
 
     # Process selected models
     if args.models:
@@ -76,15 +82,15 @@ def main():
         models = []
         for model_code in selected_models:
             if model_code == "n":
-                models.append("yolov11n-pose.yaml")
+                models.append("yolov8n-pose-cspnext.yaml")
             elif model_code == "s":
-                models.append("yolov11s-pose.yaml")
+                models.append("yolov8s-pose-cspnext.yaml")
             elif model_code == "m":
-                models.append("yolov11m-pose.yaml")
+                models.append("yolov8m-pose-cspnext.yaml")
             elif model_code == "l":
-                models.append("yolov11l-pose.yaml")
+                models.append("yolov8l-pose-cspnext.yaml")
             elif model_code == "x":
-                models.append("yolov11x-pose.yaml")
+                models.append("yolov8x-pose-cspnext.yaml")
             else:
                 print(
                     f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x."
