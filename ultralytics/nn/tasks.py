@@ -59,6 +59,7 @@ from ultralytics.nn.modules import (
     Segment,
     WorldDetect,
     v10Detect,
+    SPIUpResolution,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -1038,6 +1039,9 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             c1, c2 = ch[f], int(args[0] * width)
             args = [c1, c2, n, *args[1:]]
             n = 1
+        elif m is SPIUpResolution:
+            c1, c2 = ch[f], args[0]
+            args = [c1, c2]
         else:
             c2 = ch[f]
 
@@ -1065,7 +1069,10 @@ def yaml_model_load(path):
         LOGGER.warning(f"WARNING ⚠️ Ultralytics YOLO P6 models now use -p6 suffix. Renaming {path.stem} to {new_stem}.")
         path = path.with_name(new_stem + path.suffix)
 
+    print(f"Loading model {path}")
     unified_path = re.sub(r"(\d+)([nslmx])(.+)?$", r"\1\3", str(path))  # i.e. yolov8x.yaml -> yolov8.yaml
+    if path.stem.startswith("spipose-"):
+        unified_path = re.sub(r"spipose-([nslmx])(.+)?$", r"spipose\2", unified_path)
     yaml_file = check_yaml(unified_path, hard=False) or check_yaml(path)
     d = yaml_load(yaml_file)  # model dict
     d["scale"] = guess_model_scale(path)
@@ -1087,8 +1094,13 @@ def guess_model_scale(model_path):
     """
     with contextlib.suppress(AttributeError):
         import re
-
-        return re.search(r"yolov\d+([nslmx])", Path(model_path).stem).group(1)  # n, s, m, l, or x
+        stem = Path(model_path).stem
+        match_yolo = re.search(r"yolov\d+([nslmx])", stem)
+        if match_yolo:
+            return match_yolo.group(1)
+        match_spipose = re.search(r"spipose-([nslmx])", stem)
+        if match_spipose:
+            return match_spipose.group(1)
     return ""
 
 

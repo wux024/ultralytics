@@ -56,6 +56,7 @@ from .block import (
     RepVGGDW,
     ResNetLayer,
     SCDown,
+    SPIUpResolution
 )
 from .conv import (
     CBAM,
@@ -156,4 +157,5 @@ __all__ = (
     "STEM",
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
+    "SPIUpResolution",
 )

@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from ultralytics.utils.torch_utils import fuse_conv_and_bn
 
-from .conv import ChannelAttention, Conv, DWConv, GhostConv, LightConv, RepConv, autopad
+from .conv import ChannelAttention, Conv, DWConv, GhostConv, LightConv, RepConv, autopad, ConvTranspose
 from .transformer import TransformerBlock
 
 __all__ = (
@@ -49,6 +49,7 @@ __all__ = (
     "STEM",
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
+    "SPIUpResolution",
 )
 
 
@@ -1047,3 +1048,20 @@ class CSPNeXtBlock(nn.Module):
             x_final = self.attention(x_final)
         x_final = self.final_conv(x_final)
         return x_final
+
+class SPIUpResolution(nn.Module):
+
+    def __init__(self, c1, c2):
+        super().__init__()
+        self.deconv1 = ConvTranspose(c1, 64, k=4, s=2, p=1)
+        self.conv1 = Conv(64, 64, k=3, s=1, p=1)
+        self.deconv2 = ConvTranspose(64, c2, k=4, s=2, p=1)
+
+    def forward(self, x):
+        # deconv1
+        x = self.deconv1(x)
+        # conv1
+        x = self.conv1(x)
+        # deconv2
+        x = self.deconv2(x)
+        return x
