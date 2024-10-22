@@ -62,6 +62,7 @@ def construct_train_command(args, model_yaml, pretrained_model):
         args.optical_field_sizes,
         args.sub_optical_field_sizes,
         args.window_size,
+        args.seed
     )
     output_dir = f"./runs/spipose/train/{args.dataset}"
 
