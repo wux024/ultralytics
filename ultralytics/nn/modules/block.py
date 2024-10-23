@@ -1053,15 +1053,12 @@ class SPIUpResolution(nn.Module):
 
     def __init__(self, c1, c2):
         super().__init__()
-        self.deconv1 = ConvTranspose(c1, 64, k=4, s=2, p=1)
-        self.conv1 = Conv(64, 64, k=3, s=1, p=1)
-        self.deconv2 = ConvTranspose(64, c2, k=4, s=2, p=1)
+        self.deconv1 = ConvTranspose(c1, c2, k=4, s=2, p=1)
+        self.deconv2 = ConvTranspose(c2, c2, k=4, s=2, p=1)
 
     def forward(self, x):
         # deconv1
         x = self.deconv1(x)
-        # conv1
-        x = self.conv1(x)
         # deconv2
         x = self.deconv2(x)
         return x
