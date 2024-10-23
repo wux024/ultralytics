@@ -96,7 +96,7 @@ def main():
     # Default training settings
     default_settings = {
         "epochs": 10000,
-        "patience": 5000,
+        "patience": 2000,
         "batch": -1,
         "imgsz": 128,
         "device": None,
