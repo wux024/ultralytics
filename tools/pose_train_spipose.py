@@ -6,9 +6,9 @@ import subprocess
 from datetime import datetime
 
 
-def build_output_dir(model, dataset, optical_field_sizes=None, sub_optical_field_sizes=None, window_size=None, seed=None):
+def build_output_dir(model, optical_field_sizes=None, sub_optical_field_sizes=None, window_size=None, seed=None, order=False):
     """Build the save directory based on the provided arguments."""
-    base_dir = f"{dataset}"
+    base_dir = f"{model}"
     if optical_field_sizes is not None:
         base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
     if sub_optical_field_sizes is not None:
@@ -17,7 +17,8 @@ def build_output_dir(model, dataset, optical_field_sizes=None, sub_optical_field
         base_dir += f"-{window_size[0]}x{window_size[1]}"
     if seed is not None:
         base_dir += f"-{seed}"
-    base_dir += f"-{model}"
+    if order:
+        base_dir += "-inverse"
     return base_dir
 
 
@@ -58,11 +59,11 @@ def construct_train_command(args, model_yaml, pretrained_model):
     modelcfg = f"./configs/models/{args.dataset}/{model_yaml}"
     model_name = build_output_dir(
         model_yaml[:-5],
-        args.dataset,
         args.optical_field_sizes,
         args.sub_optical_field_sizes,
         args.window_size,
-        args.seed
+        args.seed,
+        args.order
     )
     output_dir = f"./runs/spipose/train/{args.dataset}"
 
@@ -124,7 +125,7 @@ def main():
         "--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu)."
     )
     parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
-    parser.add_argument("--pretrained", action="store_true", help="Use a pretrained model.")
+    parser.add_argument("--no-pretrained", action="store_true", help="not use a pretrained model.")
     parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers.")
     parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed.")
     parser.add_argument("--pose", type=float, default=default_settings["pose"], help="Pose loss weight.")
@@ -146,6 +147,11 @@ def main():
         type=int,
         default=default_settings["window_size"],
         help="Window size for sub-regions of the image.",
+    )
+    parser.add_argument(
+        "--order",
+        action="store_true",
+        help="Order the images by their size before splitting into sub-regions.",
     )
 
     args = parser.parse_args()
@@ -170,7 +176,7 @@ def main():
 
     # Loop through each model for the given dataset
     for model_yaml in models:
-        pretrained_model = get_pretrained_model_path(model_yaml) if args.pretrained else None
+        pretrained_model = get_pretrained_model_path(model_yaml) if not args.no_pretrained else None
 
         cmd = construct_train_command(args, model_yaml, pretrained_model)
 
