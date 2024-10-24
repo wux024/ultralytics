@@ -20,78 +20,65 @@ Revision History:
 
 import argparse
 import subprocess
+import os
 
+def build_output_dir(model, optical_field_sizes=None, sub_optical_field_sizes=None, window_size=None, seed=None, order=False):
+    """Build the save directory based on the provided arguments."""
+    base_dir = f"{model}"
+    if optical_field_sizes is not None:
+        base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
+    if sub_optical_field_sizes is not None:
+        base_dir += f"-{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+    if window_size is not None:
+        base_dir += f"-{window_size[0]}x{window_size[1]}"
+    if seed is not None:
+        base_dir += f"-{seed}"
+    if order:
+        base_dir += "-inverse"
+    return base_dir
 
-def main():
-    parser = argparse.ArgumentParser(description="Evaluate YOLOv8 models on a specified dataset.")
+def parse_models(models_str):
+    """Parse the comma-separated list of model codes into a list of model YAML files."""
+    models = []
+    model_codes = models_str.split(",")
+    for model_code in model_codes:
+        if model_code == "n":
+            models.append("spipose-n.yaml")
+        elif model_code == "s":
+            models.append("spipose-s.yaml")
+        elif model_code == "m":
+            models.append("spipose-m.yaml")
+        elif model_code == "l":
+            models.append("spipose-l.yaml")
+        elif model_code == "x":
+            models.append("spipose-x.yaml")
+        else:
+            print(f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x.")
+    return models
 
-    # Add optional arguments
-    parser.add_argument("--dataset", type=str, default="ap10k", help="Name of the dataset.")
-    parser.add_argument("--imgsz", type=int, default=640, help="Image size.")
-    parser.add_argument("--batch", type=int, default=16, help="Batch size.")
-    parser.add_argument("--save-json", action="store_true", help="Save results in JSON format.")
-    parser.add_argument("--save-hybrid", action="store_true", help="Save model in ONNX and TorchScript formats.")
-    parser.add_argument("--conf", type=float, default=0.001, help="Confidence threshold.")
-    parser.add_argument("--iou", type=float, default=0.6, help="IOU threshold.")
-    parser.add_argument("--max-det", type=int, default=300, help="Maximum number of detections.")
-    parser.add_argument("--half", action="store_true", help="Use half precision.")
-    parser.add_argument("--device", type=str, help="Device to use (e.g., 0, 1, 2, cpu).")
-    parser.add_argument("--dnn", action="store_true", help="Use DNN backend.")
-    parser.add_argument("--plots", action="store_true", help="Generate plots.")
-    parser.add_argument("--rect", action="store_true", help="Use rectangular training.")
-    parser.add_argument("--split", type=str, default="test", help="Dataset split name.")
-    parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
+def construct_train_command(args, model_yaml):
+    """Construct the yolo pose train command."""
+    datacfg = f"./configs/data/{args.dataset}.yaml"
+    model_name = build_output_dir(
+        model_yaml[:-5],
+        args.optical_field_sizes,
+        args.sub_optical_field_sizes,
+        args.window_size,
+        args.seed,
+        args.order
+    )
+    model_dir = f"./runs/spipose/train/{args.dataset}"
+    output_dir = f"./runs/spipose/eval/{args.dataset}"
 
-    args = parser.parse_args()
+    model = os.path.join(model_dir, model_name, "weights/best.pt")
 
-    # Default models
-    models = [
-        "yolov8n-pose-cspnext.yaml",
-        "yolov8s-pose-cspnext.yaml",
-        "yolov8m-pose-cspnext.yaml",
-        "yolov8l-pose-cspnext.yaml",
-        "yolov8x-pose-cspnext.yaml",
-    ]
-
-    # Process selected models
-    if args.models:
-        selected_models = args.models.split(",")
-        models = []
-        for model_code in selected_models:
-            if model_code == "n":
-                models.append("yolov8n-pose-cspnext.yaml")
-            elif model_code == "s":
-                models.append("yolov8s-pose-cspnext.yaml")
-            elif model_code == "m":
-                models.append("yolov8m-pose-cspnext.yaml")
-            elif model_code == "l":
-                models.append("yolov8l-pose-cspnext.yaml")
-            elif model_code == "x":
-                models.append("yolov8x-pose-cspnext.yaml")
-            else:
-                print(
-                    f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x."
-                )
-
-    if not models:
-        raise ValueError(
-            "Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all."
-        )
-
-    # Loop through each model for the given dataset
-    for model_yaml in models:
-        model_name = f"{args.dataset}-{model_yaml[:-5]}"
-        model_dir = f"./runs/pose/train/{args.dataset}/{model_name}"
-        model = f"{model_dir}/weights/best.pt"
-        output_dir = f"./runs/pose/eval/{args.dataset}"
-
-        # Construct the yolo pose val command
-        cmd = [
+            # Construct the yolo pose val command
+    cmd = [
             "yolo",
             "pose",
             "val",
+            f"data={datacfg}",
             f"model={model}",
-            f"data=./configs/data/{args.dataset}.yaml",
             f"imgsz={args.imgsz}",
             f"batch={args.batch}",
             f"project={output_dir}",
@@ -108,10 +95,113 @@ def main():
             f"rect={args.rect}",
             f"split={args.split}",
         ]
+    
+    return [arg for arg in cmd if arg]  # Filter out any empty strings
 
-        # Execute the command
-        print(f"Evaluating {model_yaml} on {args.dataset}...")
-        subprocess.run(cmd)
+
+def main():
+
+    # Default training settings
+    default_settings = {
+        "dataset": "mouse",
+        "imgsz": 128,
+        "batch": 16,
+        "conf": 0.001,
+        "iou": 0.6,
+        "max_det": 300,
+        "half": False,
+        "device": "0",
+        "workers": 16,
+        "optical_field_sizes": 128,
+        "sub_optical_field_sizes": None,
+        "window_size": None,
+        "seed": None,
+        "order": False,
+        "models": None,
+    }
+
+
+
+    parser = argparse.ArgumentParser(description="Evaluate SPiPose models on a specified dataset.")
+
+    # Dataset selection
+    parser.add_argument("--dataset", type=str, default=default_settings["dataset"], help="Dataset to evaluate on.")
+
+    # imgsz selection
+    parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size to use for training.")
+
+    # batch selection
+    parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size for training.")
+
+    # save_json selection
+    parser.add_argument("--save_json", action="store_true", help="Save JSON detections.")
+
+    # save_hybrid selection
+    parser.add_argument("--save_hybrid", action="store_true", help="Save hybrid detections.")
+
+    # conf selection
+    parser.add_argument("--conf", type=float, default=default_settings["conf"], help="Confidence threshold for detections.")
+
+    # iou selection
+    parser.add_argument("--iou", type=float, default=default_settings["iou"], help="IoU threshold for NMS.")
+
+    # max_det selection
+    parser.add_argument("--max_det", type=int, default=default_settings["max_det"], help="Maximum number of detections per image.")
+
+    # half selection
+    parser.add_argument("--half", action="store_true", help="Use half precision for inference.")
+
+    # device selection
+    parser.add_argument("--device", type=str, default=default_settings["device"], help="Device to use for inference.")
+
+    # workers selection
+    parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers for data loading.")
+
+    # optical_field_sizes selection
+    parser.add_argument("--optical_field_sizes", type=int, default=default_settings["optical_field_sizes"], help="Optical field size for training.")
+
+    # sub_optical_field_sizes selection
+    parser.add_argument("--sub_optical_field_sizes", type=int, default=default_settings["sub_optical_field_sizes"], help="Sub-optical field size for training.")
+
+    # window_size selection
+    parser.add_argument("--window_size", type=int, nargs=2, default=default_settings["window_size"], help="Window size for training.")
+
+    # seed selection
+    parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed for training.")
+
+    # order selection
+    parser.add_argument("--order", action="store_true", help="Use inverse order for training.")
+
+    # models selection
+    parser.add_argument("--models", type=str, default=default_settings["models"], help="Comma-separated list (n, s, m, l, x) of model codes to evaluate.")
+
+    args = parser.parse_args()
+
+    # Default models
+    models = [
+        "spipose-n.yaml",
+        "spipose-s.yaml",
+        "spipose-m.yaml",
+        "spipose-l.yaml",
+        "spipose-x.yaml"
+    ]
+
+    # Process selected models
+    if args.models is not None:
+        models = parse_models(args.models)
+    # Check for valid model selection
+    if not models:
+        raise ValueError(
+            "Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to evaluate all models."
+        )
+    
+
+    # Loop through each model for the given dataset
+    for model_yaml in models:
+        # Construct the yolo pose train command
+        cmd = construct_train_command(args, model_yaml)
+        # Run the command
+        subprocess.run(cmd, check=True)
 
 
 if __name__ == "__main__":
