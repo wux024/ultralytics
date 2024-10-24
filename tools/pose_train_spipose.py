@@ -100,7 +100,7 @@ def main():
         "batch": -1,
         "imgsz": 128,
         "device": None,
-        "workers": 8,
+        "workers": 16,
         "pose": 40.0,
         "optical_field_sizes": 128,
         "sub_optical_field_sizes": None,
