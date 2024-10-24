@@ -1099,6 +1099,8 @@ def yaml_model_load(path):
         path = path.with_name(new_stem + path.suffix)
 
     unified_path = re.sub(r"(\d+)([nslmx])(.+)?$", r"\1\3", str(path))  # i.e. yolov8x.yaml -> yolov8.yaml
+    if path.stem.startswith("animalrtpose-"):
+        unified_path = re.sub(r"animalrtpose-([nslmx])(.+)?$", r"animalrtpose\2", unified_path)
     yaml_file = check_yaml(unified_path, hard=False) or check_yaml(path)
     d = yaml_load(yaml_file)  # model dict
     d["scale"] = guess_model_scale(path)
@@ -1119,7 +1121,13 @@ def guess_model_scale(model_path):
         (str): The size character of the model's scale, which can be n, s, m, l, or x.
     """
     try:
-        return re.search(r"yolo[v]?\d+([nslmx])", Path(model_path).stem).group(1)  # noqa, returns n, s, m, l, or x
+        stem = Path(model_path).stem
+        match_yolo = re.search(r"yolo[v]?\d+([nslmx])", stem)
+        if match_yolo:
+            return match_yolo.group(1)
+        match_animalrtpose = re.search(r"animalrtpose-([nslmx])", stem)
+        if match_animalrtpose:
+            return match_animalrtpose.group(1)
     except AttributeError:
         return ""
 
