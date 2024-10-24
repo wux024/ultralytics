@@ -20,25 +20,36 @@ Revision History:
 
 import argparse
 import os
-
 import yaml
 
 from ultralytics import YOLO
+from ultralytics.utils.pose_cfg import SetSkeleton
 
-YOLO_V8 = ["yolov8n-pose", "yolov8s-pose", "yolov8m-pose", "yolov8l-pose", "yolov8x-pose"]
-YOLO_V8_CSPNEXT = [
-    "yolov8n-pose-cspnext",
-    "yolov8s-pose-cspnext",
-    "yolov8m-pose-cspnext",
-    "yolov8l-pose-cspnext",
-    "yolov8x-pose-cspnext",
+ANIMALRTPOSE = [
+    "animalpose-n",
+    "animalpose-s",
+    "animalpose-m",
+    "animalpose-l",
+    "animalpose-x",
 ]
 
+def build_model_path(model, dataset, seed):
+    base_path = f"./runs/animalrtpose/train/{dataset}/{model}"
+    if seed is not None:
+        base_path += f"-{seed}"
+    base_path = os.path.join(base_path, "weights/best.pt")
+    return base_path
+
+def build_save_dir(dataset, model, seed):
+    save_dir = f"runs/animalrtpose/predict/{dataset}/{model}"
+    if seed is not None:
+        save_dir += f"-{seed}"
+    return save_dir
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="fish", help="dataset to use")
-    parser.add_argument("--model", type=str, default="yolov8-pose", help="model to use")
+    parser.add_argument("--model", type=str, default="animalrtpose-n", help="model to use")
     parser.add_argument("--conf", type=float, default=0.25, help="object confidence threshold")
     parser.add_argument("--iou", type=float, default=0.7, help="IOU threshold for NMS")
     parser.add_argument("--imgsz", type=int, default=640, help="image size")
@@ -62,22 +73,31 @@ if __name__ == "__main__":
     parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
     parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
     parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
+    parser.add_argument("--seed", type=int, default=None, help="seed for inference")
     args = parser.parse_args()
-    # Set the model configuration file
-    if args.model == "yolov8-pose":
-        models = YOLO_V8
-    elif args.model == "yolov8-pose-cspnext":
-        models = YOLO_V8_CSPNEXT
-    elif args.model in YOLO_V8 or args.model in YOLO_V8_CSPNEXT:
-        models = [args.model]
-    else:
-        raise ValueError(f"Invalid model: {args.model}")
+
 
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
-    skeleton = data_cdg["skeleton"]
+    
+    if "skeleton" in data_cdg.keys():
+        SetSkeleton(data_cdg["skeleton"])
+    
+    if args.model in ANIMALRTPOSE:
+        models = [args.model]
+    elif args.model == "all":
+        models = ANIMALRTPOSE
+    else:
+        raise ValueError(f"Invalid model: {args.model}")
+    
 
     for model in models:
-        model_path = f"runs/pose/train/{args.dataset}/{args.dataset}-{model}/weights/best.pt"
+        model_path = build_model_path(model, args.dataset, args.seed)
+        save_dir = build_save_dir(args.dataset, model, args.seed)
+
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        model = YOLO(model_path)
 
         if "test" in data_cdg.keys():
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['test']}"
@@ -87,13 +107,6 @@ if __name__ == "__main__":
             data_path = f"datasets/{data_cdg['path']}/{data_cdg['train']}"
         else:
             raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
-
-        save_dir = f"runs/pose/predict/{args.dataset}/{args.dataset}-{model}"
-
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-
-        model = YOLO(model_path)
 
         results = model(
             data_path,
@@ -115,8 +128,9 @@ if __name__ == "__main__":
         )
 
         for i, result in enumerate(results):
+            img_name = os.path.basename(result.path)
             result.save(
-                filename=f"{save_dir}/{i}.jpg",
+                filename=f"{save_dir}/{img_name}",
                 conf=args.show_conf,
                 line_width=args.line_width,
                 kpt_radius=args.kpt_radius,
@@ -126,5 +140,4 @@ if __name__ == "__main__":
                 masks=args.show_masks,
                 probs=args.show_probs,
                 show=args.show,
-                skeleton=skeleton,
             )

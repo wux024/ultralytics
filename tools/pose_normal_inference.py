@@ -19,8 +19,9 @@ Revision History:
 """
 
 import argparse
-
 from ultralytics import YOLO
+import yaml
+from ultralytics.utils.pose_cfg import SetSkeleton
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -61,6 +62,12 @@ if __name__ == "__main__":
 
     if args.data is not None:
         data = f"configs/data/{args.data}.yaml"
+    
+    data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
+    
+    if "skeleton" in data_cdg.keys():
+        SetSkeleton(data_cdg["skeleton"])
+
 
     model.predict(
         source=args.source,
