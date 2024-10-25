@@ -6,39 +6,56 @@ import subprocess
 from datetime import datetime
 
 
-def build_output_dir(model, optical_field_sizes=None, sub_optical_field_sizes=None, window_size=None, seed=None, order=False):
+def build_output_dir(
+    base_dir, 
+    optical_field_sizes=None, 
+    sub_optical_field_sizes=None, 
+    window_size=None, 
+    seed=None, 
+    inverse=False, 
+    imgsz_hadamard=None
+):
     """Build the save directory based on the provided arguments."""
-    base_dir = f"{model}"
+    base_dir = f"{base_dir}"
+    
     if optical_field_sizes is not None:
         base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
+    
     if sub_optical_field_sizes is not None:
         base_dir += f"-{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+    
     if window_size is not None:
         base_dir += f"-{window_size[0]}x{window_size[1]}"
+    
     if seed is not None:
         base_dir += f"-{seed}"
-    if order:
+    
+    if inverse:
         base_dir += "-inverse"
+    
+    if imgsz_hadamard is not None:
+        base_dir += f"-{imgsz_hadamard}"
+    
     return base_dir
 
 
 def parse_models(models_str):
     """Parse the comma-separated list of model codes into a list of model YAML files."""
     models = []
-    model_codes = models_str.split(",")
-    for model_code in model_codes:
-        if model_code == "n":
-            models.append("spipose-n.yaml")
-        elif model_code == "s":
-            models.append("spipose-s.yaml")
-        elif model_code == "m":
-            models.append("spipose-m.yaml")
-        elif model_code == "l":
-            models.append("spipose-l.yaml")
-        elif model_code == "x":
-            models.append("spipose-x.yaml")
+    valid_codes = {
+        "n": "spipose-n.yaml", 
+        "s": "spipose-s.yaml", 
+        "m": "spipose-m.yaml", 
+        "l": "spipose-l.yaml", 
+        "x": "spipose-x.yaml"
+    }
+    
+    for model_code in models_str.split(","):
+        if model_code in valid_codes:
+            models.append(valid_codes[model_code])
         else:
             print(f"Warning: Ignoring invalid model code in selection: {model_code}. Valid codes are n, s, m, l, x.")
+    
     return models
 
 
@@ -46,6 +63,7 @@ def get_pretrained_model_path(model_yaml):
     """Get the path to the pretrained model if it exists."""
     pretrained_model = f"{model_yaml[:-5]}.pt"
     pretrained_path = os.path.join("./weights", pretrained_model)
+    
     if os.path.exists(pretrained_path):
         return pretrained_path
     else:
@@ -63,7 +81,8 @@ def construct_train_command(args, model_yaml, pretrained_model):
         args.sub_optical_field_sizes,
         args.window_size,
         args.seed,
-        args.order
+        args.inverse,
+        args.imgsz_hadamard,
     )
     output_dir = f"./runs/spipose/train/{args.dataset}"
 
@@ -85,7 +104,16 @@ def construct_train_command(args, model_yaml, pretrained_model):
         f"pose={args.pose}",
         f"patience={args.patience}",
     ]
+    
     return [arg for arg in cmd if arg]  # Filter out any empty strings
+
+
+def rename_dataset_directory(original_name, temp_name):
+    """Rename the dataset directory."""
+    if os.path.exists(original_name):
+        os.rename(original_name, temp_name)
+    else:
+        print(f"Dataset directory {original_name} does not exist.")
 
 
 def main():
@@ -98,14 +126,15 @@ def main():
         "epochs": 10000,
         "patience": 2000,
         "batch": -1,
-        "imgsz": 128,
+        "imgsz": 640,
         "device": None,
         "workers": 16,
         "pose": 40.0,
         "optical_field_sizes": 128,
         "sub_optical_field_sizes": None,
-        "window_size": None,
-        "seed": seed_value  # Set the seed value to the current date
+        "window_size": [None, None],
+        "seed": seed_value,  # Set the seed value to the current date
+        "imgsz_hadamard": None,
     }
 
     # Define the argument parser
@@ -114,44 +143,101 @@ def main():
     )
 
     # Required argument
-    parser.add_argument("--dataset", type=str, required=True, help="Name of the dataset.")
+    parser.add_argument(
+        "--dataset", 
+        type=str, 
+        required=True, 
+        help="Name of the dataset."
+    )
 
     # Optional arguments
-    parser.add_argument("--epochs", type=int, default=default_settings["epochs"], help="Number of training epochs.")
-    parser.add_argument("--patience", type=int, default=default_settings["patience"], help="Early stopping patience.")
-    parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size.")
-    parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size.")
     parser.add_argument(
-        "--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu)."
-    )
-    parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
-    parser.add_argument("--no-pretrained", action="store_true", help="not use a pretrained model.")
-    parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers.")
-    parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed.")
-    parser.add_argument("--pose", type=float, default=default_settings["pose"], help="Pose loss weight.")
-    parser.add_argument(
-        "--optical-field-sizes",
-        type=int,
-        default=default_settings["optical_field_sizes"],
-        help="Optical field size for the entire image.",
+        "--epochs", 
+        type=int, 
+        default=default_settings["epochs"], 
+        help="Number of training epochs."
     )
     parser.add_argument(
-        "--sub-optical-field-sizes",
-        type=int,
-        default=default_settings["sub_optical_field_sizes"],
-        help="Optical field size for sub-regions of the image.",
+        "--patience", 
+        type=int, 
+        default=default_settings["patience"], 
+        help="Early stopping patience."
     )
     parser.add_argument(
-        "--window-size",
-        nargs=2,
-        type=int,
-        default=default_settings["window_size"],
-        help="Window size for sub-regions of the image.",
+        "--batch", 
+        type=int, 
+        default=default_settings["batch"], 
+        help="Batch size."
     )
     parser.add_argument(
-        "--order",
-        action="store_true",
-        help="Order the images by their size before splitting into sub-regions.",
+        "--imgsz", 
+        type=int, 
+        default=default_settings["imgsz"], 
+        help="Image size."
+    )
+    parser.add_argument(
+        "--device", 
+        type=str, 
+        default=default_settings["device"], 
+        help="Device to use (e.g., 0, 1, 2, cpu)."
+    )
+    parser.add_argument(
+        "--models", 
+        type=str, 
+        help="Comma-separated list of model codes (n, s, m, l, x)."
+    )
+    parser.add_argument(
+        "--no-pretrained", 
+        action="store_true", 
+        help="Do not use a pretrained model."
+    )
+    parser.add_argument(
+        "--workers", 
+        type=int, 
+        default=default_settings["workers"], 
+        help="Number of workers."
+    )
+    parser.add_argument(
+        "--seed", 
+        type=int, 
+        default=default_settings["seed"], 
+        help="Random seed."
+    )
+    parser.add_argument(
+        "--pose", 
+        type=float, 
+        default=default_settings["pose"], 
+        help="Pose loss weight."
+    )
+    parser.add_argument(
+        "--optical-field-sizes", 
+        type=int, 
+        default=default_settings["optical_field_sizes"], 
+        help="Optical field size for the entire image."
+    )
+    parser.add_argument(
+        "--sub-optical-field-sizes", 
+        type=int, 
+        default=default_settings["sub_optical_field_sizes"], 
+        help="Optical field size for sub-regions of the image."
+    )
+    parser.add_argument(
+        "--window-size", 
+        nargs=2, 
+        type=int, 
+        default=default_settings["window_size"], 
+        help="Window size for sub-regions of the image."
+    )
+    parser.add_argument(
+        "--inverse", 
+        action="store_true", 
+        help="Order the images by their size before splitting into sub-regions."
+    )
+    parser.add_argument(
+        "--imgsz-hadamard", 
+        type=int, 
+        default=None, 
+        help="Image size for the Hadamard transform. If not provided, it will be set to imgsz."
     )
 
     args = parser.parse_args()
@@ -174,15 +260,32 @@ def main():
             "Error: No valid model selected after processing input. Please choose from n, s, m, l, x, or leave empty to train all."
         )
 
-    # Loop through each model for the given dataset
-    for model_yaml in models:
-        pretrained_model = get_pretrained_model_path(model_yaml) if not args.no_pretrained else None
+    # Build the original dataset directory name
 
-        cmd = construct_train_command(args, model_yaml, pretrained_model)
+    original_dataset_dir = build_output_dir(f'datasets/{args.dataset}/images', 
+                                            args.optical_field_sizes, 
+                                            args.sub_optical_field_sizes, 
+                                            args.window_size, args.seed, 
+                                            args.inverse, 
+                                            args.imgsz_hadamard)
+    temp_dataset_dir = f"./datasets/{args.dataset}/images"
 
-        # Execute the command
-        print(f"Training {model_yaml} on {args.dataset}...")
-        subprocess.run(cmd, check=True)
+    # Rename the dataset directory before training
+    rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
+
+    try:
+        # Loop through each model for the given dataset
+        for model_yaml in models:
+            pretrained_model = get_pretrained_model_path(model_yaml) if not args.no_pretrained else None
+
+            cmd = construct_train_command(args, model_yaml, pretrained_model)
+
+            # Execute the command
+            print(f"Training {model_yaml} on {args.dataset}...")
+            subprocess.run(cmd, check=True)
+    finally:
+        # Rename the dataset directory back to the original name after training
+        rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
 
 
 if __name__ == "__main__":
