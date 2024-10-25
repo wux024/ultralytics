@@ -132,7 +132,7 @@ def main():
         "pose": 40.0,
         "optical_field_sizes": 128,
         "sub_optical_field_sizes": None,
-        "window_size": [None, None],
+        "window_size": None,
         "seed": seed_value,  # Set the seed value to the current date
         "imgsz_hadamard": None,
     }
@@ -225,7 +225,7 @@ def main():
         "--window-size", 
         nargs=2, 
         type=int, 
-        default=default_settings["window_size"], 
+        default=None, 
         help="Window size for sub-regions of the image."
     )
     parser.add_argument(
@@ -265,7 +265,7 @@ def main():
     original_dataset_dir = build_output_dir(f'datasets/{args.dataset}/images', 
                                             args.optical_field_sizes, 
                                             args.sub_optical_field_sizes, 
-                                            args.window_size, args.seed, 
+                                            args.window_size,
                                             args.inverse, 
                                             args.imgsz_hadamard)
     temp_dataset_dir = f"./datasets/{args.dataset}/images"
