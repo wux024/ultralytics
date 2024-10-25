@@ -26,15 +26,15 @@ def build_output_dir(
     
     if window_size is not None:
         base_dir += f"-{window_size[0]}x{window_size[1]}"
-    
-    if seed is not None:
-        base_dir += f"-{seed}"
-    
+
     if inverse:
         base_dir += "-inverse"
     
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
+    
+    if seed is not None:
+        base_dir += f"-{seed}"
     
     return base_dir
 
