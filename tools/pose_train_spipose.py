@@ -262,12 +262,12 @@ def main():
 
     # Build the original dataset directory name
 
-    original_dataset_dir = build_output_dir(f'datasets/{args.dataset}/images', 
-                                            args.optical_field_sizes, 
-                                            args.sub_optical_field_sizes, 
-                                            args.window_size,
-                                            args.inverse, 
-                                            args.imgsz_hadamard)
+    original_dataset_dir = build_output_dir(base_dir=f'datasets/{args.dataset}/images', 
+                                            optical_field_sizes=args.optical_field_sizes, 
+                                            sub_optical_field_sizes=args.sub_optical_field_sizes, 
+                                            window_size=args.window_size,
+                                            inverse=args.inverse, 
+                                            imgsz_hadamard=args.imgsz_hadamard)
     temp_dataset_dir = f"./datasets/{args.dataset}/images"
 
     # Rename the dataset directory before training
