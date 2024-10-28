@@ -41,14 +41,14 @@ def parse_models(models_str, model_type="animalrtpose"):
             "l": "animalrtpose-l.yaml",
             "x": "animalrtpose-x.yaml"
         },
-        "yolov8": {
+        "yolov8-pose": {
             "n": "yolov8n-pose.yaml",
             "s": "yolov8s-pose.yaml",
             "m": "yolov8m-pose.yaml",
             "l": "yolov8l-pose.yaml",
             "x": "yolov8x-pose.yaml"
         },
-        "yolo11": {
+        "yolo11-pose": {
             "n": "yolo11n-pose.yaml",
             "s": "yolo11s-pose.yaml",
             "m": "yolo11m-pose.yaml",

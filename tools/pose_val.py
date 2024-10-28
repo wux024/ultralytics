@@ -22,7 +22,6 @@ Revision History:
 import argparse
 import subprocess
 import os
-from datetime import datetime
 
 def parse_models(models_str, model_type="animalrtpose"):
     """Parse the comma-separated list of model codes into a list of model YAML files."""
@@ -36,14 +35,14 @@ def parse_models(models_str, model_type="animalrtpose"):
             "l": "animalrtpose-l.yaml",
             "x": "animalrtpose-x.yaml"
         },
-        "yolov8": {
+        "yolov8-pose": {
             "n": "yolov8n-pose.yaml",
             "s": "yolov8s-pose.yaml",
             "m": "yolov8m-pose.yaml",
             "l": "yolov8l-pose.yaml",
             "x": "yolov8x-pose.yaml"
         },
-        "yolo11": {
+        "yolo11-pose": {
             "n": "yolo11n-pose.yaml",
             "s": "yolo11s-pose.yaml",
             "m": "yolo11m-pose.yaml",
@@ -162,7 +161,7 @@ def main():
         "iou": 0.6,
         "max_det": 300,
         "half": False,
-        "device": "0",
+        "device": None,
         "workers": 16,
         "seed": None,
         "models": None,
@@ -255,7 +254,6 @@ def main():
             optical_field_sizes=args.optical_field_sizes,
             sub_optical_field_sizes=args.sub_optical_field_sizes,
             window_size=args.window_size,
-            seed=args.seed,
             inverse=args.inverse,
             imgsz_hadamard=args.imgsz_hadamard
         )
