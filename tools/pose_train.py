@@ -118,14 +118,14 @@ def construct_train_command(args, model_yaml, pretrained_model):
     datacfg = f"./configs/data/{args.dataset}.yaml"
     modelcfg = f"./configs/models/{args.dataset}/{model_yaml}"
     model_name = build_output_dir(
-        model_yaml[:-5],
-        args.optical_field_sizes,
-        args.sub_optical_field_sizes,
-        args.window_size,
-        args.seed,
-        args.inverse,
-        args.imgsz_hadamard,
-    ) if args.model_type == "spipose" else build_output_dir(model_yaml, args.seed)
+        base_dir=model_yaml[:-5],
+        optical_field_sizes=args.optical_field_sizes,
+        sub_optical_field_sizes=args.sub_optical_field_sizes,
+        window_size=args.window_size,
+        seed=args.seed,
+        inverse=args.inverse,
+        imgsz_hadamard=args.imgsz_hadamard,
+    ) if args.model_type == "spipose" else build_output_dir(model_yaml[:-5], seed=args.seed)
     output_dir = f"./runs/{args.model_type}/train/{args.dataset}"
 
     cmd = [
@@ -226,10 +226,11 @@ def main():
             inverse=args.inverse,
             imgsz_hadamard=args.imgsz_hadamard
         )
-        temp_dataset_dir = f"./datasets/{args.dataset}/images"
-
-        # Rename the dataset directory before training
-        rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
+    else:
+        original_dataset_dir = f"./datasets/{args.dataset}/images_"
+    # Rename the dataset directory before training
+    temp_dataset_dir = f"./datasets/{args.dataset}/images"
+    rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
 
     try:
         # Loop through each model for the given dataset

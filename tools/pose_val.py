@@ -107,14 +107,14 @@ def construct_val_command(args, model_yaml):
     """Construct the yolo pose val command."""
     datacfg = f"./configs/data/{args.dataset}.yaml"
     model_name = build_output_dir(
-        model_yaml[:-5],
-        args.optical_field_sizes,
-        args.sub_optical_field_sizes,
-        args.window_size,
-        args.seed,
-        args.inverse,
-        args.imgsz_hadamard,
-    ) if args.model_type == "spipose" else build_output_dir(model_yaml, args.seed)
+        base_dir=model_yaml[:-5],
+        optical_field_sizes=args.optical_field_sizes,
+        sub_optical_field_sizes=args.sub_optical_field_sizes,
+        window_size=args.window_size,
+        seed=args.seed,
+        inverse=args.inverse,
+        imgsz_hadamard=args.imgsz_hadamard,
+    ) if args.model_type == "spipose" else build_output_dir(base_dir=model_yaml[:-5], seed=args.seed)
     model_dir = f"./runs/{args.model_type}/train/{args.dataset}"
     output_dir = f"./runs/{args.model_type}/eval/{args.dataset}"
     model = os.path.join(model_dir, model_name, "weights/best.pt")
@@ -259,10 +259,11 @@ def main():
             inverse=args.inverse,
             imgsz_hadamard=args.imgsz_hadamard
         )
-        temp_dataset_dir = f"./datasets/{args.dataset}/images"
-
-        # Rename the dataset directory before validation
-        rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
+    else:
+        original_dataset_dir = f"./datasets/{args.dataset}/images_"
+    temp_dataset_dir = f"./datasets/{args.dataset}/images"
+    # Rename the dataset directory before validation
+    rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
 
     try:
         # Loop through each model for the given dataset
