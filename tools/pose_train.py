@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-File Name: pose_train_animalrtpose.py
+File Name: pose_train_combined.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
@@ -8,7 +8,7 @@ Last Modified: 2024/10/24
 Version: 1.0.
 
 Overview:
-    Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
+    Combined script to train various pose estimation models on a specified dataset with default or user-provided settings.
 
 Notes:
     - Modifications should be documented in the "Revision History" section beneath this.
@@ -16,6 +16,7 @@ Notes:
 
 Revision History:
     - [2024/7/3] wux024: Initial file creation
+    - [2024/10/24] wux024: Added support for spipose models
 """
 
 import argparse
@@ -48,6 +49,13 @@ def parse_models(models_str, model_type="animalrtpose"):
             "m": "yolo11m-pose.yaml",
             "l": "yolo11l-pose.yaml",
             "x": "yolo11x-pose.yaml"
+        },
+        "spipose": {
+            "n": "spipose-n.yaml",
+            "s": "spipose-s.yaml",
+            "m": "spipose-m.yaml",
+            "l": "spipose-l.yaml",
+            "x": "spipose-x.yaml"
         }
     }
     
@@ -63,11 +71,36 @@ def parse_models(models_str, model_type="animalrtpose"):
     
     return models
 
-def build_output_dir(model, seed=None):
+def build_output_dir(
+    base_dir, 
+    optical_field_sizes=None, 
+    sub_optical_field_sizes=None, 
+    window_size=None, 
+    seed=None, 
+    inverse=False, 
+    imgsz_hadamard=None
+):
     """Build the save directory based on the provided arguments."""
-    base_dir = f"{model}"
+    base_dir = f"{base_dir}"
+    
+    if optical_field_sizes is not None:
+        base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
+    
+    if sub_optical_field_sizes is not None:
+        base_dir += f"-{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+    
+    if window_size is not None:
+        base_dir += f"-{window_size[0]}x{window_size[1]}"
+
+    if inverse:
+        base_dir += "-inverse"
+    
+    if imgsz_hadamard is not None:
+        base_dir += f"-{imgsz_hadamard}"
+    
     if seed is not None:
         base_dir += f"-{seed}"
+    
     return base_dir
 
 def get_pretrained_model(model_yaml):
@@ -84,8 +117,16 @@ def construct_train_command(args, model_yaml, pretrained_model):
     """Construct the yolo pose train command."""
     datacfg = f"./configs/data/{args.dataset}.yaml"
     modelcfg = f"./configs/models/{args.dataset}/{model_yaml}"
-    model_name = build_output_dir(model_yaml, args.seed)
-    output_dir = f"./runs/{args.model_type}/{args.dataset}"
+    model_name = build_output_dir(
+        model_yaml[:-5],
+        args.optical_field_sizes,
+        args.sub_optical_field_sizes,
+        args.window_size,
+        args.seed,
+        args.inverse,
+        args.imgsz_hadamard,
+    ) if args.model_type == "spipose" else build_output_dir(model_yaml, args.seed)
+    output_dir = f"./runs/{args.model_type}/train/{args.dataset}"
 
     cmd = [
         "yolo",
@@ -102,13 +143,20 @@ def construct_train_command(args, model_yaml, pretrained_model):
         f"device={args.device}",
         f"workers={args.workers}",
         f"seed={args.seed}",
-        f"cos_lr=True",
-        f"resume=True",
         f"pose={args.pose}",
         f"patience={args.patience}",
+        f"cos_lr=True",
+        f"resume=True",
     ]
 
     return [arg for arg in cmd if arg]
+
+def rename_dataset_directory(original_name, temp_name):
+    """Rename the dataset directory."""
+    if os.path.exists(original_name):
+        os.rename(original_name, temp_name)
+    else:
+        print(f"Dataset directory {original_name} does not exist.")
 
 def main():
     # Get the current date and time for the output directory
@@ -118,14 +166,18 @@ def main():
     # Default training settings
     default_settings = {
         "dataset": "ap10k",
-        "epochs": 1000,
-        "patience": 300,
+        "epochs": 10000,
+        "patience": 2000,
         "batch": -1,
         "imgsz": 640,
         "device": None,
         "workers": 16,
         "pose": 40.0,
+        "optical_field_sizes": 128,
+        "sub_optical_field_sizes": None,
+        "window_size": None,
         "seed": seed_value,
+        "imgsz_hadamard": None,
         "model_type": "animalrtpose",
         "models": None,
     }
@@ -143,15 +195,18 @@ def main():
     parser.add_argument("--patience", type=int, default=default_settings["patience"], help="Early stopping patience.")
     parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size.")
     parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size.")
-    parser.add_argument(
-        "--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu)."
-    )
+    parser.add_argument("--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu).")
     parser.add_argument("--model_type", type=str, default=default_settings["model_type"], help="Model type.")
     parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
-    parser.add_argument("--no-pretrained", action="store_true", help="not use a pretrained model.")
+    parser.add_argument("--no-pretrained", action="store_true", help="Not use a pretrained model.")
     parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers.")
     parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed.")
     parser.add_argument("--pose", type=float, default=default_settings["pose"], help="Pose loss weight.")
+    parser.add_argument("--optical-field-sizes", type=int, default=default_settings["optical_field_sizes"], help="Optical field size for the entire image.")
+    parser.add_argument("--sub-optical-field-sizes", type=int, default=default_settings["sub_optical_field_sizes"], help="Optical field size for sub-regions of the image.")
+    parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image.")
+    parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions.")
+    parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
 
     args = parser.parse_args()
 
@@ -161,18 +216,36 @@ def main():
     else:
         models = parse_models(args.models, model_type=args.model_type)
 
-    # Loop through each model for the given dataset
-    for model_yaml in models:
-        # Get the path to the pretrained model if it exists
-        pretrained_model = get_pretrained_model(model_yaml) if not args.no_pretrained else None
+    # Build the original dataset directory name
+    if args.model_type == "spipose":
+        original_dataset_dir = build_output_dir(
+            base_dir=f'datasets/{args.dataset}/images',
+            optical_field_sizes=args.optical_field_sizes,
+            sub_optical_field_sizes=args.sub_optical_field_sizes,
+            window_size=args.window_size,
+            inverse=args.inverse,
+            imgsz_hadamard=args.imgsz_hadamard
+        )
+        temp_dataset_dir = f"./datasets/{args.dataset}/images"
 
-        # Construct the yolo pose train command
-        train_cmd = construct_train_command(args, model_yaml, pretrained_model)
+        # Rename the dataset directory before training
+        rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
 
-        # Run the command
-        print(f"Running command: {' '.join(train_cmd)}")
-        subprocess.run(train_cmd, check=True)
+    try:
+        # Loop through each model for the given dataset
+        for model_yaml in models:
+            pretrained_model = get_pretrained_model(model_yaml) if not args.no_pretrained else None
 
+            # Construct the yolo pose train command
+            train_cmd = construct_train_command(args, model_yaml, pretrained_model)
+
+            # Run the command
+            print(f"Running command: {' '.join(train_cmd)}")
+            subprocess.run(train_cmd, check=True)
+    finally:
+        # Rename the dataset directory back to the original name after training
+        if args.model_type == "spipose":
+            rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
 
 if __name__ == "__main__":
     main()

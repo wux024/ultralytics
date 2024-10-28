@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """
-File Name: pose_val_animalrtpose.py
+File Name: pose_val_combined.py
 Author: wux024
 Email: wux024@nenu.edu.cn
 Created On: 2024/7/3
-Last Modified: 2024/7/3
+Last Modified: 2024/10/25
 Version: 1.0.
 
 Overview:
-    Provide a concise summary of the file's functionality, objectives, or primary logic implemented.
+    Combined script to evaluate various pose estimation models on a specified dataset with default or user-provided settings.
 
 Notes:
     - Modifications should be documented in the "Revision History" section beneath this.
@@ -16,12 +16,13 @@ Notes:
 
 Revision History:
     - [2024/7/3] wux024: Initial file creation
+    - [2024/10/25] wux024: Added support for spipose models and data path renaming
 """
 
 import argparse
 import subprocess
 import os
-
+from datetime import datetime
 
 def parse_models(models_str, model_type="animalrtpose"):
     """Parse the comma-separated list of model codes into a list of model YAML files."""
@@ -48,6 +49,13 @@ def parse_models(models_str, model_type="animalrtpose"):
             "m": "yolo11m-pose.yaml",
             "l": "yolo11l-pose.yaml",
             "x": "yolo11x-pose.yaml"
+        },
+        "spipose": {
+            "n": "spipose-n.yaml",
+            "s": "spipose-s.yaml",
+            "m": "spipose-m.yaml",
+            "l": "spipose-l.yaml",
+            "x": "spipose-x.yaml"
         }
     }
     
@@ -63,52 +71,89 @@ def parse_models(models_str, model_type="animalrtpose"):
     
     return models
 
-def build_output_dir(model, seed=None):
+def build_output_dir(
+    base_dir, 
+    optical_field_sizes=None, 
+    sub_optical_field_sizes=None, 
+    window_size=None, 
+    seed=None, 
+    inverse=False, 
+    imgsz_hadamard=None
+):
     """Build the save directory based on the provided arguments."""
-    base_dir = f"{model}"
+    base_dir = f"{base_dir}"
+    
+    if optical_field_sizes is not None:
+        base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
+    
+    if sub_optical_field_sizes is not None:
+        base_dir += f"-{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+    
+    if window_size is not None:
+        base_dir += f"-{window_size[0]}x{window_size[1]}"
+
+    if inverse:
+        base_dir += "-inverse"
+    
+    if imgsz_hadamard is not None:
+        base_dir += f"-{imgsz_hadamard}"
+    
     if seed is not None:
         base_dir += f"-{seed}"
+    
     return base_dir
 
-
 def construct_val_command(args, model_yaml):
-    """Construct the yolo pose train command."""
+    """Construct the yolo pose val command."""
     datacfg = f"./configs/data/{args.dataset}.yaml"
-    model_name = build_output_dir(model_yaml[:-5], args.seed)
+    model_name = build_output_dir(
+        model_yaml[:-5],
+        args.optical_field_sizes,
+        args.sub_optical_field_sizes,
+        args.window_size,
+        args.seed,
+        args.inverse,
+        args.imgsz_hadamard,
+    ) if args.model_type == "spipose" else build_output_dir(model_yaml, args.seed)
     model_dir = f"./runs/{args.model_type}/train/{args.dataset}"
     output_dir = f"./runs/{args.model_type}/eval/{args.dataset}"
     model = os.path.join(model_dir, model_name, "weights/best.pt")
 
-            # Construct the yolo pose val command
+    # Construct the yolo pose val command
     cmd = [
-            "yolo",
-            "pose",
-            "val",
-            f"data={datacfg}",
-            f"model={model}",
-            f"imgsz={args.imgsz}",
-            f"batch={args.batch}",
-            f"project={output_dir}",
-            f"name={model_name}",
-            f"device={args.device}",
-            f"conf={args.conf}",
-            f"iou={args.iou}",
-            f"max_det={args.max_det}",
-            f"half={args.half}",
-            f"save_json={args.save_json}",
-            f"save_hybrid={args.save_hybrid}",
-            f"dnn={args.dnn}",
-            f"plots={args.plots}",
-            f"rect={args.rect}",
-            f"split={args.split}",
-        ]
+        "yolo",
+        "pose",
+        "val",
+        f"data={datacfg}",
+        f"model={model}",
+        f"imgsz={args.imgsz}",
+        f"batch={args.batch}",
+        f"project={output_dir}",
+        f"name={model_name}",
+        f"device={args.device}",
+        f"conf={args.conf}",
+        f"iou={args.iou}",
+        f"max_det={args.max_det}",
+        f"half={args.half}",
+        f"save_json={args.save_json}",
+        f"save_hybrid={args.save_hybrid}",
+        f"dnn={args.dnn}",
+        f"plots={args.plots}",
+        f"rect={args.rect}",
+        f"split={args.split}",
+    ]
     
     return [arg for arg in cmd if arg]  # Filter out any empty strings
 
+def rename_dataset_directory(original_name, temp_name):
+    """Rename the dataset directory."""
+    if os.path.exists(original_name):
+        os.rename(original_name, temp_name)
+    else:
+        print(f"Dataset directory {original_name} does not exist.")
 
 def main():
-
-    # Default training settings
+    # Default evaluation settings
     default_settings = {
         "dataset": "mouse",
         "imgsz": 640,
@@ -124,52 +169,76 @@ def main():
         "model_type": "animalrtpose",
     }
 
-    parser = argparse.ArgumentParser(description="Evaluate animalrtpose models on a specified dataset.")
+    parser = argparse.ArgumentParser(description="Evaluate pose estimation models on a specified dataset.")
 
     # Dataset selection
     parser.add_argument("--dataset", type=str, default=default_settings["dataset"], help="Dataset to evaluate on.")
 
-    # imgsz selection
-    parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size to use for training.")
+    # Image size selection
+    parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size to use for evaluation.")
 
-    # batch selection
-    parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size for training.")
+    # Batch size selection
+    parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size for evaluation.")
 
-    # save_json selection
-    parser.add_argument("--save_json", action="store_true", help="Save JSON detections.")
-
-    # save_hybrid selection
-    parser.add_argument("--save_hybrid", action="store_true", help="Save hybrid detections.")
-
-    # conf selection
+    # Confidence threshold selection
     parser.add_argument("--conf", type=float, default=default_settings["conf"], help="Confidence threshold for detections.")
 
-    # iou selection
+    # IoU threshold selection
     parser.add_argument("--iou", type=float, default=default_settings["iou"], help="IoU threshold for NMS.")
 
-    # max_det selection
+    # Maximum number of detections per image
     parser.add_argument("--max_det", type=int, default=default_settings["max_det"], help="Maximum number of detections per image.")
 
-    # half selection
+    # Half precision selection
     parser.add_argument("--half", action="store_true", help="Use half precision for inference.")
 
-    # device selection
+    # Device selection
     parser.add_argument("--device", type=str, default=default_settings["device"], help="Device to use for inference.")
 
-    # workers selection
+    # Workers selection
     parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers for data loading.")
 
-    # seed selection
-    parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed for training.")
+    # Seed selection
+    parser.add_argument("--seed", type=int, default=default_settings["seed"], help="Random seed for evaluation.")
 
-    # order selection
-    parser.add_argument("--order", action="store_true", help="Use inverse order for training.")
+    # Save JSON selection
+    parser.add_argument("--save_json", action="store_true", help="Save JSON detections.")
 
-    # models selection
+    # Save hybrid selection
+    parser.add_argument("--save_hybrid", action="store_true", help="Save hybrid detections.")
+
+    # DNN selection
+    parser.add_argument("--dnn", action="store_true", help="Use OpenCV DNN for inference.")
+
+    # Plots selection
+    parser.add_argument("--plots", action="store_true", help="Generate plots during evaluation.")
+
+    # Rect selection
+    parser.add_argument("--rect", action="store_true", help="Rectangular inference.")
+
+    # Split selection
+    parser.add_argument("--split", type=str, default="val", help="Split to evaluate on (train, val, test).")
+
+    # Models selection
     parser.add_argument("--models", type=str, default=default_settings["models"], help="Comma-separated list (n, s, m, l, x) of model codes to evaluate.")
 
-    # models type selection
-    parser.add_argument("--model-type", type=str, default="animalrtpose", help="Model type to evaluate. Currently only animalrtpose is supported.")
+    # Model type selection
+    parser.add_argument("--model-type", type=str, default="animalrtpose", help="Model type to evaluate. Supported types are animalrtpose, yolov8, yolo11, spipose.")
+
+    # Optical field sizes selection
+    parser.add_argument("--optical-field-sizes", type=int, default=None, help="Optical field size for the entire image.")
+
+    # Sub-optical field sizes selection
+    parser.add_argument("--sub-optical-field-sizes", type=int, default=None, help="Optical field size for sub-regions of the image.")
+
+    # Window size selection
+    parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image.")
+
+    # Inverse order selection
+    parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions.")
+
+    # Image size for Hadamard transform selection
+    parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
 
     args = parser.parse_args()
 
@@ -178,15 +247,34 @@ def main():
         models = parse_models("n,s,m,l,x", model_type=args.model_type)
     else:
         models = parse_models(args.models, model_type=args.model_type)
-    
 
-    # Loop through each model for the given dataset
-    for model_yaml in models:
-        # Construct the yolo pose train command
-        val_cmd = construct_val_command(args, model_yaml)
-        # Run the command
-        subprocess.run(val_cmd, check=True)
+    # Build the original dataset directory name
+    if args.model_type == "spipose":
+        original_dataset_dir = build_output_dir(
+            base_dir=f'datasets/{args.dataset}/images',
+            optical_field_sizes=args.optical_field_sizes,
+            sub_optical_field_sizes=args.sub_optical_field_sizes,
+            window_size=args.window_size,
+            seed=args.seed,
+            inverse=args.inverse,
+            imgsz_hadamard=args.imgsz_hadamard
+        )
+        temp_dataset_dir = f"./datasets/{args.dataset}/images"
 
+        # Rename the dataset directory before validation
+        rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
+
+    try:
+        # Loop through each model for the given dataset
+        for model_yaml in models:
+            # Construct the yolo pose val command
+            val_cmd = construct_val_command(args, model_yaml)
+            # Run the command
+            subprocess.run(val_cmd, check=True)
+    finally:
+        # Rename the dataset directory back to the original name after validation
+        if args.model_type == "spipose":
+            rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
 
 if __name__ == "__main__":
     main()

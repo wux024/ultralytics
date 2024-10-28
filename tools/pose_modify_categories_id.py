@@ -21,6 +21,7 @@ Revision History:
 import argparse
 import json
 import os
+
 def parse_models(models_str, model_type="animalrtpose"):
     """Parse the comma-separated list of model codes into a list of model YAML files."""
     
@@ -46,6 +47,13 @@ def parse_models(models_str, model_type="animalrtpose"):
             "m": "yolo11m-pose.yaml",
             "l": "yolo11l-pose.yaml",
             "x": "yolo11x-pose.yaml"
+        },
+        "spipose": {
+            "n": "spipose-n.yaml",
+            "s": "spipose-s.yaml",
+            "m": "spipose-m.yaml",
+            "l": "spipose-l.yaml",
+            "x": "spipose-x.yaml"
         }
     }
     
@@ -61,35 +69,83 @@ def parse_models(models_str, model_type="animalrtpose"):
     
     return models
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Modify categories id in COCO json file.")
     parser.add_argument("--dataset", type=str, default="ap10k", help="Name of the dataset.")
     parser.add_argument("--model_type", type=str, default="animalrtpose", help="Type of the model.")
     parser.add_argument("--models", type=str, default="n,s,m,l,x", help="Comma-separated list of model codes.")
+    parser.add_argument("--optical-field-sizes", type=int, default=None, help="Optical field size for the entire image (for spipose).")
+    parser.add_argument("--sub-optical-field-sizes", type=int, default=None, help="Optical field size for sub-regions of the image (for spipose).")
+    parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image (for spipose).")
+    parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions (for spipose).")
+    parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform (for spipose).")
+    return parser.parse_args()
 
-    args = parser.parse_args()
-    return args
-
+def build_output_dir(
+    base_dir, 
+    optical_field_sizes=None, 
+    sub_optical_field_sizes=None, 
+    window_size=None, 
+    inverse=False, 
+    imgsz_hadamard=None
+):
+    """Build the save directory based on the provided arguments."""
+    base_dir = f"{base_dir}"
+    
+    if optical_field_sizes is not None:
+        base_dir += f"-{optical_field_sizes}x{optical_field_sizes}"
+    
+    if sub_optical_field_sizes is not None:
+        base_dir += f"-{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+    
+    if window_size is not None:
+        base_dir += f"-{window_size[0]}x{window_size[1]}"
+    
+    if inverse:
+        base_dir += "-inverse"
+    
+    if imgsz_hadamard is not None:
+        base_dir += f"-{imgsz_hadamard}"
+    
+    return base_dir
 
 def modify_categories_id(json_file):
     with open(json_file) as f:
         data = json.load(f)
-    cat_id = set([data["category_id"] for data in data])
-    if 0 in cat_id:
-        for i in range(len(data)):
-            data[i]["category_id"] += 1
+    
+    cat_id_set = set([ann["category_id"] for ann in data["annotations"]])
+    
+    if 0 in cat_id_set:
+        for ann in data["annotations"]:
+            ann["category_id"] += 1
+    
     with open(json_file, "w") as f:
         json.dump(data, f, indent=4)
-
 
 if __name__ == "__main__":
     args = parse_args()
     dataset = args.dataset
     base_dir = os.path.join("runs", args.model_type, "eval", dataset)
 
-    for dir, subdir, files in os.walk(base_dir):
-        for file in files:
-            if file.endswith(".json"):
-                json_file = os.path.join(dir, file)
-                modify_categories_id(json_file)
+    models = parse_models(args.models, model_type=args.model_type)
+    
+    for model in models:
+        if args.model_type == "spipose":
+            model_name = build_output_dir(
+                model[:-5],
+                args.optical_field_sizes,
+                args.sub_optical_field_sizes,
+                args.window_size,
+                args.inverse,
+                args.imgsz_hadamard
+            )
+        else:
+            model_name = model[:-5]
+
+        model_dir = os.path.join(base_dir, model_name)
+        
+        for dirpath, _, files in os.walk(model_dir):
+            for file in files:
+                if file.endswith(".json"):
+                    json_file = os.path.join(dirpath, file)
+                    modify_categories_id(json_file)
