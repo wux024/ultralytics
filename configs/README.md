@@ -48,7 +48,7 @@ python tools/pose_train_cspnext.py --dataset animalpose --pretrained --models n
 ```
 The pretrained model can be downloaded from [here](https://drive.google.com/drive/folders/15L-q6CETD3dC8aOknamEunZaDEVlA1na?usp=drive_link). You should move the downloaded model to the `weights` folder.
 
-3. The training log and checkpoints will be saved in the `runs/pose/train/apt36k/apt36k-yolov8n-cspnext` folder.
+3. The training log and checkpoints will be saved in the `runs/pose/train/animalpose/animalpose-yolov8n-cspnext` folder.
 
 4. Test the trained model:
 ``` 
@@ -82,9 +82,6 @@ python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext
 | AnimalRTPose-L| 640 | 82.3| -| 11.7 | 7.4  | - | 51.8|134.3|
 | AnimalRTPose-X| 640 | 85.5| -| 17.6 |  11.9 | -| 80.8|209.5|
 
-- **mAP<sup>val</sup>** values are for single-model single-scale on [APT36K](https://github.com/pandorgan/APT-36K?tab=readme-ov-file#demo) dataset. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose && python tools/pose_modify_categories_id.py --dataset animalpose && python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext`.
-- **Speed** averaged over COCO val images using [NVIDIA RTX 2080 Ti](https://www.nvidia.com/en-us/geforce/graphics-cards/rtx-2080-ti/) , [NVIDIA RTX 3090](https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/), [NVIDIA A800](https://www.nvidia.cn/content/dam/en-zz/Solutions/Data-Center/a100/pdf/PB-10577-001_v02.pdf) and [12th Gen Intel(R) Core(TM) i5-12400   2.50 GHz](https://www.intel.cn/content/www/cn/zh/products/sku/134586/intel-core-i512400-processor-18m-cache-up-to-4-40-ghz/specifications.html) instance. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose`
-
 ### ATRW
 
 | Model | size(pixels) | mAP50-95 | CPU(ms) | 2080Ti(ms) | 3090Ti(ms) | A800(ms) | Params(M) | GFLOPs |
@@ -94,9 +91,6 @@ python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext
 | AnimalRTPose-M| 640 | 83.9| -| 7.6 | - | -| 24.0|64.9|
 | AnimalRTPose-L| 640 | 82.8| -| 11.4 | -  | - | 47.9|131.2|
 | AnimalRTPose-X| 640 | 88.4| -| 17.2 |  - | -| 74.8|204.5|
-
-- **mAP<sup>val</sup>** values are for single-model single-scale on [ATRW](https://cvwc2019.github.io/index.html#body-home) dataset. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose && python tools/pose_modify_categories_id.py --dataset animalpose && python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext`.
-- **Speed** averaged over COCO val images using [NVIDIA RTX 2080 Ti](https://www.nvidia.com/en-us/geforce/graphics-cards/rtx-2080-ti/) , [NVIDIA RTX 3090](https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/), [NVIDIA A800](https://www.nvidia.cn/content/dam/en-zz/Solutions/Data-Center/a100/pdf/PB-10577-001_v02.pdf) and [12th Gen Intel(R) Core(TM) i5-12400   2.50 GHz](https://www.intel.cn/content/www/cn/zh/products/sku/134586/intel-core-i512400-processor-18m-cache-up-to-4-40-ghz/specifications.html) instance. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose`
 
 
 ### TopViewMouse-5K
@@ -108,6 +102,3 @@ python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext
 | AnimalRTPose-M| 640 | 82.5| -| 7.9 | - | -| 24.5|66.9|
 | AnimalRTPose-L| 640 | 83.4| -| 11.8 | -  | - | 48.3|132.5|
 | AnimalRTPose-X| 640 | 83.2| -| 17.3 |  - | -| 74.8|204.7|
-
-- **mAP<sup>val</sup>** values are for single-model single-scale on [TopViewMouse-5K](https://doi.org/10.5281/zenodo.10618947) dataset. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose && python tools/pose_modify_categories_id.py --dataset animalpose && python tools/pose_coco_eval.py --dataset animalpose --model yolov8n-pose-cspnext`.
-- **Speed** averaged over COCO val images using [NVIDIA RTX 2080 Ti](https://www.nvidia.com/en-us/geforce/graphics-cards/rtx-2080-ti/) , [NVIDIA RTX 3090](https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090/), [NVIDIA A800](https://www.nvidia.cn/content/dam/en-zz/Solutions/Data-Center/a100/pdf/PB-10577-001_v02.pdf) and [12th Gen Intel(R) Core(TM) i5-12400   2.50 GHz](https://www.intel.cn/content/www/cn/zh/products/sku/134586/intel-core-i512400-processor-18m-cache-up-to-4-40-ghz/specifications.html) instance. <br>Reproduce by `python tools/pose_val_cspnext.py --dataset animalpose`
