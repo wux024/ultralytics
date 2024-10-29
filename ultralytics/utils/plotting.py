@@ -435,7 +435,7 @@ class Annotator:
                         continue
                 cv2.circle(self.im, (int(x_coord), int(y_coord)), radius, color_k, -1, lineType=cv2.LINE_AA)
 
-        if kpt_line and self.skeleton is not None:
+        if kpt_line and self.skeleton is not None and nkpt != 0:
             ndim = kpts.shape[-1]
             for i, sk in enumerate(self.skeleton):
                 # pos1 = (int(kpts[(sk[0] - 1), 0]), int(kpts[(sk[0] - 1), 1]))
