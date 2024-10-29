@@ -201,7 +201,7 @@ def main():
     parser.add_argument("--batch", type=int, default=default_settings["batch"], help="Batch size.")
     parser.add_argument("--imgsz", type=int, default=default_settings["imgsz"], help="Image size.")
     parser.add_argument("--device", type=str, default=default_settings["device"], help="Device to use (e.g., 0, 1, 2, cpu).")
-    parser.add_argument("--model_type", type=str, default=default_settings["model_type"], help="Model type.")
+    parser.add_argument("--model-type", type=str, default=default_settings["model_type"], help="Model type.")
     parser.add_argument("--models", type=str, help="Comma-separated list of model codes (n, s, m, l, x).")
     parser.add_argument("--no-pretrained", action="store_true", help="Not use a pretrained model.")
     parser.add_argument("--workers", type=int, default=default_settings["workers"], help="Number of workers.")
