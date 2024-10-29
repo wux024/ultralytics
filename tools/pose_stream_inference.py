@@ -76,6 +76,15 @@ def parse_models(models_str, model_type="animalrtpose"):
     
     return models
 
+def rename_dataset_directory(original_name, temp_name):
+    """Rename the dataset directory."""
+    if os.path.exists(original_name):
+        os.rename(original_name, temp_name)
+    else:
+        print(f"Dataset directory {original_name} does not exist.")      
+
+import os
+
 def build_paths(model, 
                 dataset, 
                 model_type, 
@@ -84,28 +93,44 @@ def build_paths(model,
                 sub_optical_field_sizes=None, 
                 window_size=None, 
                 inverse=False, 
-                imgsz_hadamard=None):
-    common_base = model
+                imgsz_hadamard=None,
+                aliasing=False):
+    # Base directory paths for different purposes
     base_common = f"./runs/{model_type}/train/{dataset}"
-    dir_common = f"runs/{model_type}/predict/{dataset}"
-
+    dir_common = f"./runs/{model_type}/predict/{dataset}"
+    data_common = f"./datasets/{dataset}/images"
+    
+    # List to store parts of the path that are conditionally added
+    conditions = []
+    
+    # Add conditions to the list if they are specified
     if optical_field_sizes is not None:
-        common_base += f"-{optical_field_sizes}x{optical_field_sizes}"
+        conditions.append(f"{optical_field_sizes}x{optical_field_sizes}")
     if sub_optical_field_sizes is not None:
-        common_base += f"-sub{sub_optical_field_sizes}x{sub_optical_field_sizes}"
+        conditions.append(f"{sub_optical_field_sizes}x{sub_optical_field_sizes}")
     if window_size is not None:
-        common_base += f"-{window_size}x{window_size}"
+        conditions.append(f"{window_size}x{window_size}")
     if inverse:
-        common_base += "-inverse"
+        conditions.append("inverse")
+    if aliasing:
+        conditions.append("aliasing")
     if imgsz_hadamard is not None:
-        common_base += f"-imgsz{imgsz_hadamard}"
+        conditions.append(f"{imgsz_hadamard}")
+    
+    # Join all conditions with hyphens and append to the base path
+    common_suffix = '-'.join(conditions)
+    common_base = f"{model}-{common_suffix}" if common_suffix else model
+    
+    # Append seed only to the common_base, not to data_common
     if seed is not None:
         common_base += f"-{seed}"
     
+    # Construct final paths
     model_path = os.path.join(base_common, common_base, "weights/best.pt")
     save_path = os.path.join(dir_common, common_base)
+    data_path = f"{data_common}-{common_suffix}" if common_suffix else data_common
     
-    return model_path, save_path
+    return data_path, model_path, save_path
 
 def save_results(result, save_dir, img, im, im_black, im_white, args):
     """Save the results on different backgrounds."""
@@ -136,39 +161,41 @@ def save_results(result, save_dir, img, im, im_black, im_white, args):
             show=args.show
         )
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="fish", help="dataset to use")
     parser.add_argument("--models", type=str, required=True, help="comma-separated list of model codes")
-    parser.add_argument("--model_type", type=str, default="animalrtpose", help="model type")
+    parser.add_argument("--model-type", type=str, default="animalrtpose", help="model type")
     parser.add_argument("--conf", type=float, default=0.25, help="object confidence threshold")
     parser.add_argument("--iou", type=float, default=0.7, help="IOU threshold for NMS")
     parser.add_argument("--imgsz", type=int, default=640, help="image size")
     parser.add_argument("--half", action="store_true", help="use FP16 half-precision inference")
     parser.add_argument("--device", default="", help="cuda device, i.e. 0 or 0,1,2,3 or cpu")
-    parser.add_argument("--max_det", type=int, default=300, help="maximum detections per image")
-    parser.add_argument("--vid_stride", type=int, default=1, help="video stride")
-    parser.add_argument("--stream_buffer", action="store_true", help="stream buffer")
+    parser.add_argument("--max-det", type=int, default=300, help="maximum detections per image")
+    parser.add_argument("--vid-stride", type=int, default=1, help="video stride")
+    parser.add_argument("--stream-buffer", action="store_true", help="stream buffer")
     parser.add_argument("--visualize", action="store_true", help="visualize detections")
     parser.add_argument("--augment", action="store_true", help="augmented inference")
     parser.add_argument("--agnostic-nms", action="store_true", help="class-agnostic NMS")
     parser.add_argument("--classes", type=list, default=None, help="filter by class")
-    parser.add_argument("--retina_masks", action="store_true", help="use retina mask head")
+    parser.add_argument("--retina-masks", action="store_true", help="use retina mask head")
     parser.add_argument("--embed", action="store_true", help="use embedding head")
     parser.add_argument("--show", action="store_true", help="show results")
-    parser.add_argument("--show_labels", action="store_true", help="show detection class labels")
-    parser.add_argument("--show_conf", action="store_true", help="show confidence score")
-    parser.add_argument("--show_boxes", action="store_true", help="show boxes")
-    parser.add_argument("--show_masks", action="store_true", help="show masks")
-    parser.add_argument("--show_probs", action="store_true", help="show probabilities")
-    parser.add_argument("--line_width", type=int, default=None, help="line width for boxes")
-    parser.add_argument("--kpt_radius", type=int, default=5, help="keypoint radius")
-    parser.add_argument("--kpt_line", action="store_true", help="draw keypoint lines")
-    parser.add_argument("--optical_field_sizes", type=int, default=None, help="optical field sizes for embedding head")
-    parser.add_argument("--sub_optical_field_sizes", type=int, default=None, help="sample rate for inference")
-    parser.add_argument("--window_size", type=int, nargs='+', default=None, help="window size for embedding head")
+    parser.add_argument("--show-labels", action="store_true", help="show detection class labels")
+    parser.add_argument("--show-conf", action="store_true", help="show confidence score")
+    parser.add_argument("--show-boxes", action="store_true", help="show boxes")
+    parser.add_argument("--show-masks", action="store_true", help="show masks")
+    parser.add_argument("--show-probs", action="store_true", help="show probabilities")
+    parser.add_argument("--line-width", type=int, default=None, help="line width for boxes")
+    parser.add_argument("--kpt-radius", type=int, default=5, help="keypoint radius")
+    parser.add_argument("--kpt-line", action="store_true", help="draw keypoint lines")
+    parser.add_argument("--optical-field-sizes", type=int, default=None, help="optical field sizes for embedding head")
+    parser.add_argument("--sub-optical-field-sizes", type=int, default=None, help="sample rate for inference")
+    parser.add_argument("--window-size", type=int, nargs='+', default=None, help="window size for embedding head")
     parser.add_argument("--inverse", action="store_true", help="inverse flag for embedding head")
-    parser.add_argument("--imgsz_hadamard", type=int, default=None, help="Hadamard image size")
+    parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Hadamard image size")
+    parser.add_argument("--aliasing", action="store_true", help="aliasing flag for embedding head")
     parser.add_argument("--seed", type=int, default=None, help="seed for inference")
     args = parser.parse_args()
 
@@ -177,57 +204,95 @@ if __name__ == "__main__":
 
     data_cdg = yaml.load(open(f"configs/data/{args.dataset}.yaml"), Loader=yaml.FullLoader)
 
-    for model_yaml in models:
-        model_name = os.path.splitext(os.path.basename(model_yaml))[0]
-        model_path, save_dir = build_paths(model_name, args.dataset, args.model_type, args.seed, args.optical_field_sizes, args.sub_optical_field_sizes, args.window_size, args.inverse, args.imgsz_hadamard)
 
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+    # Build the original dataset directory name
+    if args.model_type == "spipose":
+        original_dataset_dir, _, _ = build_paths("spipose-n", 
+                                           args.dataset, 
+                                           args.model_type, 
+                                           args.seed, 
+                                           args.optical_field_sizes, 
+                                           args.sub_optical_field_sizes, 
+                                           args.window_size, 
+                                           args.inverse, 
+                                           args.imgsz_hadamard,
+                                           args.aliasing)
+    else:
+        original_dataset_dir = f"./datasets/{args.dataset}/images_"
+    # Rename the dataset directory before training
+    temp_dataset_dir = f"./datasets/{args.dataset}/images"
+    rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
 
-        model = YOLO(model_path)
+    # Set skeleton
+    if 'skeleton' in data_cdg.keys():
+        SetSkeleton(data_cdg['skeleton'])
 
-        # Set skeleton
-        if 'skeleton' in data_cdg.keys():
-            SetSkeleton(data_cdg['skeleton'])
-
-        # Determine data paths
-        if 'test' in data_cdg.keys():
-            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['test'])
-            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "test")
-        elif 'val' in data_cdg.keys():
-            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['val'])
-            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "val")
-        elif 'train' in data_cdg.keys:
-            data_path = os.path.join("datasets", data_cdg['path'], data_cdg['train'])
-            high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "train")
-        else:
-            raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
-
-        results = model(
-            data_path,
-            conf=args.conf,
-            iou=args.iou,
-            imgsz=args.imgsz,
-            half=args.half,
-            device=args.device,
-            max_det=args.max_det,
-            vid_stride=args.vid_stride,
-            stream_buffer=args.stream_buffer,
-            visualize=args.visualize,
-            augment=args.augment,
-            agnostic_nms=args.agnostic_nms,
-            classes=args.classes,
-            retina_masks=args.retina_masks,
-            embed=args.embed,
-            stream=True
-        )
-
-        # high_data
+    # Determine data paths
+    if 'test' in data_cdg.keys():
+        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['test'])
+        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "test")
+    elif 'val' in data_cdg.keys():
+        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['val'])
+        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "val")
+    elif 'train' in data_cdg.keys():
+        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['train'])
+        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "train")
+    else:
+        raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
+        
+    # high_data
+    if args.model_type == "spipose":
         high_datas = os.listdir(high_data_path)
+    else:
+        high_datas = os.listdir(data_path)
+    
+    try:
+        for model_yaml in models:
+            model_name = os.path.splitext(os.path.basename(model_yaml))[0]
+            _, model_path, save_dir = build_paths(model_name, 
+                                            args.dataset, 
+                                            args.model_type, 
+                                            args.seed, 
+                                            args.optical_field_sizes, 
+                                            args.sub_optical_field_sizes, 
+                                            args.window_size, 
+                                            args.inverse, 
+                                            args.imgsz_hadamard,
+                                            args.aliasing)
 
-        for result, img in zip(results, high_datas):
-            im = cv2.imread(os.path.join(high_data_path, img))
-            im_black = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
-            im_white = np.ones((im.shape[0], im.shape[1], 3), dtype=np.uint8) * 255
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
 
-            save_results(result, save_dir, img, im, im_black, im_white, args)
+            model = YOLO(model_path)
+
+            results = model(
+                data_path,
+                conf=args.conf,
+                iou=args.iou,
+                imgsz=args.imgsz,
+                half=args.half,
+                device=args.device,
+                max_det=args.max_det,
+                vid_stride=args.vid_stride,
+                stream_buffer=args.stream_buffer,
+                visualize=args.visualize,
+                augment=args.augment,
+                agnostic_nms=args.agnostic_nms,
+                classes=args.classes,
+                retina_masks=args.retina_masks,
+                embed=args.embed,
+                stream=True
+            )
+
+            for result, img in zip(results, high_datas):
+                im = cv2.imread(os.path.join(high_data_path, img))
+                im_black = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
+                im_white = np.ones((im.shape[0], im.shape[1], 3), dtype=np.uint8) * 255
+
+                save_results(result, save_dir, img, im, im_black, im_white, args)
+    finally:
+        # Rename the dataset directory back to its original name
+        rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
+
+if __name__ == "__main__":
+    main()
