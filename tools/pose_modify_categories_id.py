@@ -72,7 +72,7 @@ def parse_models(models_str, model_type="animalrtpose"):
 def parse_args():
     parser = argparse.ArgumentParser(description="Modify categories id in COCO json file.")
     parser.add_argument("--dataset", type=str, default="ap10k", help="Name of the dataset.")
-    parser.add_argument("--model_type", type=str, default="animalrtpose", help="Type of the model.")
+    parser.add_argument("--model-type", type=str, default="animalrtpose", help="Type of the model.")
     parser.add_argument("--models", type=str, default="n,s,m,l,x", help="Comma-separated list of model codes.")
     parser.add_argument("--optical-field-sizes", type=int, default=None, help="Optical field size for the entire image (for spipose).")
     parser.add_argument("--sub-optical-field-sizes", type=int, default=None, help="Optical field size for sub-regions of the image (for spipose).")

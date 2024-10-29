@@ -83,6 +83,7 @@ def parse_args():
     parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image (for spipose).")
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions (for spipose).")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform (for spipose).")
+    parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
     return parser.parse_args()
 
 def load_dataset_config(dataset_name):
@@ -102,7 +103,8 @@ def build_output_dir(
     sub_optical_field_sizes=None, 
     window_size=None, 
     inverse=False, 
-    imgsz_hadamard=None
+    imgsz_hadamard=None,
+    aliasing=False
 ):
     """Build the save directory based on the provided arguments."""
     base_dir = f"{base_dir}"
@@ -118,6 +120,9 @@ def build_output_dir(
     
     if inverse:
         base_dir += "-inverse"
+
+    if aliasing:
+        base_dir += "-aliasing"
     
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
@@ -137,7 +142,8 @@ def main():
                 args.sub_optical_field_sizes,
                 args.window_size,
                 args.inverse,
-                args.imgsz_hadamard
+                args.imgsz_hadamard,
+                args.aliasing
             )
         else:
             model_name = model[:-5]
