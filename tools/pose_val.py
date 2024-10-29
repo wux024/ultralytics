@@ -77,7 +77,8 @@ def build_output_dir(
     window_size=None, 
     seed=None, 
     inverse=False, 
-    imgsz_hadamard=None
+    imgsz_hadamard=None,
+    aliasing=False
 ):
     """Build the save directory based on the provided arguments."""
     base_dir = f"{base_dir}"
@@ -93,6 +94,9 @@ def build_output_dir(
 
     if inverse:
         base_dir += "-inverse"
+
+    if aliasing:
+        base_dir += "-aliasing"
     
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
@@ -113,6 +117,7 @@ def construct_val_command(args, model_yaml):
         seed=args.seed,
         inverse=args.inverse,
         imgsz_hadamard=args.imgsz_hadamard,
+        aliasing=args.aliasing
     ) if args.model_type == "spipose" else build_output_dir(base_dir=model_yaml[:-5], seed=args.seed)
     model_dir = f"./runs/{args.model_type}/train/{args.dataset}"
     output_dir = f"./runs/{args.model_type}/eval/{args.dataset}"
@@ -239,6 +244,9 @@ def main():
     # Image size for Hadamard transform selection
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
 
+    # Aliasing selection
+    parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
+
     args = parser.parse_args()
 
     # Process selected models
@@ -255,7 +263,8 @@ def main():
             sub_optical_field_sizes=args.sub_optical_field_sizes,
             window_size=args.window_size,
             inverse=args.inverse,
-            imgsz_hadamard=args.imgsz_hadamard
+            imgsz_hadamard=args.imgsz_hadamard,
+            aliasing=args.aliasing
         )
     else:
         original_dataset_dir = f"./datasets/{args.dataset}/images_"

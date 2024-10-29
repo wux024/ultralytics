@@ -78,7 +78,8 @@ def build_output_dir(
     window_size=None, 
     seed=None, 
     inverse=False, 
-    imgsz_hadamard=None
+    imgsz_hadamard=None,
+    aliasing=False
 ):
     """Build the save directory based on the provided arguments."""
     base_dir = f"{base_dir}"
@@ -94,6 +95,9 @@ def build_output_dir(
 
     if inverse:
         base_dir += "-inverse"
+    
+    if aliasing:
+        base_dir += "-aliasing"
     
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
@@ -125,6 +129,7 @@ def construct_train_command(args, model_yaml, pretrained_model):
         seed=args.seed,
         inverse=args.inverse,
         imgsz_hadamard=args.imgsz_hadamard,
+        aliasing=args.aliasing
     ) if args.model_type == "spipose" else build_output_dir(model_yaml[:-5], seed=args.seed)
     output_dir = f"./runs/{args.model_type}/train/{args.dataset}"
 
@@ -207,6 +212,7 @@ def main():
     parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image.")
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions.")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
+    parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
 
     args = parser.parse_args()
 
@@ -224,7 +230,8 @@ def main():
             sub_optical_field_sizes=args.sub_optical_field_sizes,
             window_size=args.window_size,
             inverse=args.inverse,
-            imgsz_hadamard=args.imgsz_hadamard
+            imgsz_hadamard=args.imgsz_hadamard,
+            aliasing=args.aliasing,
         )
     else:
         original_dataset_dir = f"./datasets/{args.dataset}/images_"
