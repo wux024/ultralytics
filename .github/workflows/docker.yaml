@@ -84,11 +84,8 @@ jobs:
     outputs:
       new_release: ${{ steps.check_tag.outputs.new_release }}
     steps:
-      - name: Cleanup disk
-        # Free up to 30GB of disk space per https://github.com/ultralytics/ultralytics/pull/15848
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: true
+      - name: Cleanup disk space
+        uses: ultralytics/actions/cleanup-disk@main
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -195,7 +192,7 @@ jobs:
     if: always()
     steps:
       - name: Check for failure and notify
-        if: needs.docker.result == 'failure' && github.repository == 'ultralytics/ultralytics' && github.event_name == 'push'
+        if: needs.docker.result == 'failure' && github.repository == 'ultralytics/ultralytics' && github.event_name == 'push' && github.run_attempt == '1'
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
