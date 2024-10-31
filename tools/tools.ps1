@@ -13,8 +13,9 @@ foreach ($size in $subOpticalFieldSizes) {
         --optical-field-sizes 128 `
         --sub-optical-field-sizes $size `
         --imgsz-hadamard 256 `
+        --aliasing `
         --kpt-line `
-        --seed 20241027
+        --seed 20241030
 
     # Optional: Output a message after each run to track progress
     Write-Output "Finished processing with sub-optical-field-sizes: $size and inverse: $inverseFlag"
