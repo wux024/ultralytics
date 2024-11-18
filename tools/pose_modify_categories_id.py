@@ -79,6 +79,7 @@ def parse_args():
     parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image (for spipose).")
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions (for spipose).")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform (for spipose).")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
     return parser.parse_args()
 
 def build_output_dir(
@@ -87,7 +88,8 @@ def build_output_dir(
     sub_optical_field_sizes=None, 
     window_size=None, 
     inverse=False, 
-    imgsz_hadamard=None
+    imgsz_hadamard=None,
+    seed=42
 ):
     """Build the save directory based on the provided arguments."""
     base_dir = f"{base_dir}"
@@ -107,16 +109,21 @@ def build_output_dir(
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
     
+    if seed is not None:
+        base_dir += f"-{seed}"
+    
+
+    
     return base_dir
 
 def modify_categories_id(json_file):
     with open(json_file) as f:
         data = json.load(f)
     
-    cat_id_set = set([ann["category_id"] for ann in data["annotations"]])
+    cat_id_set = set([ann["category_id"] for ann in data])
     
     if 0 in cat_id_set:
-        for ann in data["annotations"]:
+        for ann in data:
             ann["category_id"] += 1
     
     with open(json_file, "w") as f:
@@ -137,7 +144,8 @@ if __name__ == "__main__":
                 args.sub_optical_field_sizes,
                 args.window_size,
                 args.inverse,
-                args.imgsz_hadamard
+                args.imgsz_hadamard,
+                args.seed
             )
         else:
             model_name = model[:-5]

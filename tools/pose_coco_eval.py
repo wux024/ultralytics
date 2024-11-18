@@ -84,6 +84,7 @@ def parse_args():
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions (for spipose).")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform (for spipose).")
     parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
     return parser.parse_args()
 
 def load_dataset_config(dataset_name):
@@ -104,7 +105,8 @@ def build_output_dir(
     window_size=None, 
     inverse=False, 
     imgsz_hadamard=None,
-    aliasing=False
+    aliasing=False,
+    seed=42
 ):
     """Build the save directory based on the provided arguments."""
     base_dir = f"{base_dir}"
@@ -127,6 +129,9 @@ def build_output_dir(
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
     
+    if seed is not None:
+        base_dir += f"-{seed}"
+    
     return base_dir
 
 def main():
@@ -143,7 +148,8 @@ def main():
                 args.window_size,
                 args.inverse,
                 args.imgsz_hadamard,
-                args.aliasing
+                args.aliasing,
+                args.seed
             )
         else:
             model_name = model[:-5]
