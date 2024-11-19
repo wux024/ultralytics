@@ -244,6 +244,7 @@ def main():
     if args.model_type == "spipose":
         high_datas = os.listdir(high_data_path)
     else:
+        high_data_path = data_path
         high_datas = os.listdir(data_path)
     
     try:
