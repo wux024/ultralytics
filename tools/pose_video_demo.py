@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-File Name: pose_normal_inference.py
+File Name: pose_video_demo.py
 Author: wux024
 Email: wux024@nenu.edu.cn
-Created On: 2024/6/19
-Last Modified: 2024/6/19
+Created On: 2024/11/19
+Last Modified: 2024/11/19
 Version: 1.0.
 
 Overview:
@@ -15,19 +15,46 @@ Notes:
     - Ensure compliance with project coding standards.
 
 Revision History:
-    - [2024/6/19] wux024: Initial file creation
+    - [2024/11/19] wux024: Initial file creation
 """
 
 import argparse
 from ultralytics import YOLO
 import yaml
 from ultralytics.utils.pose_cfg import SetSkeleton
+import cv2
+import numpy as np
+import os
+
+def plot_results(result, im_black, args):
+    """Save the results on different backgrounds."""
+    # Update original image size
+    result.orig_shape = im_black.shape[:2]
+
+    # Rescale keypoints
+    keypoints_rescaled = result.keypoints.xyn.clone()
+    keypoints_rescaled[:, :, 0] *= im_black.shape[1]
+    keypoints_rescaled[:, :, 1] *= im_black.shape[0]
+    keypoints_data_cloned = result.keypoints.data.clone()
+    keypoints_data_cloned[:, :, :2] = keypoints_rescaled
+    result.keypoints.data = keypoints_data_cloned
+
+    im = result.plot(
+        img=im_black,
+        conf=args.show_conf,
+        line_width=args.line_width,
+        kpt_radius=args.kpt_radius,
+        kpt_line=args.kpt_line,
+        labels=args.show_labels,
+        boxes=args.show_boxes,
+        )
+    
+    return im
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=str, default="path/to/video.mp4", help="dataset to use")
     parser.add_argument("--dataset", type=str, default=None, help="path to dataset")
-    parser.add_argument("--stream", action="store_true", help="stream")
     parser.add_argument("--model", type=str, default="path/to/best.pt", help="model to use")
     parser.add_argument("--conf", type=float, default=0.25, help="object confidence threshold")
     parser.add_argument("--iou", type=float, default=0.7, help="IOU threshold for NMS")
@@ -43,12 +70,6 @@ if __name__ == "__main__":
     parser.add_argument("--classes", type=list, default=None, help="filter by class")
     parser.add_argument("--retina-masks", action="store_true", help="use retina mask head")
     parser.add_argument("--embed", action="store_true", help="use embedding head")
-    parser.add_argument("--show", action="store_true", help="show results")
-    parser.add_argument("--save", action="store_true", help="save results to file")
-    parser.add_argument("--save-frames", action="store_true", help="save frames with detections")
-    parser.add_argument("--save-txt", action="store_true", help="save results to *.txt")
-    parser.add_argument("--save-conf", action="store_true", help="save confidences in")
-    parser.add_argument("--save-crop", action="store_true", help="save cropped detections")
     parser.add_argument("--show-labels", action="store_true", help="show detection class labels")
     parser.add_argument("--show-conf", action="store_true", help="show confidence score")
     parser.add_argument("--show-boxes", action="store_true", help="show boxes")
@@ -68,11 +89,9 @@ if __name__ == "__main__":
     if "skeleton" in data_cdg.keys():
         SetSkeleton(data_cdg["skeleton"])
 
-
-    model.predict(
-        source=args.source,
-        data=data,
-        stream=args.stream,
+    
+    results = model(
+        args.source,
         conf=args.conf,
         iou=args.iou,
         imgsz=args.imgsz,
@@ -87,17 +106,21 @@ if __name__ == "__main__":
         classes=args.classes,
         retina_masks=args.retina_masks,
         embed=args.embed,
-        show=args.show,
-        save=args.save,
-        save_frames=args.save_frames,
-        save_txt=args.save_txt,
-        save_conf=args.save_conf,
-        save_crop=args.save_crop,
-        show_labels=args.show_labels,
-        show_conf=args.show_conf,
-        show_boxes=args.show_boxes,
-        line_width=args.line_width,
-        kpt_line=args.kpt_line,
-        kpt_radius=args.kpt_radius,
-        project=args.project,
-    )
+        stream=True
+        )
+    
+    cap = cv2.VideoCapture(args.source)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    video_name = os.path.splitext(os.path.basename(args.source))[0]
+    out = cv2.VideoWriter(f"{args.project}/{video_name}.mp4", fourcc, fps, (width, height))
+
+    for frame in results:
+        im_black = np.zeros((height, width, 3), np.uint8)
+        im = plot_results(frame, im_black, args)
+        out.write(im)
+    
+    out.release()
+    cap.release()

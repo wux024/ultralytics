@@ -1,6 +1,6 @@
 # Define an array containing all the sub-optical field sizes to test
-$subOpticalFieldSizes = @(64,32,16)
-$dataset = "mouse"
+$subOpticalFieldSizes = @(128,64,32)
+$dataset = "twoperson"
 
 # Loop through each sub-optical field size
 foreach ($size in $subOpticalFieldSizes) {
@@ -12,8 +12,7 @@ foreach ($size in $subOpticalFieldSizes) {
         --model-type spipose `
         --optical-field-sizes 128 `
         --sub-optical-field-size $size `
-        --aliasing `
         --imgsz-hadamard 256 `
-        --seed 20241029 `
+        --seed 20241026 `
         --split test
 }
