@@ -117,10 +117,14 @@ if __name__ == "__main__":
     video_name = os.path.splitext(os.path.basename(args.source))[0]
     out = cv2.VideoWriter(f"{args.project}/{video_name}.mp4", fourcc, fps, (width, height))
 
-    for frame in results:
+    im_previous = np.zeros((height, width, 3), np.uint8)
+    for result in results:
         im_black = np.zeros((height, width, 3), np.uint8)
-        im = plot_results(frame, im_black, args)
-        out.write(im)
+        im_current = plot_results(result, im_black, args)
+        if np.all(im_current == 0):
+            im_current = im_previous
+        out.write(im_current)
+        im_previous = im_current
     
     out.release()
     cap.release()
