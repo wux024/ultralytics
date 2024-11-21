@@ -251,9 +251,7 @@ def main():
             print(f"Running command: {' '.join(train_cmd)}")
             subprocess.run(train_cmd, check=True)
     finally:
-        # Rename the dataset directory back to the original name after training
-        if args.model_type == "spipose":
-            rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
+        rename_dataset_directory(temp_dataset_dir, original_dataset_dir)
 
 if __name__ == "__main__":
     main()
