@@ -118,7 +118,7 @@ def construct_val_command(args, model_yaml):
         inverse=args.inverse,
         imgsz_hadamard=args.imgsz_hadamard,
         aliasing=args.aliasing
-    ) if args.model_type == "spipose" else build_output_dir(base_dir=model_yaml[:-5], seed=args.seed)
+    )
     model_dir = f"./runs/{args.model_type}/train/{args.dataset}"
     output_dir = f"./runs/{args.model_type}/eval/{args.dataset}"
     model = os.path.join(model_dir, model_name, "weights/best.pt")
@@ -255,21 +255,20 @@ def main():
     else:
         models = parse_models(args.models, model_type=args.model_type)
 
-    # Build the original dataset directory name
-    if args.model_type == "spipose":
-        original_dataset_dir = build_output_dir(
-            base_dir=f'datasets/{args.dataset}/images',
+    # Rename the dataset directory before training
+    temp_dataset_dir = f"./datasets/{args.dataset}/images"
+    original_dataset_dir = build_output_dir(
+            base_dir=temp_dataset_dir,
             optical_field_sizes=args.optical_field_sizes,
             sub_optical_field_sizes=args.sub_optical_field_sizes,
             window_size=args.window_size,
             inverse=args.inverse,
             imgsz_hadamard=args.imgsz_hadamard,
-            aliasing=args.aliasing
+            aliasing=args.aliasing,
         )
-    else:
+    if original_dataset_dir == temp_dataset_dir:
         original_dataset_dir = f"./datasets/{args.dataset}/images_"
-    temp_dataset_dir = f"./datasets/{args.dataset}/images"
-    # Rename the dataset directory before validation
+    
     rename_dataset_directory(original_dataset_dir, temp_dataset_dir)
 
     try:
