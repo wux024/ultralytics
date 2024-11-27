@@ -77,6 +77,7 @@ def build_output_dir(
     sub_optical_field_sizes=None, 
     window_size=None, 
     seed=None, 
+    hadamard_seed=None, 
     inverse=False, 
     imgsz_hadamard=None,
     aliasing=False
@@ -101,6 +102,9 @@ def build_output_dir(
     
     if imgsz_hadamard is not None:
         base_dir += f"-{imgsz_hadamard}"
+    
+    if hadamard_seed is not None:
+        base_dir += f"-{hadamard_seed}"
     
     if seed is not None:
         base_dir += f"-{seed}"
@@ -127,6 +131,7 @@ def construct_train_command(args, model_yaml, pretrained_model):
         sub_optical_field_sizes=args.sub_optical_field_sizes,
         window_size=args.window_size,
         seed=args.seed,
+        hadamard_seed=args.hadamard_seed,
         inverse=args.inverse,
         imgsz_hadamard=args.imgsz_hadamard,
         aliasing=args.aliasing
@@ -213,6 +218,7 @@ def main():
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions.")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
     parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
+    parser.add_argument("--hadamard-seed", type=int, default=None, help="Random seed for the Hadamard transform.")
 
     args = parser.parse_args()
 
@@ -233,6 +239,7 @@ def main():
             inverse=args.inverse,
             imgsz_hadamard=args.imgsz_hadamard,
             aliasing=args.aliasing,
+            hadamard_seed=args.hadamard_seed,
         )
     if original_dataset_dir == temp_dataset_dir:
         original_dataset_dir = f"./datasets/{args.dataset}/images_"
