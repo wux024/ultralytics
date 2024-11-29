@@ -3,7 +3,7 @@
 Aanimal pose estimation aims to detect the keypoints of different species. It provides detailed behavioral analysis for neuroscience, medical and ecology applications. Some results are shown below.
 ![](https://s3.bmp.ovh/imgs/2024/08/19/0e1d3cc45f840729.jpg)
 
-For the latest version of the code, you can start with the [AnimalRTPose]([https://github.com/wux024/ultralytics/tree/animalrtpose](https://github.com/wux024/ultralytics/tree/animalrtpose/configs) software library. It provides a simple and efficient way to train and test animal pose estimation models. Below is the configuration of the old version, which can still be adopted, after some time he will be purged.
+For the latest version of the code, you can start with the [AnimalRTPose](https://github.com/wux024/ultralytics/tree/animalrtpose/configs) software library. It provides a simple and efficient way to train and test animal pose estimation models. Below is the configuration of the old version, which can still be adopted, after some time he will be purged.
 
 ## Installation
 
