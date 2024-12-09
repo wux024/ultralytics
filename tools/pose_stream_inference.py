@@ -94,7 +94,8 @@ def build_paths(model,
                 window_size=None, 
                 inverse=False, 
                 imgsz_hadamard=None,
-                aliasing=False):
+                aliasing=False,
+                hadamard_seed=None):
     # Base directory paths for different purposes
     base_common = f"./runs/{model_type}/train/{dataset}"
     dir_common = f"./runs/{model_type}/predict/{dataset}"
@@ -116,6 +117,9 @@ def build_paths(model,
         conditions.append("aliasing")
     if imgsz_hadamard is not None:
         conditions.append(f"{imgsz_hadamard}")
+    
+    if hadamard_seed is not None:
+        conditions.append(f"{hadamard_seed}")
     
     # Join all conditions with hyphens and append to the base path
     common_suffix = '-'.join(conditions)
@@ -197,6 +201,7 @@ def main():
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Hadamard image size")
     parser.add_argument("--aliasing", action="store_true", help="aliasing flag for embedding head")
     parser.add_argument("--seed", type=int, default=None, help="seed for inference")
+    parser.add_argument("--hadamard-seed", type=int, default=None, help="seed for Hadamard transform")
     args = parser.parse_args()
 
     # Parse the provided models
@@ -216,7 +221,8 @@ def main():
                                            args.window_size, 
                                            args.inverse, 
                                            args.imgsz_hadamard,
-                                           args.aliasing)
+                                           args.aliasing,
+                                           args.hadamard_seed)
     else:
         original_dataset_dir = f"./datasets/{args.dataset}/images_"
     # Rename the dataset directory before training
@@ -259,7 +265,8 @@ def main():
                                             args.window_size, 
                                             args.inverse, 
                                             args.imgsz_hadamard,
-                                            args.aliasing)
+                                            args.aliasing,
+                                            args.hadamard_seed)
 
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
