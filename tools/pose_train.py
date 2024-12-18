@@ -183,7 +183,7 @@ def main():
         "device": None,
         "workers": 16,
         "pose": 40.0,
-        "optical_field_sizes": 128,
+        "optical_field_sizes": None,
         "sub_optical_field_sizes": None,
         "window_size": None,
         "seed": seed_value,
@@ -214,7 +214,7 @@ def main():
     parser.add_argument("--pose", type=float, default=default_settings["pose"], help="Pose loss weight.")
     parser.add_argument("--optical-field-sizes", type=int, default=default_settings["optical_field_sizes"], help="Optical field size for the entire image.")
     parser.add_argument("--sub-optical-field-sizes", type=int, default=default_settings["sub_optical_field_sizes"], help="Optical field size for sub-regions of the image.")
-    parser.add_argument("--window-size", nargs=2, type=int, default=None, help="Window size for sub-regions of the image.")
+    parser.add_argument("--window-size", nargs=2, type=int, default=default_settings["window_size"], help="Window size for sub-regions of the image.")
     parser.add_argument("--inverse", action="store_true", help="Order the images by their size before splitting into sub-regions.")
     parser.add_argument("--imgsz-hadamard", type=int, default=None, help="Image size for the Hadamard transform. If not provided, it will be set to imgsz.")
     parser.add_argument("--aliasing", action="store_true", help="Use aliasing for the Hadamard transform.")
