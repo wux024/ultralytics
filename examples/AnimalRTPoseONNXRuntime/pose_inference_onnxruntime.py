@@ -455,7 +455,7 @@ class AnimalRTPose:
 if __name__ == "__main__":
     # Create an argument parser to handle command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="runs/animalrtpose/train/animalpose/animalrtpose-x/weights/best.onnx", help="Input your ONNX model.")
+    parser.add_argument("--model", type=str, default="runs/animalrtpose/train/animalpose/animalrtpose-n/weights/best.onnx", help="Input your ONNX model.")
     parser.add_argument("--source", type=str, default="datasets/animalpose/images_/val", help="Path to input image.")
     parser.add_argument("--conf", type=float, default=0.5, help="Confidence threshold")
     parser.add_argument("--iou", type=float, default=0.5, help="NMS IoU threshold")
