@@ -169,6 +169,7 @@ def save_results(result, save_dir, img, im, im_black, im_white, args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="fish", help="dataset to use")
+    parser.add_argument("--split", type=str, default="test", help="split to use")
     parser.add_argument("--models", type=str, required=True, help="comma-separated list of model codes")
     parser.add_argument("--model-type", type=str, default="animalrtpose", help="model type")
     parser.add_argument("--conf", type=float, default=0.25, help="object confidence threshold")
@@ -233,16 +234,11 @@ def main():
     if 'skeleton' in data_cdg.keys():
         SetSkeleton(data_cdg['skeleton'])
 
+    split = args.split
     # Determine data paths
-    if 'test' in data_cdg.keys():
-        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['test'])
-        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "test")
-    elif 'val' in data_cdg.keys():
-        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['val'])
-        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "val")
-    elif 'train' in data_cdg.keys():
-        data_path = os.path.join("datasets", data_cdg['path'], data_cdg['train'])
-        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", "train")
+    if split in data_cdg.keys():
+        data_path = os.path.join("datasets", data_cdg['path'], data_cdg[split])
+        high_data_path = os.path.join("datasets", data_cdg['path'], "images_", split)
     else:
         raise ValueError(f"No test or val or train data found in {data_cdg['path']}")
         
