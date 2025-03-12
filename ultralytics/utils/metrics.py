@@ -905,7 +905,6 @@ class SegmentMetrics(SimpleClass):
     Attributes:
         save_dir (Path): Path to the directory where the output plots should be saved.
         plot (bool): Whether to save the detection and segmentation plots.
-        on_plot (func): An optional callback to pass plots path and data when they are rendered.
         names (list): List of class names.
         box (Metric): An instance of the Metric class to calculate box detection metrics.
         seg (Metric): An instance of the Metric class to calculate mask segmentation metrics.

@@ -34,7 +34,6 @@ class ParkingPtsSelection:
         canvas_max_height (int): Maximum height of the canvas.
 
     Methods:
-        setup_ui: Sets up the Tkinter UI components.
         initialize_properties: Initializes the necessary properties.
         upload_image: Uploads an image, resizes it to fit the canvas, and displays it.
         on_canvas_click: Handles mouse clicks to add points for bounding boxes.
