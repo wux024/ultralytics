@@ -51,15 +51,15 @@ The rationale behind renaming the 'images' directory to 'images_' is to accommod
 
 2. Run the following command to train the model:
 ```
-python tools/pose_train.py --dataset animalpose --models n
+python tools/pose_train.py --dataset animalpose --models n --seed 1234
 ```
 The pretrained model can be downloaded from [here](https://drive.google.com/drive/folders/15L-q6CETD3dC8aOknamEunZaDEVlA1na?usp=drive_link). You should move the downloaded model to the `weights` folder. And, we add '--model-type' parameter to specify the model type, such as 'yolov8-pose' or 'yolo11-pose'.
 
-3. The training log and checkpoints will be saved in the `runs/animalrtpose/train/animalpose/animalrtpose-n` folder. 
+3. The training log and checkpoints will be saved in the `runs/animalrtpose/train/animalpose/animalrtpose-n-1234` folder. 
 
 4. Test the trained model:
 ``` 
-python tools/pose_val.py --dataset animalpose --models n
+python tools/pose_val.py --dataset animalpose --models n --seed 1234
 python tools/pose_modify_categories_id.py --dataset animalpose
 python tools/pose_coco_eval.py --dataset animalpose --models n
 ```
