@@ -1,4 +1,4 @@
-# Ultralytics YOLO 🚀, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
 import json
 import random
@@ -241,8 +241,10 @@ def convert_coco(
         ```python
         from ultralytics.data.converter import convert_coco
 
-        convert_coco("../datasets/coco/annotations/", use_segments=True, use_keypoints=False, cls91to80=True)
-        convert_coco("../datasets/lvis/annotations/", use_segments=True, use_keypoints=False, cls91to80=False, lvis=True)
+        convert_coco("../datasets/coco/annotations/", use_segments=True, use_keypoints=False, cls91to80=False)
+        convert_coco(
+            "../datasets/lvis/annotations/", use_segments=True, use_keypoints=False, cls91to80=False, lvis=True
+        )
         ```
 
     Output:
@@ -266,19 +268,19 @@ def convert_coco(
             # since LVIS val set contains images from COCO 2017 train in addition to the COCO 2017 val split.
             (fn / "train2017").mkdir(parents=True, exist_ok=True)
             (fn / "val2017").mkdir(parents=True, exist_ok=True)
-        with open(json_file) as f:
+        with open(json_file, encoding="utf-8") as f:
             data = json.load(f)
 
         # Create image dict
-        images = {f'{x["id"]:d}': x for x in data["images"]}
+        images = {f"{x['id']:d}": x for x in data["images"]}
         # Create image-annotations dict
-        imgToAnns = defaultdict(list)
+        annotations = defaultdict(list)
         for ann in data["annotations"]:
-            imgToAnns[ann["image_id"]].append(ann)
+            annotations[ann["image_id"]].append(ann)
 
         image_txt = []
         # Write labels file
-        for img_id, anns in TQDM(imgToAnns.items(), desc=f"Annotations {json_file}"):
+        for img_id, anns in TQDM(annotations.items(), desc=f"Annotations {json_file}"):
             img = images[f"{img_id:d}"]
             h, w = img["height"], img["width"]
             f = str(Path(img["coco_url"]).relative_to("http://images.cocodataset.org")) if lvis else img["file_name"]
@@ -321,7 +323,7 @@ def convert_coco(
                         )
 
             # Write
-            with open((fn / f).with_suffix(".txt"), "a") as file:
+            with open((fn / f).with_suffix(".txt"), "a", encoding="utf-8") as file:
                 for i in range(len(bboxes)):
                     if use_keypoints:
                         line = (*(keypoints[i]),)  # cls, box, keypoints
@@ -332,7 +334,8 @@ def convert_coco(
                     file.write(("%g " * len(line)).rstrip() % line + "\n")
 
         if lvis:
-            with open((Path(save_dir) / json_file.name.replace("lvis_v1_", "").replace(".json", ".txt")), "a") as f:
+            filename = Path(save_dir) / json_file.name.replace("lvis_v1_", "").replace(".json", ".txt")
+            with open(filename, "a", encoding="utf-8") as f:
                 f.writelines(f"{line}\n" for line in image_txt)
 
     LOGGER.info(f"{'LVIS' if lvis else 'COCO'} data converted successfully.\nResults saved to {save_dir.resolve()}")
@@ -377,7 +380,7 @@ def convert_segment_masks_to_yolo_seg(masks_dir, output_dir, classes):
     """
     pixel_to_class_mapping = {i + 1: i for i in range(classes)}
     for mask_path in Path(masks_dir).iterdir():
-        if mask_path.suffix == ".png":
+        if mask_path.suffix in {".png", ".jpg"}:
             mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)  # Read the mask image in grayscale
             img_height, img_width = mask.shape  # Get image dimensions
             LOGGER.info(f"Processing {mask_path} imgsz = {img_height} x {img_width}")
@@ -409,7 +412,7 @@ def convert_segment_masks_to_yolo_seg(masks_dir, output_dir, classes):
                         yolo_format_data.append(yolo_format)
             # Save Ultralytics YOLO format data to file
             output_path = Path(output_dir) / f"{mask_path.stem}.txt"
-            with open(output_path, "w") as file:
+            with open(output_path, "w", encoding="utf-8") as file:
                 for item in yolo_format_data:
                     line = " ".join(map(str, item))
                     file.write(line + "\n")
@@ -603,7 +606,6 @@ def yolo_bbox2segment(im_dir, save_dir=None, sam_model="sam_b.pt", device=None):
     """
     from ultralytics import SAM
     from ultralytics.data import YOLODataset
-    from ultralytics.utils import LOGGER
     from ultralytics.utils.ops import xywh2xyxy
 
     # NOTE: add placeholder to pass class index check
@@ -637,7 +639,7 @@ def yolo_bbox2segment(im_dir, save_dir=None, sam_model="sam_b.pt", device=None):
                 continue
             line = (int(cls[i]), *s.reshape(-1))
             texts.append(("%g " * len(line)).rstrip() % line)
-        with open(txt_file, "a") as f:
+        with open(txt_file, "a", encoding="utf-8") as f:
             f.writelines(text + "\n" for text in texts)
     LOGGER.info(f"Generated segment labels saved in {save_dir}")
 
@@ -687,7 +689,7 @@ def create_synthetic_coco_dataset():
             # Read image filenames from label list file
             label_list_file = dir / f"{subset}.txt"
             if label_list_file.exists():
-                with open(label_list_file) as f:
+                with open(label_list_file, encoding="utf-8") as f:
                     image_files = [dir / line.strip() for line in f]
 
                 # Submit all tasks

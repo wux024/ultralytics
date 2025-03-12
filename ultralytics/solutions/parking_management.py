@@ -1,11 +1,13 @@
-# Ultralytics YOLO 🚀, AGPL-3.0 license
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
 import json
 
 import cv2
 import numpy as np
 
-from ultralytics.solutions.solutions import LOGGER, BaseSolution, check_requirements
+from ultralytics.solutions.solutions import BaseSolution
+from ultralytics.utils import LOGGER
+from ultralytics.utils.checks import check_imshow
 from ultralytics.utils.plotting import Annotator
 
 
@@ -48,24 +50,41 @@ class ParkingPtsSelection:
 
     def __init__(self):
         """Initializes the ParkingPtsSelection class, setting up UI and properties for parking zone point selection."""
-        check_requirements("tkinter")
-        import tkinter as tk
-        from tkinter import filedialog, messagebox
+        try:  # check if tkinter installed
+            import tkinter as tk
+            from tkinter import filedialog, messagebox
+        except ImportError:  # Display error with recommendations
+            import platform
+
+            install_cmd = {
+                "Linux": "sudo apt install python3-tk (Debian/Ubuntu) | sudo dnf install python3-tkinter (Fedora) | "
+                "sudo pacman -S tk (Arch)",
+                "Windows": "reinstall Python and enable the checkbox `tcl/tk and IDLE` on **Optional Features** during installation",
+                "Darwin": "reinstall Python from https://www.python.org/downloads/mac-osx/ or `brew install python-tk`",
+            }.get(platform.system(), "Unknown OS. Check your Python installation.")
+
+            LOGGER.warning(f"WARNING ⚠️  Tkinter is not configured or supported. Potential fix: {install_cmd}")
+            return
+
+        if not check_imshow(warn=True):
+            return
 
         self.tk, self.filedialog, self.messagebox = tk, filedialog, messagebox
-        self.setup_ui()
-        self.initialize_properties()
-        self.master.mainloop()
-
-    def setup_ui(self):
-        """Sets up the Tkinter UI components for the parking zone points selection interface."""
-        self.master = self.tk.Tk()
+        self.master = self.tk.Tk()  # Reference to the main application window or parent widget
         self.master.title("Ultralytics Parking Zones Points Selector")
         self.master.resizable(False, False)
 
-        # Canvas for image display
-        self.canvas = self.tk.Canvas(self.master, bg="white")
+        self.canvas = self.tk.Canvas(self.master, bg="white")  # Canvas widget for displaying images or graphics
         self.canvas.pack(side=self.tk.BOTTOM)
+
+        self.image = None  # Variable to store the loaded image
+        self.canvas_image = None  # Reference to the image displayed on the canvas
+        self.canvas_max_width = None  # Maximum allowed width for the canvas
+        self.canvas_max_height = None  # Maximum allowed height for the canvas
+        self.rg_data = None  # Data related to region or annotation management
+        self.current_box = None  # Stores the currently selected or active bounding box
+        self.imgh = None  # Height of the current image
+        self.imgw = None  # Width of the current image
 
         # Button frame with buttons
         button_frame = self.tk.Frame(self.master)
@@ -77,6 +96,9 @@ class ParkingPtsSelection:
             ("Save", self.save_to_json),
         ]:
             self.tk.Button(button_frame, text=text, command=cmd).pack(side=self.tk.LEFT)
+
+        self.initialize_properties()
+        self.master.mainloop()
 
     def initialize_properties(self):
         """Initialize properties for image, canvas, bounding boxes, and dimensions."""
@@ -103,7 +125,7 @@ class ParkingPtsSelection:
         )
 
         self.canvas.config(width=canvas_width, height=canvas_height)
-        self.canvas_image = ImageTk.PhotoImage(self.image.resize((canvas_width, canvas_height), Image.LANCZOS))
+        self.canvas_image = ImageTk.PhotoImage(self.image.resize((canvas_width, canvas_height)))
         self.canvas.create_image(0, 0, anchor=self.tk.NW, image=self.canvas_image)
         self.canvas.bind("<Button-1>", self.on_canvas_click)
 
@@ -142,8 +164,13 @@ class ParkingPtsSelection:
         """Saves the selected parking zone points to a JSON file with scaled coordinates."""
         scale_w, scale_h = self.imgw / self.canvas.winfo_width(), self.imgh / self.canvas.winfo_height()
         data = [{"points": [(int(x * scale_w), int(y * scale_h)) for x, y in box]} for box in self.rg_data]
-        with open("bounding_boxes.json", "w") as f:
-            json.dump(data, f, indent=4)
+
+        from io import StringIO  # Function level import, as it's only required to store coordinates, not every frame
+
+        write_buffer = StringIO()
+        json.dump(data, write_buffer, indent=4)
+        with open("bounding_boxes.json", "w", encoding="utf-8") as f:
+            f.write(write_buffer.getvalue())
         self.messagebox.showinfo("Success", "Bounding boxes saved to bounding_boxes.json")
 
 
@@ -167,7 +194,7 @@ class ParkingManagement(BaseSolution):
 
     Examples:
         >>> from ultralytics.solutions import ParkingManagement
-        >>> parking_manager = ParkingManagement(model="yolov8n.pt", json_file="parking_regions.json")
+        >>> parking_manager = ParkingManagement(model="yolo11n.pt", json_file="parking_regions.json")
         >>> print(f"Occupied spaces: {parking_manager.pr_info['Occupancy']}")
         >>> print(f"Available spaces: {parking_manager.pr_info['Available']}")
     """
