@@ -54,14 +54,11 @@ from .block import (
     RepVGGDW,
     ResNetLayer,
     SCDown,
-<<<<<<< HEAD
     CSPNeXtBottleneck,
     CSPNeXtBlock,
     STEM,
-    SPIUpResolution
-=======
+    SPIUpResolution,
     TorchVision,
->>>>>>> main_tracker
 )
 from .conv import (
     CBAM,
@@ -163,14 +160,11 @@ __all__ = (
     "C2fCIB",
     "Attention",
     "PSA",
-<<<<<<< HEAD
     "SPIUpResolution",
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
-    "STEM"
-=======
+    "STEM",
     "TorchVision",
     "Index",
     "A2C2f",
->>>>>>> main_tracker
 )

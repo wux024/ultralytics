@@ -49,14 +49,11 @@ __all__ = (
     "Attention",
     "PSA",
     "SCDown",
-<<<<<<< HEAD
     "STEM",
     "CSPNeXtBottleneck",
     "CSPNeXtBlock",
     "SPIUpResolution"
-=======
     "TorchVision",
->>>>>>> main_tracker
 )
 
 
@@ -1116,7 +1113,6 @@ class SCDown(nn.Module):
         """Applies convolution and downsampling to the input tensor in the SCDown module."""
         return self.cv2(self.cv1(x))
 
-<<<<<<< HEAD
 class STEM(nn.Module):
     """
     Spatial-Channel Excitation module.
@@ -1231,8 +1227,6 @@ class SPIUpResolution(nn.Module):
         # deconv2
         x = self.deconv2(x)
         return x
-        
-=======
 
 class TorchVision(nn.Module):
     """
@@ -1480,4 +1474,3 @@ class A2C2f(nn.Module):
         if self.gamma is not None:
             return x + self.gamma.view(-1, len(self.gamma), 1, 1) * y
         return y
->>>>>>> main_tracker

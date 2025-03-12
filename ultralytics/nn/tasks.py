@@ -1067,7 +1067,6 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             args = [c1, c2, *args[1:]]
         elif m is CBFuse:
             c2 = ch[f[-1]]
-<<<<<<< HEAD
         elif m is STEM:
             c1, c2 = ch[f], int(args[0] * width)
             args = [c1, c2]
@@ -1078,12 +1077,10 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
         elif m is SPIUpResolution:
             c1, c2 = ch[f], args[0]
             args = [c1, c2]
-=======
         elif m in frozenset({TorchVision, Index}):
             c2 = args[0]
             c1 = ch[f]
             args = [*args[1:]]
->>>>>>> main_tracker
         else:
             c2 = ch[f]
 
@@ -1134,7 +1131,6 @@ def guess_model_scale(model_path):
         (str): The size character of the model's scale, which can be n, s, m, l, or x.
     """
     try:
-<<<<<<< HEAD
         stem = Path(model_path).stem
         match_yolo = re.search(r"yolo[v]?\d+([nslmx])", stem)
         if match_yolo:
@@ -1145,9 +1141,7 @@ def guess_model_scale(model_path):
         match_spipose = re.search(r"spipose-([nslmx])", stem)
         if match_spipose:
             return match_spipose.group(1)
-=======
         return re.search(r"yolo[v]?\d+([nslmx])", Path(model_path).stem).group(1)  # returns n, s, m, l, or x
->>>>>>> main_tracker
     except AttributeError:
         return ""
 
