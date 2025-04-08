@@ -228,7 +228,7 @@ def convert_coco(
     lvis=False,
 ):
     """
-    Converts COCO dataset annotations to a YOLO annotation format  suitable for training YOLO models.
+    Converts COCO dataset annotations to a YOLO annotation format suitable for training YOLO models.
 
     Args:
         labels_dir (str, optional): Path to directory containing COCO dataset annotation files.
@@ -589,9 +589,9 @@ def yolo_bbox2segment(im_dir, save_dir=None, sam_model="sam_b.pt", device=None):
     Args:
         im_dir (str | Path): Path to image directory to convert.
         save_dir (str | Path): Path to save the generated labels, labels will be saved
-            into `labels-segment` in the same directory level of `im_dir` if save_dir is None. Default: None.
-        sam_model (str): Segmentation model to use for intermediate segmentation data; optional.
-        device (int | str): The specific device to run SAM models. Default: None.
+            into `labels-segment` in the same directory level of `im_dir` if save_dir is None.
+        sam_model (str): Segmentation model to use for intermediate segmentation data.
+        device (int | str): The specific device to run SAM models.
 
     Notes:
         The input directory structure assumed for dataset:
