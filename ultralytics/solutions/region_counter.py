@@ -15,11 +15,11 @@ class RegionCounter(BaseSolution):
     counting in specified areas, such as monitoring zones or segmented sections.
 
     Attributes:
-        region_template (Dict): Template for creating new counting regions with default attributes including name,
+        region_template (dict): Template for creating new counting regions with default attributes including name,
             polygon coordinates, and display colors.
-        counting_regions (List): List storing all defined regions, where each entry is based on `region_template`
+        counting_regions (list): List storing all defined regions, where each entry is based on `region_template`
             and includes specific region settings like name, coordinates, and color.
-        region_counts (Dict): Dictionary storing the count of objects for each named region.
+        region_counts (dict): Dictionary storing the count of objects for each named region.
 
     Methods:
         add_region: Adds a new counting region with specified attributes.
@@ -42,13 +42,13 @@ class RegionCounter(BaseSolution):
 
     def add_region(self, name, polygon_points, region_color, text_color):
         """
-        Adds a new region to the counting list based on the provided template with specific attributes.
+        Add a new region to the counting list based on the provided template with specific attributes.
 
         Args:
             name (str): Name assigned to the new region.
             polygon_points (List[Tuple]): List of (x, y) coordinates defining the region's polygon.
-            region_color (Tuple): BGR color for region visualization.
-            text_color (Tuple): BGR color for the text within the region.
+            region_color (tuple): BGR color for region visualization.
+            text_color (tuple): BGR color for the text within the region.
         """
         region = self.region_template.copy()
         region.update(
@@ -63,14 +63,14 @@ class RegionCounter(BaseSolution):
 
     def process(self, im0):
         """
-        Processes the input frame to detect and count objects within each defined region.
+        Process the input frame to detect and count objects within each defined region.
 
         Args:
             im0 (np.ndarray): Input image frame where objects and regions are annotated.
 
         Returns:
             (SolutionResults): Contains processed image `plot_im`, 'total_tracks' (int, total number of tracked objects),
-                and 'region_counts' (Dict, counts of objects per region).
+                and 'region_counts' (dict, counts of objects per region).
         """
         self.extract_tracks(im0)
         annotator = SolutionAnnotator(im0, line_width=self.line_width)

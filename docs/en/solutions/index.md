@@ -49,7 +49,7 @@ Here's our curated list of Ultralytics solutions that can be used to create awes
 
 !!! note "Track args"
 
-     Solutions also support some of the arguments from and `track`, including parameters such as `conf`, `line_width`, `tracker`, `model`, `show`, `verbose` and `classes`.
+     Solutions also support some of the arguments from `track`, including parameters such as `conf`, `line_width`, `tracker`, `model`, `show`, `verbose` and `classes`.
 
 {% from "macros/track-args.md" import param_table %}
 {{ param_table(["tracker", "conf", "iou", "classes", "verbose", "device"]) }}
@@ -115,9 +115,9 @@ For more details, refer to the [`SolutionResults` class documentation](https://d
     - **ARGS** (optional) are custom `arg=value` pairs, such as `show_in=True`, to override default settings.
 
 ```bash
-yolo solutions count show=True  # for object counting
+yolo solutions count show=True # for object counting
 
-yolo solutions source="path/to/video/file.mp4"  # specify video file path
+yolo solutions source="path/to/video.mp4" # specify video file path
 ```
 
 ### Contribute to Our Solutions

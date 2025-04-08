@@ -15,7 +15,7 @@ from ultralytics.utils import LOGGER, TQDM, checks, clean_url, emojis, is_online
 
 # Define Ultralytics GitHub assets maintained at https://github.com/ultralytics/assets
 GITHUB_ASSETS_REPO = "ultralytics/assets"
-GITHUB_ASSETS_NAMES = (
+GITHUB_ASSETS_NAMES = frozenset(
     [f"yolov8{k}{suffix}.pt" for k in "nsmlx" for suffix in ("", "-cls", "-seg", "-pose", "-obb", "-oiv7")]
     + [f"yolo11{k}{suffix}.pt" for k in "nsmlx" for suffix in ("", "-cls", "-seg", "-pose", "-obb")]
     + [f"yolo12{k}{suffix}.pt" for k in "nsmlx" for suffix in ("",)]  # detect models only currently
@@ -23,16 +23,20 @@ GITHUB_ASSETS_NAMES = (
     + [f"yolov3{k}u.pt" for k in ("", "-spp", "-tiny")]
     + [f"yolov8{k}-world.pt" for k in "smlx"]
     + [f"yolov8{k}-worldv2.pt" for k in "smlx"]
+    + [f"yoloe-v8{k}{suffix}.pt" for k in "sml" for suffix in ("-seg", "-seg-pf")]
+    + [f"yoloe-11{k}{suffix}.pt" for k in "sml" for suffix in ("-seg", "-seg-pf")]
     + [f"yolov9{k}.pt" for k in "tsmce"]
     + [f"yolov10{k}.pt" for k in "nsmblx"]
     + [f"yolo_nas_{k}.pt" for k in "sml"]
     + [f"sam_{k}.pt" for k in "bl"]
+    + [f"sam2_{k}.pt" for k in "blst"]
+    + [f"sam2.1_{k}.pt" for k in "blst"]
     + [f"FastSAM-{k}.pt" for k in "sx"]
     + [f"rtdetr-{k}.pt" for k in "lx"]
     + ["mobile_sam.pt"]
     + ["calibration_image_sample_data_20x128x128x3_float32.npy.zip"]
 )
-GITHUB_ASSETS_STEMS = [Path(k).stem for k in GITHUB_ASSETS_NAMES]
+GITHUB_ASSETS_STEMS = frozenset(k.rsplit(".", 1)[0] for k in GITHUB_ASSETS_NAMES)
 
 
 def is_url(url, check=False):
@@ -65,7 +69,7 @@ def is_url(url, check=False):
 
 def delete_dsstore(path, files_to_delete=(".DS_Store", "__MACOSX")):
     """
-    Deletes all ".DS_store" files under a specified directory.
+    Delete all ".DS_store" files in a specified directory.
 
     Args:
         path (str, optional): The directory path where the ".DS_store" files should be deleted.
@@ -75,7 +79,7 @@ def delete_dsstore(path, files_to_delete=(".DS_Store", "__MACOSX")):
         >>> from ultralytics.utils.downloads import delete_dsstore
         >>> delete_dsstore("path/to/dir")
 
-    Note:
+    Notes:
         ".DS_store" files are created by the Apple operating system and contain metadata about folders and files. They
         are hidden system files and can cause issues when transferring files between different operating systems.
     """
@@ -132,7 +136,7 @@ def unzip_file(file, path=None, exclude=(".DS_Store", "__MACOSX"), exist_ok=Fals
 
     Args:
         file (str | Path): The path to the zipfile to be extracted.
-        path (str, optional): The path to extract the zipfile to. Defaults to None.
+        path (str | Path, optional): The path to extract the zipfile to. Defaults to None.
         exclude (tuple, optional): A tuple of filename strings to be excluded. Defaults to ('.DS_Store', '__MACOSX').
         exist_ok (bool, optional): Whether to overwrite existing contents if they exist. Defaults to False.
         progress (bool, optional): Whether to display a progress bar. Defaults to True.
@@ -280,7 +284,7 @@ def safe_download(
         url (str): The URL of the file to be downloaded.
         file (str, optional): The filename of the downloaded file.
             If not provided, the file will be saved with the same name as the URL.
-        dir (str, optional): The directory to save the downloaded file.
+        dir (str | Path, optional): The directory to save the downloaded file.
             If not provided, the file will be saved in the current working directory.
         unzip (bool, optional): Whether to unzip the downloaded file. Default: True.
         delete (bool, optional): Whether to delete the downloaded file after unzipping. Default: False.
@@ -290,6 +294,9 @@ def safe_download(
             a successful download. Default: 1E0.
         exist_ok (bool, optional): Whether to overwrite existing contents during unzipping. Defaults to False.
         progress (bool, optional): Whether to display a progress bar during the download. Default: True.
+
+    Returns:
+        (Path | str): The path to the downloaded file or extracted directory.
 
     Examples:
         >>> from ultralytics.utils.downloads import safe_download
@@ -359,6 +366,7 @@ def safe_download(
         if delete:
             f.unlink()  # remove zip
         return unzip_dir
+    return f
 
 
 def get_github_assets(repo="ultralytics/assets", version="latest", retry=False):
@@ -372,7 +380,8 @@ def get_github_assets(repo="ultralytics/assets", version="latest", retry=False):
         retry (bool, optional): Flag to retry the request in case of a failure. Defaults to False.
 
     Returns:
-        (tuple): A tuple containing the release tag and a list of asset names.
+        (str): The release tag.
+        (List[str]): A list of asset names.
 
     Examples:
         >>> tag, assets = get_github_assets(repo="ultralytics/assets", version="latest")
@@ -392,14 +401,13 @@ def get_github_assets(repo="ultralytics/assets", version="latest", retry=False):
 
 def attempt_download_asset(file, repo="ultralytics/assets", release="v8.3.0", **kwargs):
     """
-    Attempt to download a file from GitHub release assets if it is not found locally. The function checks for the file
-    locally first, then tries to download it from the specified GitHub repository release.
+    Attempt to download a file from GitHub release assets if it is not found locally.
 
     Args:
         file (str | Path): The filename or file path to be downloaded.
         repo (str, optional): The GitHub repository in the format 'owner/repo'. Defaults to 'ultralytics/assets'.
         release (str, optional): The specific release version to be downloaded. Defaults to 'v8.3.0'.
-        **kwargs (any): Additional keyword arguments for the download process.
+        **kwargs (Any): Additional keyword arguments for the download process.
 
     Returns:
         (str): The path to the downloaded file.
@@ -448,7 +456,7 @@ def download(url, dir=Path.cwd(), unzip=True, delete=False, curl=False, threads=
     specified.
 
     Args:
-        url (str | list): The URL or list of URLs of the files to be downloaded.
+        url (str | List[str]): The URL or list of URLs of the files to be downloaded.
         dir (Path, optional): The directory where the files will be saved. Defaults to the current working directory.
         unzip (bool, optional): Flag to unzip the files after downloading. Defaults to True.
         delete (bool, optional): Flag to delete the zip files after extraction. Defaults to False.
