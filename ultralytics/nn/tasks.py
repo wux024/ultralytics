@@ -1556,16 +1556,21 @@ def guess_model_scale(model_path):
     """
     try:
         stem = Path(model_path).stem
-        match_yolo = re.search(r"yolo[v]?\d+([nslmx])", stem)
+        match_yolo = re.search(r"yolo(e-)?[v]?\d+([nslmx])", stem)
         if match_yolo:
-            return match_yolo.group(1)
+            return match_yolo.group(2)
         match_animalrtpose = re.search(r"animalrtpose-([nslmx])", stem)
         if match_animalrtpose:
             return match_animalrtpose.group(1)
         match_spipose = re.search(r"spipose-([nslmx])", stem)
         if match_spipose:
             return match_spipose.group(1)
-        return re.search(r"yolo(e-)?[v]?\d+([nslmx])", Path(model_path).stem).group(2)  # noqa
+        match_animalvitpose = re.search(r"animalvitpose-([sblh])", stem)
+        if match_animalvitpose:
+            return match_animalvitpose.group(1)
+        match_model = re.search(r"model-([nslmxh])", stem)
+        if match_model:
+            return match_model.group(1)
     except AttributeError:
         return ""
 
