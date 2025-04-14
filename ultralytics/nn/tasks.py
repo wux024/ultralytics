@@ -1537,6 +1537,8 @@ def yaml_model_load(path):
         unified_path = re.sub(r"animalrtpose-([nslmx])(.+)?$", r"animalrtpose\2", unified_path)
     if path.stem.startswith("spipose-"):
         unified_path = re.sub(r"spipose-([nslmx])(.+)?$", r"spipose\2", unified_path)
+    if path.stem.startswith("model-"):
+        unified_path = re.sub(r"model-([nbslmxh])(.+)?$", r"model\2", unified_path)
     yaml_file = check_yaml(unified_path, hard=False) or check_yaml(path)
     d = yaml_load(yaml_file)  # model dict
     d["scale"] = guess_model_scale(path)
@@ -1568,7 +1570,7 @@ def guess_model_scale(model_path):
         match_animalvitpose = re.search(r"animalvitpose-([sblh])", stem)
         if match_animalvitpose:
             return match_animalvitpose.group(1)
-        match_model = re.search(r"model-([nslmxh])", stem)
+        match_model = re.search(r"model-([nbslmxh])", stem)
         if match_model:
             return match_model.group(1)
     except AttributeError:
