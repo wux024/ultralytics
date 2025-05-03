@@ -1,6 +1,5 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-import hashlib
 import json
 import os
 import random
@@ -47,7 +46,7 @@ def img2label_paths(img_paths):
     return [sb.join(x.rsplit(sa, 1)).rsplit(".", 1)[0] + ".txt" for x in img_paths]
 
 
-def check_file_speeds(files, threshold_ms=10, max_files=5, prefix=""):
+def check_file_speeds(files, threshold_ms=10, threshold_mb=50, max_files=5, prefix=""):
     """
     Check dataset file access speed and provide performance feedback.
 
@@ -57,6 +56,7 @@ def check_file_speeds(files, threshold_ms=10, max_files=5, prefix=""):
     Args:
         files (list): List of file paths to check for access speed.
         threshold_ms (float, optional): Threshold in milliseconds for ping time warnings.
+        threshold_mb (float, optional): Threshold in megabytes per second for read speed warnings.
         max_files (int, optional): The maximum number of files to check.
         prefix (str, optional): Prefix string to add to log messages.
 
@@ -112,7 +112,7 @@ def check_file_speeds(files, threshold_ms=10, max_files=5, prefix=""):
     else:
         speed_msg = ""
 
-    if avg_ping < threshold_ms:
+    if avg_ping < threshold_ms or avg_speed < threshold_mb:
         LOGGER.info(f"{prefix}Fast image access ✅ ({ping_msg}{speed_msg}{size_msg})")
     else:
         LOGGER.warning(
@@ -130,7 +130,7 @@ def get_hash(paths):
             size += os.stat(p).st_size
         except OSError:
             continue
-    h = hashlib.sha256(str(size).encode())  # hash sizes
+    h = __import__("hashlib").sha256(str(size).encode())  # hash sizes
     h.update("".join(paths).encode())  # hash paths
     return h.hexdigest()  # return hash
 
@@ -482,6 +482,7 @@ def check_cls_dataset(dataset, split=""):
 
     Returns:
         (dict): A dictionary containing the following keys:
+
             - 'train' (Path): The directory path containing the training set of the dataset.
             - 'val' (Path): The directory path containing the validation set of the dataset.
             - 'test' (Path): The directory path containing the test set of the dataset.
