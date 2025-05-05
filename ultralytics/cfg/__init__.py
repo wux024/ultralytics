@@ -319,6 +319,13 @@ def get_cfg(cfg: Union[str, Path, Dict, SimpleNamespace] = DEFAULT_CFG_DICT, ove
     # Type and Value checks
     check_cfg(cfg)
 
+    # Set Skeleton Config
+    try:
+        from ultralytics.utils.pose_cfg import SetSkeleton
+        SetSkeleton(cfg.get("skeleton", None))
+    except:
+        pass
+
     # Return instance
     return IterableSimpleNamespace(**cfg)
 
