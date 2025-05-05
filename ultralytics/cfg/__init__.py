@@ -322,7 +322,9 @@ def get_cfg(cfg: Union[str, Path, Dict, SimpleNamespace] = DEFAULT_CFG_DICT, ove
     # Set Skeleton Config
     try:
         from ultralytics.utils.pose_cfg import SetSkeleton
-        SetSkeleton(cfg.get("skeleton", None))
+        data_cfg_path = cfg['data']
+        data_cfg = YAML.load(data_cfg_path)
+        SetSkeleton(data_cfg.get("skeleton", None))
     except:
         pass
 
