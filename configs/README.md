@@ -3,7 +3,7 @@
 Aanimal pose estimation aims to detect the keypoints of different species. It provides detailed behavioral analysis for neuroscience, medical and ecology applications. Some results are shown below.
 ![](https://s3.bmp.ovh/imgs/2024/08/19/0e1d3cc45f840729.jpg)
 
-https://github.com/wux024/ultralytics/blob/animalrtpose/configs/demo/output.mp4
+https://github.com/wux024/ultralytics/raw/refs/heads/animalrtpose/configs/demo/output.mp4
 
 ## Installation
 
