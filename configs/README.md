@@ -2,9 +2,11 @@
 
 Aanimal pose estimation aims to detect the keypoints of different species. It provides detailed behavioral analysis for neuroscience, medical and ecology applications. Some results are shown below.
 ![](https://s3.bmp.ovh/imgs/2024/08/19/0e1d3cc45f840729.jpg)
+
 <video width="640" height="480" controls>
-  <source src="demo/output.avi" type="video/avi">
+<source src="demo/output.mp4" type="video/mp4">
 </video>
+
 
 ## Installation
 
