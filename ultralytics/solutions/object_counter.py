@@ -1,7 +1,7 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
 from collections import defaultdict
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 from ultralytics.solutions.solutions import BaseSolution, SolutionAnnotator, SolutionResults
 from ultralytics.utils.plotting import colors
@@ -36,7 +36,7 @@ class ObjectCounter(BaseSolution):
         >>> print(f"Inward count: {counter.in_count}, Outward count: {counter.out_count}")
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         """Initialize the ObjectCounter class for real-time object counting in video streams."""
         super().__init__(**kwargs)
 
@@ -56,7 +56,7 @@ class ObjectCounter(BaseSolution):
         track_id: int,
         prev_position: Optional[Tuple[float, float]],
         cls: int,
-    ):
+    ) -> None:
         """
         Count objects within a polygonal or linear region based on their tracks.
 
@@ -79,8 +79,7 @@ class ObjectCounter(BaseSolution):
             return
 
         if len(self.region) == 2:  # Linear region (defined as a line segment)
-            line = self.LineString(self.region)  # Check if the line intersects the trajectory of the object
-            if line.intersects(self.LineString([prev_position, current_centroid])):
+            if self.r_s.intersects(self.LineString([prev_position, current_centroid])):
                 # Determine orientation of the region (vertical or horizontal)
                 if abs(self.region[0][0] - self.region[1][0]) < abs(self.region[0][1] - self.region[1][1]):
                     # Vertical region: Compare x-coordinates to determine direction
@@ -100,8 +99,7 @@ class ObjectCounter(BaseSolution):
                 self.counted_ids.append(track_id)
 
         elif len(self.region) > 2:  # Polygonal region
-            polygon = self.Polygon(self.region)
-            if polygon.contains(self.Point(current_centroid)):
+            if self.r_s.contains(self.Point(current_centroid)):
                 # Determine motion direction for vertical or horizontal polygons
                 region_width = max(p[0] for p in self.region) - min(p[0] for p in self.region)
                 region_height = max(p[1] for p in self.region) - min(p[1] for p in self.region)
@@ -119,7 +117,7 @@ class ObjectCounter(BaseSolution):
                     self.classwise_counts[self.names[cls]]["OUT"] += 1
                 self.counted_ids.append(track_id)
 
-    def display_counts(self, plot_im):
+    def display_counts(self, plot_im) -> None:
         """
         Display object counts on the input image or frame.
 
@@ -135,12 +133,12 @@ class ObjectCounter(BaseSolution):
             str.capitalize(key): f"{'IN ' + str(value['IN']) if self.show_in else ''} "
             f"{'OUT ' + str(value['OUT']) if self.show_out else ''}".strip()
             for key, value in self.classwise_counts.items()
-            if value["IN"] != 0 or value["OUT"] != 0
+            if value["IN"] != 0 or value["OUT"] != 0 and (self.show_in or self.show_out)
         }
         if labels_dict:
             self.annotator.display_analytics(plot_im, labels_dict, (104, 31, 17), (255, 255, 255), self.margin)
 
-    def process(self, im0):
+    def process(self, im0) -> SolutionResults:
         """
         Process input data (frames or object tracks) and update object counts.
 
