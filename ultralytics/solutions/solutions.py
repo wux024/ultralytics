@@ -1,9 +1,11 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
+from __future__ import annotations
+
 import math
-from collections import defaultdict
+from collections import Counter, defaultdict
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import cv2
 import numpy as np
@@ -135,7 +137,7 @@ class BaseSolution:
             ops.Profile(device=self.device),  # solution
         )
 
-    def adjust_box_label(self, cls: int, conf: float, track_id: Optional[int] = None) -> Optional[str]:
+    def adjust_box_label(self, cls: int, conf: float, track_id: int | None = None) -> str | None:
         """
         Generate a formatted label for a bounding box.
 
@@ -250,8 +252,10 @@ class BaseSolution:
         result.speed = {track_or_predict: track_or_predict_speed, "solution": solution_speed}
         if self.CFG["verbose"]:
             self.frame_no += 1
+            counts = Counter(self.clss)  # Only for logging.
             LOGGER.info(
-                f"{self.frame_no}: {result.plot_im.shape[0]}x{result.plot_im.shape[1]} {solution_speed:.1f}ms\n"
+                f"{self.frame_no}: {result.plot_im.shape[0]}x{result.plot_im.shape[1]} {solution_speed:.1f}ms,"
+                f" {', '.join([f'{v} {self.names[k]}' for k, v in counts.items()])}\n"
                 f"Speed: {track_or_predict_speed:.1f}ms {track_or_predict}, "
                 f"{solution_speed:.1f}ms solution per image at shape "
                 f"(1, {getattr(self.model, 'ch', 3)}, {result.plot_im.shape[0]}, {result.plot_im.shape[1]})\n"
@@ -287,8 +291,7 @@ class SolutionAnnotator(Annotator):
         display_objects_labels: Annotate bounding boxes with object class labels.
         sweep_annotator: Visualize a vertical sweep line and optional label.
         visioneye: Map and connect object centroids to a visual "eye" point.
-        circle_label: Draw a circular label within a bounding box.
-        text_label: Draw a rectangular label within a bounding box.
+        adaptive_label: Draw a circular or rectangle background shape label in center of a bounding box.
 
     Examples:
         >>> annotator = SolutionAnnotator(image)
@@ -301,8 +304,8 @@ class SolutionAnnotator(Annotator):
     def __init__(
         self,
         im: np.ndarray,
-        line_width: Optional[int] = None,
-        font_size: Optional[int] = None,
+        line_width: int | None = None,
+        font_size: int | None = None,
         font: str = "Arial.ttf",
         pil: bool = False,
         example: str = "abc",
@@ -322,8 +325,8 @@ class SolutionAnnotator(Annotator):
 
     def draw_region(
         self,
-        reg_pts: Optional[List[Tuple[int, int]]] = None,
-        color: Tuple[int, int, int] = (0, 255, 0),
+        reg_pts: list[tuple[int, int]] | None = None,
+        color: tuple[int, int, int] = (0, 255, 0),
         thickness: int = 5,
     ):
         """
@@ -343,9 +346,9 @@ class SolutionAnnotator(Annotator):
     def queue_counts_display(
         self,
         label: str,
-        points: Optional[List[Tuple[int, int]]] = None,
-        region_color: Tuple[int, int, int] = (255, 255, 255),
-        txt_color: Tuple[int, int, int] = (0, 0, 0),
+        points: list[tuple[int, int]] | None = None,
+        region_color: tuple[int, int, int] = (255, 255, 255),
+        txt_color: tuple[int, int, int] = (0, 0, 0),
     ):
         """
         Display queue counts on an image centered at the points with customizable font size and colors.
@@ -389,9 +392,9 @@ class SolutionAnnotator(Annotator):
     def display_analytics(
         self,
         im0: np.ndarray,
-        text: Dict[str, Any],
-        txt_color: Tuple[int, int, int],
-        bg_color: Tuple[int, int, int],
+        text: dict[str, Any],
+        txt_color: tuple[int, int, int],
+        bg_color: tuple[int, int, int],
         margin: int,
     ):
         """
@@ -424,7 +427,7 @@ class SolutionAnnotator(Annotator):
 
     @staticmethod
     @lru_cache(maxsize=256)
-    def estimate_pose_angle(a: List[float], b: List[float], c: List[float]) -> float:
+    def estimate_pose_angle(a: list[float], b: list[float], c: list[float]) -> float:
         """
         Calculate the angle between three points for workout monitoring.
 
@@ -442,8 +445,8 @@ class SolutionAnnotator(Annotator):
 
     def draw_specific_kpts(
         self,
-        keypoints: List[List[float]],
-        indices: Optional[List[int]] = None,
+        keypoints: list[list[float]],
+        indices: list[int] | None = None,
         radius: int = 2,
         conf_thresh: float = 0.25,
     ) -> np.ndarray:
@@ -479,9 +482,9 @@ class SolutionAnnotator(Annotator):
     def plot_workout_information(
         self,
         display_text: str,
-        position: Tuple[int, int],
-        color: Tuple[int, int, int] = (104, 31, 17),
-        txt_color: Tuple[int, int, int] = (255, 255, 255),
+        position: tuple[int, int],
+        color: tuple[int, int, int] = (104, 31, 17),
+        txt_color: tuple[int, int, int] = (255, 255, 255),
     ) -> int:
         """
         Draw workout text with a background on the image.
@@ -515,9 +518,9 @@ class SolutionAnnotator(Annotator):
         angle_text: str,
         count_text: str,
         stage_text: str,
-        center_kpt: List[int],
-        color: Tuple[int, int, int] = (104, 31, 17),
-        txt_color: Tuple[int, int, int] = (255, 255, 255),
+        center_kpt: list[int],
+        color: tuple[int, int, int] = (104, 31, 17),
+        txt_color: tuple[int, int, int] = (255, 255, 255),
     ):
         """
         Plot the pose angle, count value, and step stage for workout monitoring.
@@ -547,9 +550,9 @@ class SolutionAnnotator(Annotator):
     def plot_distance_and_line(
         self,
         pixels_distance: float,
-        centroids: List[Tuple[int, int]],
-        line_color: Tuple[int, int, int] = (104, 31, 17),
-        centroid_color: Tuple[int, int, int] = (255, 0, 255),
+        centroids: list[tuple[int, int]],
+        line_color: tuple[int, int, int] = (104, 31, 17),
+        centroid_color: tuple[int, int, int] = (255, 0, 255),
     ):
         """
         Plot the distance and line between two centroids on the frame.
@@ -588,8 +591,8 @@ class SolutionAnnotator(Annotator):
         self,
         im0: np.ndarray,
         text: str,
-        txt_color: Tuple[int, int, int],
-        bg_color: Tuple[int, int, int],
+        txt_color: tuple[int, int, int],
+        bg_color: tuple[int, int, int],
         x_center: float,
         y_center: float,
         margin: int,
@@ -637,9 +640,9 @@ class SolutionAnnotator(Annotator):
         self,
         line_x: int = 0,
         line_y: int = 0,
-        label: Optional[str] = None,
-        color: Tuple[int, int, int] = (221, 0, 186),
-        txt_color: Tuple[int, int, int] = (255, 255, 255),
+        label: str | None = None,
+        color: tuple[int, int, int] = (221, 0, 186),
+        txt_color: tuple[int, int, int] = (255, 255, 255),
     ):
         """
         Draw a sweep annotation line and an optional label.
@@ -676,10 +679,10 @@ class SolutionAnnotator(Annotator):
 
     def visioneye(
         self,
-        box: List[float],
-        center_point: Tuple[int, int],
-        color: Tuple[int, int, int] = (235, 219, 11),
-        pin_color: Tuple[int, int, int] = (255, 0, 255),
+        box: list[float],
+        center_point: tuple[int, int],
+        color: tuple[int, int, int] = (235, 219, 11),
+        pin_color: tuple[int, int, int] = (255, 0, 255),
     ):
         """
         Perform pinpoint human-vision eye mapping and plotting.
@@ -695,90 +698,58 @@ class SolutionAnnotator(Annotator):
         cv2.circle(self.im, center_bbox, self.tf * 2, color, -1)
         cv2.line(self.im, center_point, center_bbox, color, self.tf)
 
-    def circle_label(
+    def adaptive_label(
         self,
-        box: Tuple[float, float, float, float],
+        box: tuple[float, float, float, float],
         label: str = "",
-        color: Tuple[int, int, int] = (128, 128, 128),
-        txt_color: Tuple[int, int, int] = (255, 255, 255),
-        margin: int = 2,
-    ):
-        """
-        Draw a label with a background circle centered within a given bounding box.
-
-        Args:
-            box (Tuple[float, float, float, float]): The bounding box coordinates (x1, y1, x2, y2).
-            label (str): The text label to be displayed.
-            color (Tuple[int, int, int]): The background color of the circle (B, G, R).
-            txt_color (Tuple[int, int, int]): The color of the text (R, G, B).
-            margin (int): The margin between the text and the circle border.
-        """
-        if len(label) > 3:
-            LOGGER.warning(f"Length of label is {len(label)}, only first 3 letters will be used for circle annotation.")
-            label = label[:3]
-
-        # Calculate the center of the box
-        x_center, y_center = int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)
-        # Get the text size
-        text_size = cv2.getTextSize(str(label), cv2.FONT_HERSHEY_SIMPLEX, self.sf - 0.15, self.tf)[0]
-        # Calculate the required radius to fit the text with the margin
-        required_radius = int(((text_size[0] ** 2 + text_size[1] ** 2) ** 0.5) / 2) + margin
-        # Draw the circle with the required radius
-        cv2.circle(self.im, (x_center, y_center), required_radius, color, -1)
-        # Calculate the position for the text
-        text_x = x_center - text_size[0] // 2
-        text_y = y_center + text_size[1] // 2
-        # Draw the text
-        cv2.putText(
-            self.im,
-            str(label),
-            (text_x, text_y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            self.sf - 0.15,
-            self.get_txt_color(color, txt_color),
-            self.tf,
-            lineType=cv2.LINE_AA,
-        )
-
-    def text_label(
-        self,
-        box: Tuple[float, float, float, float],
-        label: str = "",
-        color: Tuple[int, int, int] = (128, 128, 128),
-        txt_color: Tuple[int, int, int] = (255, 255, 255),
+        color: tuple[int, int, int] = (128, 128, 128),
+        txt_color: tuple[int, int, int] = (255, 255, 255),
+        shape: str = "rect",
         margin: int = 5,
     ):
         """
-        Draw a label with a background rectangle centered within a given bounding box.
+        Draw a label with a background rectangle or circle centered within a given bounding box.
 
         Args:
             box (Tuple[float, float, float, float]): The bounding box coordinates (x1, y1, x2, y2).
             label (str): The text label to be displayed.
             color (Tuple[int, int, int]): The background color of the rectangle (B, G, R).
             txt_color (Tuple[int, int, int]): The color of the text (R, G, B).
+            shape (str): The shape of the label i.e "circle" or "rect"
             margin (int): The margin between the text and the rectangle border.
         """
-        # Calculate the center of the bounding box
-        x_center, y_center = int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)
-        # Get the size of the text
-        text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, self.sf - 0.1, self.tf)[0]
-        # Calculate the top-left corner of the text (to center it)
-        text_x = x_center - text_size[0] // 2
-        text_y = y_center + text_size[1] // 2
-        # Calculate the coordinates of the background rectangle
-        rect_x1 = text_x - margin
-        rect_y1 = text_y - text_size[1] - margin
-        rect_x2 = text_x + text_size[0] + margin
-        rect_y2 = text_y + margin
-        # Draw the background rectangle
-        cv2.rectangle(self.im, (rect_x1, rect_y1), (rect_x2, rect_y2), color, -1)
+        if shape == "circle" and len(label) > 3:
+            LOGGER.warning(f"Length of label is {len(label)}, only first 3 letters will be used for circle annotation.")
+            label = label[:3]
+
+        x_center, y_center = int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)  # Calculate center of the bbox
+        text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, self.sf - 0.15, self.tf)[0]  # Get size of the text
+        text_x, text_y = x_center - text_size[0] // 2, y_center + text_size[1] // 2  # Calculate top-left corner of text
+
+        if shape == "circle":
+            cv2.circle(
+                self.im,
+                (x_center, y_center),
+                int(((text_size[0] ** 2 + text_size[1] ** 2) ** 0.5) / 2) + margin,  # Calculate the radius
+                color,
+                -1,
+            )
+        else:
+            cv2.rectangle(
+                self.im,
+                (text_x - margin, text_y - text_size[1] - margin),  # Calculate coordinates of the rectangle
+                (text_x + text_size[0] + margin, text_y + margin),  # Calculate coordinates of the rectangle
+                color,
+                -1,
+            )
+
         # Draw the text on top of the rectangle
         cv2.putText(
             self.im,
             label,
-            (text_x, text_y),
+            (text_x, text_y),  # Calculate top-left corner of the text
             cv2.FONT_HERSHEY_SIMPLEX,
-            self.sf - 0.1,
+            self.sf - 0.15,
             self.get_txt_color(color, txt_color),
             self.tf,
             lineType=cv2.LINE_AA,
